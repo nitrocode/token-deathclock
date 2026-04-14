@@ -160,7 +160,7 @@ Tests are in `tests/death-clock.test.js` and cover all pure functions in `death-
 - [ ] Add a test that asserts `getCurrentTokens()` grows with time rather than resetting on reload.
 
 #### Priority 5 — Developer experience
-- [ ] Add `.nvmrc` to pin the Node.js version.
-- [ ] Add `.editorconfig` or a Prettier config for consistent formatting.
-- [ ] Add a `"homepage"` field in `package.json` matching the GitHub Pages URL.
-- [ ] Add a `CHANGELOG.md` to track releases.
+- [x] Add `.nvmrc` to pin the Node.js version.
+- [x] Add `.editorconfig` or a Prettier config for consistent formatting.
+- [x] Add a `"homepage"` field in `package.json` matching the GitHub Pages URL.
+- [x] Add a `CHANGELOG.md` to track releases.
