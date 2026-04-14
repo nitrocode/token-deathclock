@@ -134,7 +134,7 @@ Tests are in `tests/death-clock.test.js` and cover all pure functions in `death-
 | **Documentation** | 12/20 | Good README; AGENTS.md added; missing CONTRIBUTING.md, LICENSE |
 | **CI / CD** | 9/10 | Test + deploy workflows both present and functional |
 | **Accessibility** | 7/10 | ARIA live regions, roles, and values; dark/light toggle |
-| **Security** | 6/10 | `escHtml` guards all dynamic content; no CSP headers |
+| **Security** | 9/10 | `escHtml` guards all dynamic content; CSP meta tag restricts scripts/fonts/styles; Chart.js pinned with SRI hash |
 | **Bug count** | 3/10 | `getCurrentTokens()` used `pageLoadTime` instead of `BASE_DATE_ISO`, causing the total counter to restart at `BASE_TOKENS` on every page load |
 | **Community files** | 0/10 | No LICENSE, no CONTRIBUTING.md, no SECURITY.md |
 
@@ -150,9 +150,9 @@ Tests are in `tests/death-clock.test.js` and cover all pure functions in `death-
 - [ ] Add a `CODEOWNERS` file to set review requirements.
 
 #### Priority 3 — Security hardening
-- [ ] Add a `Content-Security-Policy` meta tag in `index.html` to restrict inline scripts and limit allowed CDN origins (Chart.js, Google Fonts).
-- [ ] Pin the Chart.js CDN URL to a known-good SRI hash.
-- [ ] Add Dependabot config (`.github/dependabot.yml`) for automatic npm and GitHub Actions version bumps.
+- [x] Add a `Content-Security-Policy` meta tag in `index.html` to restrict inline scripts and limit allowed CDN origins (Chart.js, Google Fonts).
+- [x] Pin the Chart.js CDN URL to a known-good SRI hash.
+- [x] Add Dependabot config (`.github/dependabot.yml`) for automatic npm and GitHub Actions version bumps.
 
 #### Priority 4 — Test completeness
 - [ ] Add integration / smoke tests for `script.js` DOM logic using `jest-environment-jsdom`.
