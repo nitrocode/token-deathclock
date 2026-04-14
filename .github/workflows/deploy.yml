@@ -5,35 +5,30 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Allow only one deployment at a time
+# Allow only one production deployment at a time
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 jobs:
   deploy:
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+      url: https://nitrocode.github.io/token-deathclock/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to GitHub Pages (gh-pages branch)
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          # Serve entire repository root (index.html, styles.css, script.js, death-clock-core.js)
-          path: '.'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          # Preserve any existing PR preview directories across production deploys
+          keep_files: true
+          # Exclude non-site files from the deployment
+          exclude_assets: '.github,node_modules,tests,package-lock.json,package.json'

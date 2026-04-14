@@ -28,8 +28,10 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 │   └── death-clock.test.js ← 75 Jest unit tests for death-clock-core.js
 └── .github/
     └── workflows/
-        ├── deploy.yml      ← Deploys index.html etc. to GitHub Pages on push to main
-        └── test.yml        ← Runs `npm run test:ci` on every push / PR
+        ├── deploy.yml          ← Deploys site to gh-pages branch (production) on push to main
+        ├── preview.yml         ← Deploys PR preview to previews/pr-N/ and posts URL comment
+        ├── preview-cleanup.yml ← Removes preview directory when a PR is closed
+        └── test.yml            ← Runs `npm run test:ci` on every push / PR
 ```
 
 ---
@@ -95,7 +97,17 @@ Keep the array sorted in ascending `tokens` order — the constants test enforce
 Edit `styles.css`. CSS custom properties for colours live in `:root[data-theme="dark"]` and `:root[data-theme="light"]`. The theme toggle is managed by `applyTheme()` in `script.js`.
 
 ### Deployment
-Merging to `main` triggers the `deploy.yml` workflow automatically. No manual steps are required after the one-time GitHub Pages source has been set to **GitHub Actions** in repository settings.
+Merging to `main` triggers the `deploy.yml` workflow automatically. It pushes the static site to the `gh-pages` branch (root).
+
+**One-time repo setup required** (only needs to be done once by a maintainer):
+> Settings → Pages → Source → **Deploy from a branch** → Branch: `gh-pages` / `(root)` → Save.
+
+### PR Preview URLs
+Every pull request automatically gets a live preview URL:
+- Triggered by `preview.yml` on `pull_request` (opened / synchronize / reopened)
+- Deployed to: `https://nitrocode.github.io/token-deathclock/previews/pr-{number}/`
+- A bot comment is posted (and updated) on the PR with the link
+- Preview directory is removed automatically by `preview-cleanup.yml` when the PR is closed
 
 ---
 
