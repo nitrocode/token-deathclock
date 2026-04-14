@@ -28,8 +28,6 @@ const MIN_HTML = `
   <span id="statTrees"></span>
   <div id="milestonesGrid"></div>
   <table><tbody id="predictionsBody"></tbody></table>
-  <div id="scoring-content"></div>
-  <button id="scoringToggle">&#9658; Show Scoring Details</button>
   <canvas id="tokenChart"></canvas>
 `;
 
@@ -61,6 +59,12 @@ function loadScript() {
   // The evaluated code is a local static file (no user input), so there is no XSS risk.
   // eslint-disable-next-line no-eval
   eval(scriptCode);
+  // In some jsdom versions, document.readyState is 'loading' when innerHTML is set,
+  // which causes script.js to defer init() via DOMContentLoaded instead of running it
+  // synchronously. Fire the event to ensure init() always runs before we inspect state.
+  if (!global.requestAnimationFrame.mock.calls.length) {
+    document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true }));
+  }
   // Capture the updateCounters callback that init() passed to requestAnimationFrame.
   updateCountersFn = global.requestAnimationFrame.mock.calls[0]?.[0] || null;
 }
@@ -131,20 +135,6 @@ describe('renderPredictionsTable (DOM)', () => {
 });
 
 // ============================================================
-// renderScoring
-// ============================================================
-describe('renderScoring (DOM)', () => {
-  test('fills the scoring-content container with content', () => {
-    const el = document.getElementById('scoring-content');
-    expect(el.innerHTML.length).toBeGreaterThan(0);
-  });
-
-  test('contains score-badge elements', () => {
-    expect(document.getElementById('scoring-content').innerHTML).toContain('badge-score');
-  });
-});
-
-// ============================================================
 // Theme toggle
 // ============================================================
 describe('Theme toggle (DOM)', () => {
@@ -166,26 +156,6 @@ describe('Theme toggle (DOM)', () => {
     expect(btn.textContent).toContain('Dark Mode');
     btn.click(); // light -> dark
     expect(btn.textContent).toContain('Light Mode');
-  });
-});
-
-// ============================================================
-// Collapsible scoring panel
-// ============================================================
-describe('Scoring toggle (DOM)', () => {
-  test('clicking the toggle button opens the content panel', () => {
-    const btn = document.getElementById('scoringToggle');
-    const content = document.getElementById('scoring-content');
-    btn.click();
-    expect(content.classList.contains('open')).toBe(true);
-  });
-
-  test('aria-expanded tracks the open/closed state', () => {
-    const btn = document.getElementById('scoringToggle');
-    btn.click();
-    expect(btn.getAttribute('aria-expanded')).toBe('true');
-    btn.click();
-    expect(btn.getAttribute('aria-expanded')).toBe('false');
   });
 });
 

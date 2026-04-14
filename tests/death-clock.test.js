@@ -19,12 +19,10 @@ const {
   formatDate,
   getTimeDelta,
   milestoneProgress,
-  computePromptScore,
   MILESTONES,
   HISTORICAL_DATA,
   BASE_TOKENS,
   TOKENS_PER_SECOND,
-  PROMPT_SCORING,
 } = core;
 
 // ============================================================
@@ -108,6 +106,10 @@ describe('formatTokenCountShort', () => {
   test('handles small numbers (below 1 million)', () => {
     expect(formatTokenCountShort(999)).toBe('999');
     expect(formatTokenCountShort(42)).toBe('42');
+  });
+
+  test('quintillion abbreviation', () => {
+    expect(formatTokenCountShort(3e18)).toContain("Q'l");
   });
 });
 
@@ -390,40 +392,6 @@ describe('milestoneProgress', () => {
 
   test('does not go below 0', () => {
     expect(milestoneProgress(-100, 0, 1000)).toBe(0);
-  });
-});
-
-// ============================================================
-// computePromptScore
-// ============================================================
-describe('computePromptScore', () => {
-  test('returns an object with totalInitial, totalFinal, maxScore, percentage', () => {
-    const result = computePromptScore(PROMPT_SCORING);
-    expect(result).toHaveProperty('totalInitial');
-    expect(result).toHaveProperty('totalFinal');
-    expect(result).toHaveProperty('maxScore');
-    expect(result).toHaveProperty('percentage');
-  });
-
-  test('totalFinal is at least totalInitial (implementing recs improves score)', () => {
-    const result = computePromptScore(PROMPT_SCORING);
-    expect(result.totalFinal).toBeGreaterThanOrEqual(result.totalInitial);
-  });
-
-  test('totalFinal does not exceed maxScore', () => {
-    const result = computePromptScore(PROMPT_SCORING);
-    expect(result.totalFinal).toBeLessThanOrEqual(result.maxScore);
-  });
-
-  test('percentage is 0–100', () => {
-    const result = computePromptScore(PROMPT_SCORING);
-    expect(result.percentage).toBeGreaterThanOrEqual(0);
-    expect(result.percentage).toBeLessThanOrEqual(100);
-  });
-
-  test('handles empty categories', () => {
-    const result = computePromptScore({ categories: [] });
-    expect(result.maxScore).toBe(0);
   });
 });
 

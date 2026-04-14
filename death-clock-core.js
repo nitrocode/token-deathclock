@@ -149,72 +149,6 @@ const MILESTONES = [
   },
 ];
 
-// Prompt / PR scoring rubric
-const PROMPT_SCORING = {
-  promptTitle: 'Death Clock GitHub Page',
-  initialScore: 74,
-  finalScore: 94,
-  categories: [
-    {
-      name: 'Clarity of Intent',
-      initial: 18,
-      max: 20,
-      notes: 'Clear goal. Minor ambiguity in "life essential".',
-      recommendations: [
-        { text: 'Define "life essential" categories explicitly', impact: '+2', implemented: true },
-      ],
-    },
-    {
-      name: 'Specificity of Requirements',
-      initial: 12,
-      max: 20,
-      notes: 'Good feature list but no exact token thresholds or data-source citations.',
-      recommendations: [
-        { text: 'Specify exact token thresholds for each milestone', impact: '+4', implemented: true },
-        { text: 'Define preferred charting library', impact: '+2', implemented: true },
-        { text: 'Cite data sources for environmental correlations', impact: '+2', implemented: true },
-      ],
-    },
-    {
-      name: 'Technical Completeness',
-      initial: 10,
-      max: 20,
-      notes: 'Missing deployment config details, test-framework preference, responsive-design specs.',
-      recommendations: [
-        { text: 'Specify test framework (Jest, Vitest, …)', impact: '+3', implemented: true },
-        { text: 'Include GitHub Pages deployment configuration', impact: '+4', implemented: true },
-        { text: 'Specify responsive-design requirements', impact: '+3', implemented: true },
-      ],
-    },
-    {
-      name: 'Creative Direction',
-      initial: 14,
-      max: 15,
-      notes: '"Make it cool" is vague but allows creative freedom.',
-      recommendations: [
-        { text: 'Define visual style with a mood-board or colour palette', impact: '+1', implemented: true },
-      ],
-    },
-    {
-      name: 'Testing Requirements',
-      initial: 10,
-      max: 15,
-      notes: '"Unit test it all" is good but no coverage target is specified.',
-      recommendations: [
-        { text: 'Specify minimum test coverage percentage', impact: '+3', implemented: false },
-        { text: 'List specific test scenarios', impact: '+2', implemented: false },
-      ],
-    },
-    {
-      name: 'Attribution & Ownership',
-      initial: 10,
-      max: 10,
-      notes: 'Clear attribution ("Created by RB"). Perfectly specified.',
-      recommendations: [],
-    },
-  ],
-};
-
 // ============================================================
 // PURE UTILITY FUNCTIONS
 // ============================================================
@@ -386,35 +320,6 @@ function milestoneProgress(tokens, prevMilestoneTokens, nextMilestoneTokens) {
   return Math.min(100, Math.max(0, pct));
 }
 
-/**
- * Compute the total scored points and percentage for the prompt scoring.
- * @param {Object} scoring - PROMPT_SCORING object
- * @returns {{ totalInitial: number, totalFinal: number, maxScore: number, percentage: number }}
- */
-function computePromptScore(scoring) {
-  let totalInitial = 0;
-  let maxScore = 0;
-  let totalBonus = 0;
-
-  for (const cat of scoring.categories) {
-    totalInitial += cat.initial;
-    maxScore += cat.max;
-    for (const rec of cat.recommendations) {
-      if (rec.implemented) {
-        totalBonus += parseInt(rec.impact, 10) || 0;
-      }
-    }
-  }
-
-  const totalFinal = Math.min(totalInitial + totalBonus, maxScore);
-  return {
-    totalInitial,
-    totalFinal,
-    maxScore,
-    percentage: Math.round((totalFinal / maxScore) * 100),
-  };
-}
-
 // ============================================================
 // EXPORTS — CommonJS for Jest; window global for the browser
 // ============================================================
@@ -424,7 +329,6 @@ const DeathClockCore = {
   BASE_DATE_ISO,
   HISTORICAL_DATA,
   MILESTONES,
-  PROMPT_SCORING,
   formatTokenCount,
   formatTokenCountShort,
   getTriggeredMilestones,
@@ -435,7 +339,6 @@ const DeathClockCore = {
   formatDate,
   getTimeDelta,
   milestoneProgress,
-  computePromptScore,
 };
 
 if (typeof module !== 'undefined' && module.exports) {
