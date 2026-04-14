@@ -104,6 +104,11 @@ describe('formatTokenCountShort', () => {
   test('handles NaN', () => {
     expect(formatTokenCountShort(NaN)).toBe('0');
   });
+
+  test('handles small numbers (below 1 million)', () => {
+    expect(formatTokenCountShort(999)).toBe('999');
+    expect(formatTokenCountShort(42)).toBe('42');
+  });
 });
 
 // ============================================================
@@ -480,5 +485,23 @@ describe('Constants', () => {
         new Date(HISTORICAL_DATA[i - 1].date).getTime()
       );
     }
+  });
+});
+
+// ============================================================
+// Browser window export (lines 443-444)
+// ============================================================
+describe('Browser window export', () => {
+  test('sets window.DeathClockCore when module is not available', () => {
+    const vm = require('vm');
+    const fs = require('fs');
+    const path = require('path');
+    const code = fs.readFileSync(path.join(__dirname, '../death-clock-core.js'), 'utf8');
+    // Run in a sandbox where `module` is undefined and `window` is available.
+    // This exercises the `else if (typeof window !== 'undefined')` branch (lines 443-444).
+    const sandboxWindow = {};
+    vm.runInNewContext(code, { window: sandboxWindow });
+    expect(typeof sandboxWindow.DeathClockCore).toBe('object');
+    expect(typeof sandboxWindow.DeathClockCore.formatTokenCount).toBe('function');
   });
 });
