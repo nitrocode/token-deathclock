@@ -11,6 +11,7 @@
   const {
     BASE_TOKENS,
     TOKENS_PER_SECOND,
+    BASE_DATE_ISO,
     HISTORICAL_DATA,
     MILESTONES,
     PROMPT_SCORING,
@@ -29,12 +30,13 @@
 
   // ---- State -----------------------------------------------
   const pageLoadTime = Date.now();
+  const baseDateTime = new Date(BASE_DATE_ISO).getTime();
   let currentTheme = 'dark';
   let chartInstance = null;
 
   // ---- Helpers ---------------------------------------------
   function getCurrentTokens() {
-    const elapsed = (Date.now() - pageLoadTime) / 1000;
+    const elapsed = (Date.now() - baseDateTime) / 1000;
     return BASE_TOKENS + TOKENS_PER_SECOND * elapsed;
   }
 
