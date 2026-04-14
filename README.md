@@ -2,7 +2,7 @@
 
 > **Live site:** `https://nitrocode.github.io/token-deathclock/`
 
-A GitHub Pages visualisation that shows the environmental cost of global AI token consumption — featuring live counters, milestone tracker, token-growth chart with projections, and a prompt/PR scoring section.
+A GitHub Pages visualisation that shows the environmental cost of global AI token consumption — featuring live counters, milestone tracker, and a token-growth chart with projections.
 
 Created by **RB**.
 
@@ -18,7 +18,6 @@ Created by **RB**.
 | **Growth chart** | Historical data + 18-month projection on a log scale (Chart.js) |
 | **Predictions table** | Predicted calendar dates for each milestone |
 | **Dark / Light mode** | Toggle button; dark mode is the default |
-| **Prompt & PR scoring** | Collapsible section showing the rubric, recommendations, and score improvement |
 
 ---
 
@@ -58,35 +57,6 @@ Tests are in `tests/death-clock.test.js` and cover all pure functions in `death-
 
 > ⚠️ The workflow file (`.github/workflows/deploy.yml`) is already included.
 > Only step 2 (enabling GitHub Actions as the Pages source) needs to be done manually once in the repository settings.
-
----
-
-## Prompt & PR Score
-
-| | Score |
-|---|---|
-| **Prompt (initial)** | 74 / 100 |
-| **Prompt (after recommendations)** | 94 / 100 |
-
-### Recommendations addressed
-
-| Recommendation | Impact | Status |
-|---|---|---|
-| Define "life essential" categories explicitly | +2 pts | ✅ Done |
-| Specify exact token thresholds for each milestone | +4 pts | ✅ Done |
-| Define preferred charting library (Chart.js) | +2 pts | ✅ Done |
-| Cite data sources for environmental correlations | +2 pts | ✅ Done |
-| Specify test framework (Jest) | +3 pts | ✅ Done |
-| Include GitHub Pages deployment configuration | +4 pts | ✅ Done |
-| Specify responsive-design requirements | +3 pts | ✅ Done |
-| Define visual style | +1 pt | ✅ Done |
-
-### Recommendations not yet addressed
-
-| Recommendation | Impact |
-|---|---|
-| Specify minimum test-coverage percentage | +3 pts |
-| List specific test scenarios in prompt | +2 pts |
 
 ---
 
@@ -144,10 +114,10 @@ Tests are in `tests/death-clock.test.js` and cover all pure functions in `death-
 - [x] **Fix total-counter anchor** — `getCurrentTokens()` now uses `BASE_DATE_ISO` so the counter reflects true elapsed time since the data anchor, not since the page was loaded.
 
 #### Priority 2 — Community & compliance
-- [ ] Add a `LICENSE` file (MIT or Apache-2.0 recommended).
-- [ ] Add `CONTRIBUTING.md` with a pull-request checklist and coding conventions.
-- [ ] Add `SECURITY.md` with a vulnerability-disclosure policy.
-- [ ] Add a `CODEOWNERS` file to set review requirements.
+- [x] Add a `LICENSE` file (MIT or Apache-2.0 recommended).
+- [x] Add `CONTRIBUTING.md` with a pull-request checklist and coding conventions.
+- [x] Add `SECURITY.md` with a vulnerability-disclosure policy.
+- [x] Add a `CODEOWNERS` file to set review requirements.
 
 #### Priority 3 — Security hardening
 - [ ] Add a `Content-Security-Policy` meta tag in `index.html` to restrict inline scripts and limit allowed CDN origins (Chart.js, Google Fonts).
