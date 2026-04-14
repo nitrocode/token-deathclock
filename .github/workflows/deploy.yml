@@ -21,7 +21,7 @@ jobs:
       url: https://nitrocode.github.io/token-deathclock/
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Deploy to GitHub Pages (gh-pages branch)
         uses: peaceiris/actions-gh-pages@v4
