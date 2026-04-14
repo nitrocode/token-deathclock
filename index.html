@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Death Clock 💀</title>
+  <meta name="description" content="Visualise the environmental cost of global AI token consumption — live counters, milestone tracker, and projections." />
+
+  <!-- Chart.js (pinned UMD build, loaded from CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ── Theme Toggle ────────────────────────────────────────── -->
+<button id="themeToggle" aria-label="Toggle colour theme">☀️ Light Mode</button>
+
+<!-- ── Header ─────────────────────────────────────────────── -->
+<header>
+  <div class="container">
+    <span class="header-skull" aria-hidden="true">💀</span>
+    <h1 class="site-title glow-text">AI DEATH CLOCK</h1>
+    <p class="site-subtitle">The True Environmental Cost of Global AI Token Consumption</p>
+  </div>
+</header>
+
+<!-- ── Live Counter ────────────────────────────────────────── -->
+<section id="counter-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Live Feed</p>
+    <h2>Global Token Counter</h2>
+
+    <div class="counter-grid">
+      <div class="counter-box">
+        <div class="counter-label">🌍 Total AI Tokens Consumed (Global, Est.)</div>
+        <div id="totalCounter" class="counter-value" aria-live="polite" aria-atomic="true">Loading…</div>
+        <div class="counter-subtitle">since 1 January 2020</div>
+      </div>
+
+      <div class="counter-box">
+        <div class="counter-label">⚡ Tokens Since You Arrived</div>
+        <div id="sessionCounter" class="counter-value session" aria-live="polite" aria-atomic="true">0</div>
+        <div class="counter-subtitle" id="sessionTime">0 seconds ago</div>
+      </div>
+
+      <div class="counter-box">
+        <div class="counter-label">🔥 Current Rate (Estimated)</div>
+        <div class="counter-value rate">100,000,000</div>
+        <div class="counter-subtitle">tokens per second, globally</div>
+      </div>
+    </div>
+
+    <!-- Environmental impact strip -->
+    <div class="impact-strip" id="impactStrip">
+      <div class="impact-stat">
+        <span class="stat-icon">⚡</span>
+        <div class="stat-value" id="statKwh">—</div>
+        <div class="stat-label">kWh Energy Used</div>
+      </div>
+      <div class="impact-stat">
+        <span class="stat-icon">💨</span>
+        <div class="stat-value" id="statCo2">—</div>
+        <div class="stat-label">kg CO₂ Emitted</div>
+      </div>
+      <div class="impact-stat">
+        <span class="stat-icon">🌊</span>
+        <div class="stat-value" id="statWater">—</div>
+        <div class="stat-label">Litres of Water Used</div>
+      </div>
+      <div class="impact-stat">
+        <span class="stat-icon">🌳</span>
+        <div class="stat-value" id="statTrees">—</div>
+        <div class="stat-label">Trees' CO₂ Capacity</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Milestones ──────────────────────────────────────────── -->
+<section id="milestones-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Environmental Events</p>
+    <h2>Token Consumption Milestones</h2>
+    <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:1rem;">
+      Each threshold represents the cumulative global AI token count at which a symbolic environmental
+      event occurs.  Triggered milestones are highlighted in red.
+    </p>
+    <div class="milestones-grid" id="milestonesGrid">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Chart ───────────────────────────────────────────────── -->
+<section id="chart-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Visualisation</p>
+    <h2>Token Growth Over Time &amp; Projections</h2>
+    <div class="chart-container">
+      <div class="chart-wrapper">
+        <canvas id="tokenChart" aria-label="Line chart showing historical and projected global AI token consumption"></canvas>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#ff3333;"></div>
+          <span>Historical (estimated)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#ff8800;border-top:2px dashed #ff8800;height:0;margin-top:1px;"></div>
+          <span>Projected</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#00cc77;"></div>
+          <span>Milestone thresholds</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Predictions Table ───────────────────────────────────── -->
+<section id="predictions-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Forecast</p>
+    <h2>Milestone Prediction Dates</h2>
+    <div class="predictions-table-wrap">
+      <table id="predictionsTable">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Threshold</th>
+            <th>Status</th>
+            <th>Predicted Date</th>
+            <th>Time Remaining</th>
+          </tr>
+        </thead>
+        <tbody id="predictionsBody">
+          <!-- populated by script.js -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── Prompt / PR Scoring ─────────────────────────────────── -->
+<section id="scoring-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Meta</p>
+    <h2>Prompt &amp; PR Quality Score</h2>
+    <button class="scoring-toggle-btn" id="scoringToggle" aria-expanded="false" aria-controls="scoring-content">
+      ▶ Show Scoring Details
+    </button>
+    <div id="scoring-content" role="region" aria-labelledby="scoringToggle">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <p>Created by <strong>RB</strong> &mdash; AI Death Clock &mdash; 2026</p>
+    <p class="footer-disclaimer">
+      Environmental figures are illustrative estimates based on published AI energy-use research,
+      not official measurements. Sources: Google/DeepMind energy reports, Microsoft sustainability
+      disclosures, Epoch AI compute trends, AI Index 2024.
+    </p>
+  </div>
+</footer>
+
+<!-- Core logic (no DOM deps — loaded first so script.js can use it) -->
+<script src="death-clock-core.js"></script>
+<!-- DOM / Chart logic -->
+<script src="script.js"></script>
+</body>
+</html>

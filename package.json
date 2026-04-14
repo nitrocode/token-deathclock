@@ -1,0 +1,26 @@
+{
+  "name": "ai-death-clock",
+  "version": "1.0.0",
+  "description": "AI Death Clock — visualising the environmental cost of global AI token consumption",
+  "scripts": {
+    "test": "jest --coverage",
+    "test:ci": "jest --ci --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "death-clock-core.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 80,
+        "functions": 80,
+        "branches": 70
+      }
+    }
+  }
+}
