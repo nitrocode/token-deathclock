@@ -16,7 +16,7 @@ const { test, expect } = require('@playwright/test');
 /**
  * Wait until an element's textContent is non-empty and not "Loading…".
  */
-async function waitForCounter(page, selector, timeout = 8000) {
+async function waitForCounter(page, selector, timeout = 3000) {
   await expect(async () => {
     const text = await page.locator(selector).textContent();
     expect(text).toBeTruthy();
@@ -196,9 +196,7 @@ test.describe('AI Death Clock — end-to-end', () => {
     page.on('pageerror', (err) => errors.push(err.message));
     await page.reload();
     await page.waitForLoadState('networkidle');
-    // Filter out expected/benign Chart errors if adapter is missing in test env
-    const fatal = errors.filter((e) => !e.includes('date adapter'));
-    expect(fatal).toHaveLength(0);
+    expect(errors).toHaveLength(0);
   });
 
   // ── Security: no XSS via milestone content ────────────────────────────────

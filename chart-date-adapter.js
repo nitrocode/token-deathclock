@@ -45,8 +45,8 @@
       if (value === null || value === undefined || value === '') return null;
       if (value instanceof Date) return isNaN(value.getTime()) ? null : value.getTime();
       if (typeof value === 'number') return value;
-      var d = new Date(value);
-      return isNaN(d.getTime()) ? null : d.getTime();
+      var ms = new Date(value).getTime();
+      return isNaN(ms) ? null : ms;
     },
 
     // Format a Unix timestamp (ms) using a simple format string.

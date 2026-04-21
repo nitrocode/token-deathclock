@@ -397,9 +397,9 @@
       ${state !== 'dead' ? 'tabindex="0" role="button"' : 'aria-disabled="true"'}>${content}</div>`;
   }
 
-  // Maximum days to render in life-blocks view.
+  // Maximum days to render in life-blocks view (~10 years).
   // Beyond this, a summary block is shown to avoid creating millions of DOM elements.
-  const MAX_LB_DAYS = 3650; // 10 years
+  const MAX_LB_DAYS = 3650;
 
   // ---- View renderers ----
 
