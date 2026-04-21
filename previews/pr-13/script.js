@@ -14,7 +14,6 @@
     BASE_DATE_ISO,
     HISTORICAL_DATA,
     MILESTONES,
-    PROMPT_SCORING,
     formatTokenCount,
     formatTokenCountShort,
     getTriggeredMilestones,
@@ -25,7 +24,6 @@
     formatDate,
     getTimeDelta,
     milestoneProgress,
-    computePromptScore,
   } = window.DeathClockCore;
 
   // ---- State -----------------------------------------------
@@ -310,66 +308,6 @@
     chartInstance.options.scales.y.title.color = colors.tickColor;
     chartInstance.options.plugins.legend.labels.color = colors.tickColor;
     chartInstance.update('none');
-  }
-
-  // ---- Prompt scoring section ------------------------------
-  function renderScoring() {
-    const container = document.getElementById('scoring-content');
-    if (!container) return;
-
-    const { totalInitial, totalFinal, maxScore } = computePromptScore(PROMPT_SCORING);
-
-    let html = `
-      <div class="score-summary">
-        <div class="score-badge">
-          <div class="badge-score">${totalInitial}/${maxScore}</div>
-          <div class="badge-label">Prompt Score (initial)</div>
-        </div>
-        <div class="score-badge final">
-          <div class="badge-score">${totalFinal}/${maxScore}</div>
-          <div class="badge-label">After Addressing Recommendations</div>
-        </div>
-      </div>
-      <div class="scoring-categories">
-    `;
-
-    PROMPT_SCORING.categories.forEach((cat) => {
-      const bonus = cat.recommendations
-        .filter((r) => r.implemented)
-        .reduce((acc, r) => acc + (parseInt(r.impact, 10) || 0), 0);
-
-      html += `
-        <div class="scoring-cat">
-          <div class="scoring-cat-header">
-            <span class="scoring-cat-name">${escHtml(cat.name)}</span>
-            <span class="scoring-cat-score">${cat.initial}${bonus ? '+' + bonus : ''}/${cat.max}</span>
-          </div>
-          <p class="scoring-cat-notes">${escHtml(cat.notes)}</p>
-          ${cat.recommendations.length ? '<ul class="rec-list">' + cat.recommendations.map((r) => `
-            <li class="rec-item ${r.implemented ? 'done' : ''}">
-              <span>${r.implemented ? '✅' : '⬜'}</span>
-              <span>${escHtml(r.text)}</span>
-              <span class="rec-impact">${escHtml(r.impact)} pts</span>
-            </li>
-          `).join('') + '</ul>' : ''}
-        </div>
-      `;
-    });
-
-    html += '</div>';
-    container.innerHTML = html;
-  }
-
-  // ---- Collapsible scoring ---------------------------------
-  function initScoringToggle() {
-    const btn = document.getElementById('scoringToggle');
-    const content = document.getElementById('scoring-content');
-    if (!btn || !content) return;
-    btn.addEventListener('click', () => {
-      const open = content.classList.toggle('open');
-      btn.textContent = (open ? '▼ Hide' : '▶ Show') + ' Scoring Details';
-      btn.setAttribute('aria-expanded', String(open));
-    });
   }
 
   // ---- Security helper ------------------------------------
@@ -715,8 +653,6 @@
     // Render static sections once
     renderMilestones();
     renderPredictionsTable();
-    renderScoring();
-    initScoringToggle();
     initChart();
     initLifeBlocks();
 
