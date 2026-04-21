@@ -19,12 +19,10 @@ const {
   formatDate,
   getTimeDelta,
   milestoneProgress,
-  computePromptScore,
   MILESTONES,
   HISTORICAL_DATA,
   BASE_TOKENS,
   TOKENS_PER_SECOND,
-  PROMPT_SCORING,
 } = core;
 
 // ============================================================
@@ -103,6 +101,15 @@ describe('formatTokenCountShort', () => {
 
   test('handles NaN', () => {
     expect(formatTokenCountShort(NaN)).toBe('0');
+  });
+
+  test('handles small numbers (below 1 million)', () => {
+    expect(formatTokenCountShort(999)).toBe('999');
+    expect(formatTokenCountShort(42)).toBe('42');
+  });
+
+  test('quintillion abbreviation', () => {
+    expect(formatTokenCountShort(3e18)).toContain("Q'l");
   });
 });
 
@@ -389,40 +396,6 @@ describe('milestoneProgress', () => {
 });
 
 // ============================================================
-// computePromptScore
-// ============================================================
-describe('computePromptScore', () => {
-  test('returns an object with totalInitial, totalFinal, maxScore, percentage', () => {
-    const result = computePromptScore(PROMPT_SCORING);
-    expect(result).toHaveProperty('totalInitial');
-    expect(result).toHaveProperty('totalFinal');
-    expect(result).toHaveProperty('maxScore');
-    expect(result).toHaveProperty('percentage');
-  });
-
-  test('totalFinal is at least totalInitial (implementing recs improves score)', () => {
-    const result = computePromptScore(PROMPT_SCORING);
-    expect(result.totalFinal).toBeGreaterThanOrEqual(result.totalInitial);
-  });
-
-  test('totalFinal does not exceed maxScore', () => {
-    const result = computePromptScore(PROMPT_SCORING);
-    expect(result.totalFinal).toBeLessThanOrEqual(result.maxScore);
-  });
-
-  test('percentage is 0–100', () => {
-    const result = computePromptScore(PROMPT_SCORING);
-    expect(result.percentage).toBeGreaterThanOrEqual(0);
-    expect(result.percentage).toBeLessThanOrEqual(100);
-  });
-
-  test('handles empty categories', () => {
-    const result = computePromptScore({ categories: [] });
-    expect(result.maxScore).toBe(0);
-  });
-});
-
-// ============================================================
 // Constants sanity checks
 // ============================================================
 describe('Constants', () => {
@@ -480,5 +453,23 @@ describe('Constants', () => {
         new Date(HISTORICAL_DATA[i - 1].date).getTime()
       );
     }
+  });
+});
+
+// ============================================================
+// Browser window export (lines 443-444)
+// ============================================================
+describe('Browser window export', () => {
+  test('sets window.DeathClockCore when module is not available', () => {
+    const vm = require('vm');
+    const fs = require('fs');
+    const path = require('path');
+    const code = fs.readFileSync(path.join(__dirname, '../death-clock-core.js'), 'utf8');
+    // Run in a sandbox where `module` is undefined and `window` is available.
+    // This exercises the `else if (typeof window !== 'undefined')` branch (lines 443-444).
+    const sandboxWindow = {};
+    vm.runInNewContext(code, { window: sandboxWindow });
+    expect(typeof sandboxWindow.DeathClockCore).toBe('object');
+    expect(typeof sandboxWindow.DeathClockCore.formatTokenCount).toBe('function');
   });
 });
