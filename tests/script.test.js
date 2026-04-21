@@ -66,7 +66,9 @@ function loadScript() {
     document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true }));
   }
   // Capture the updateCounters callback that init() passed to requestAnimationFrame.
-  updateCountersFn = global.requestAnimationFrame.mock.calls[0]?.[0] || null;
+  // init() may register multiple RAF callbacks (e.g. initLifeBlocks registers one
+  // before updateCounters), so we take the last call, which is always updateCounters.
+  updateCountersFn = global.requestAnimationFrame.mock.calls.at(-1)?.[0] || null;
 }
 
 // Invoke updateCounters once; replaces the RAF mock so the loop does not recurse.
