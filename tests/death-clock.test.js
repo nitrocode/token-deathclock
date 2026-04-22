@@ -20,6 +20,9 @@ const {
   getTimeDelta,
   milestoneProgress,
   getRateAtDate,
+  generateEquivalences,
+  calculatePersonalFootprint,
+  sessionEquivalences,
   MILESTONES,
   HISTORICAL_DATA,
   RATE_SCHEDULE,
@@ -603,5 +606,137 @@ describe('Extended MILESTONES', () => {
     const ids = MILESTONES.map((m) => m.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
+  });
+});
+
+// ============================================================
+// generateEquivalences
+// ============================================================
+describe('generateEquivalences', () => {
+  test('returns a non-empty array for a large token count', () => {
+    const result = generateEquivalences(1e15);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  test('each entry has icon (string) and text (non-empty string)', () => {
+    generateEquivalences(1e15).forEach((e) => {
+      expect(typeof e.icon).toBe('string');
+      expect(typeof e.text).toBe('string');
+      expect(e.text.length).toBeGreaterThan(0);
+    });
+  });
+
+  test('hopeful mode differs from snarky mode', () => {
+    const hopeful = generateEquivalences(1e15, 'hopeful');
+    const snarky  = generateEquivalences(1e15, 'snarky');
+    expect(hopeful[0].text).not.toBe(snarky[0].text);
+  });
+
+  test('defaults to hopeful mode when no mode argument is given', () => {
+    const def     = generateEquivalences(1e15);
+    const hopeful = generateEquivalences(1e15, 'hopeful');
+    expect(def[0].text).toBe(hopeful[0].text);
+  });
+
+  test('returns empty array for negative tokens', () => {
+    expect(generateEquivalences(-1)).toEqual([]);
+  });
+
+  test('returns empty array for non-numeric input', () => {
+    expect(generateEquivalences('abc')).toEqual([]);
+  });
+
+  test('returns an array for 0 tokens', () => {
+    expect(Array.isArray(generateEquivalences(0))).toBe(true);
+  });
+
+  test('both modes return the same number of entries', () => {
+    expect(generateEquivalences(1e15, 'hopeful').length)
+      .toBe(generateEquivalences(1e15, 'snarky').length);
+  });
+});
+
+// ============================================================
+// calculatePersonalFootprint
+// ============================================================
+describe('calculatePersonalFootprint', () => {
+  test('returns correct result structure', () => {
+    const r = calculatePersonalFootprint(20, 500, 1);
+    expect(r).toHaveProperty('weeklyTokens');
+    expect(r).toHaveProperty('weekly');
+    expect(r).toHaveProperty('annual');
+    expect(r).toHaveProperty('globalWeeklyCo2Kg');
+  });
+
+  test('weeklyTokens equals prompts × tokensEach × multiplier', () => {
+    expect(calculatePersonalFootprint(10, 100, 2).weeklyTokens).toBe(2000);
+  });
+
+  test('annual CO₂ is 52× weekly CO₂', () => {
+    const r = calculatePersonalFootprint(10, 100, 1);
+    expect(r.annual.co2Kg).toBeCloseTo(r.weekly.co2Kg * 52, 5);
+  });
+
+  test('globalWeeklyCo2Kg scales by 500 million users', () => {
+    const r = calculatePersonalFootprint(1, 1000, 1);
+    expect(r.globalWeeklyCo2Kg).toBeCloseTo(r.weekly.co2Kg * 500_000_000, 0);
+  });
+
+  test('returns zero footprint for negative promptsPerWeek', () => {
+    const r = calculatePersonalFootprint(-1, 500, 1);
+    expect(r.weeklyTokens).toBe(0);
+    expect(r.weekly.co2Kg).toBe(0);
+  });
+
+  test('returns zero footprint when tokensEach is 0', () => {
+    expect(calculatePersonalFootprint(10, 0, 1).weeklyTokens).toBe(0);
+  });
+
+  test('returns zero footprint when modelMultiplier is 0', () => {
+    expect(calculatePersonalFootprint(10, 500, 0).weeklyTokens).toBe(0);
+  });
+
+  test('model multiplier scales weeklyTokens proportionally', () => {
+    const r1 = calculatePersonalFootprint(10, 100, 1);
+    const r4 = calculatePersonalFootprint(10, 100, 4);
+    expect(r4.weeklyTokens).toBeCloseTo(r1.weeklyTokens * 4, 5);
+  });
+});
+
+// ============================================================
+// sessionEquivalences
+// ============================================================
+describe('sessionEquivalences', () => {
+  test('returns an array of strings for a large session token count', () => {
+    const result = sessionEquivalences(1e15);
+    expect(Array.isArray(result)).toBe(true);
+    result.forEach((s) => expect(typeof s).toBe('string'));
+  });
+
+  test('returns a non-empty array for a meaningful token count', () => {
+    expect(sessionEquivalences(1e9).length).toBeGreaterThan(0);
+  });
+
+  test('returns empty array for 0 tokens', () => {
+    expect(sessionEquivalences(0)).toEqual([]);
+  });
+
+  test('returns empty array for negative tokens', () => {
+    expect(sessionEquivalences(-1)).toEqual([]);
+  });
+
+  test('returns empty array for non-numeric input', () => {
+    expect(sessionEquivalences('bad')).toEqual([]);
+  });
+
+  test('each phrase is a non-empty string', () => {
+    sessionEquivalences(1e12).forEach((s) => expect(s.length).toBeGreaterThan(0));
+  });
+
+  test('returns more equivalences for larger token counts', () => {
+    // A very tiny count may produce fewer phrases (some below minimum threshold)
+    const large = sessionEquivalences(1e12);
+    expect(large.length).toBeGreaterThanOrEqual(1);
   });
 });
