@@ -17,6 +17,8 @@
     RATE_SCHEDULE,
     SESSION_CHALLENGE_DEFS,
     TOKEN_TIPS,
+    COMPANY_ROLES,
+    AI_AGENTS,
     formatTokenCount,
     formatTokenCountShort,
     getTriggeredMilestones,
@@ -36,6 +38,8 @@
     computeComboMultiplier,
     getSessionChallenges,
     formatDoomPoints,
+    computePassiveRate,
+    getCompanyStage,
   } = window.DeathClockCore;
 
   // ---- State -----------------------------------------------
@@ -1658,6 +1662,11 @@
     { id: 'first_blood',          icon: '\uD83C\uDFC1', name: 'First Blood',              desc: 'Personally triggered your first milestone.',         type: 'manual' },
     { id: 'apex_accelerant',      icon: '\u2620\uFE0F', name: 'Apex Accelerant',         desc: 'Personally triggered 5 milestones.',                 type: 'manual' },
     { id: 'bragging_rights',      icon: '\uD83D\uDCE4', name: 'Bragging Rights',          desc: 'Shared your personal acceleration total.',           type: 'manual' },
+    // AI-Native company badges
+    { id: 'layoff_legend',        icon: '📤',           name: 'Layoff Legend',            desc: 'Replaced your first human worker with AI.',          type: 'manual' },
+    { id: 'token_maxxer_badge',   icon: '📈',           name: 'Token Maxxer',             desc: 'Deployed your first AI agent.',                      type: 'manual' },
+    { id: 'ai_native_ceo',        icon: '🏢',           name: 'AI-Native CEO',            desc: 'Reached AI-Native Company stage.',                   type: 'manual' },
+    { id: 'lights_out',           icon: '☠️',           name: 'Lights Out',               desc: 'Replaced every human worker. Fully automated.',      type: 'manual' },
   ];
 
   const LS_BADGES_KEY = 'tokenDeathclockBadges';
@@ -1812,6 +1821,7 @@
 
   const LS_UPGRADES_KEY   = 'tokenDeathclockUpgrades';
   const LS_BESTSCORE_KEY  = 'tokenDeathclockBestScore';
+  const LS_COMPANY_KEY    = 'tokenDeathclockCompany';
 
   // ---- State -----------------------------------------------
 
@@ -1834,6 +1844,10 @@
     _comboResetTimer:    null,
     _speedSecond:        { taps: 0, ts: 0 },  // taps in current 1-second bucket
     _speedStreak:        0,    // consecutive 1-sec buckets with ≥ 10 taps
+    // Company / AI-Native
+    replacedWorkers:     {},   // roleId → true
+    ownedAgents:         {},   // agentId → count
+    passiveRate:         0,    // tokens/sec from passive generators
   };
 
   // ---- Persistence -----------------------------------------
@@ -1850,13 +1864,34 @@
       const bs = parseFloat(localStorage.getItem(LS_BESTSCORE_KEY) || '0');
       if (isFinite(bs) && bs > 0) acc.bestScore = bs;
     } catch (_) { /* ignore */ }
-    // Recompute tap multiplier from owned upgrades
+    try {
+      const raw = localStorage.getItem(LS_COMPANY_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.replacedWorkers && typeof parsed.replacedWorkers === 'object') {
+            acc.replacedWorkers = parsed.replacedWorkers;
+          }
+          if (parsed.ownedAgents && typeof parsed.ownedAgents === 'object') {
+            acc.ownedAgents = parsed.ownedAgents;
+          }
+        }
+      }
+    } catch (_) { /* ignore */ }
+    // Recompute tap multiplier and passive rate from persisted state
     acc.tapMultiplier = currentTapMultiplier();
+    acc.passiveRate   = computePassiveRate(acc.ownedAgents, acc.replacedWorkers);
   }
 
   function saveAcceleratorState() {
     try { localStorage.setItem(LS_UPGRADES_KEY, JSON.stringify(acc.ownedUpgrades)); } catch (_) { /* ignore */ }
     try { localStorage.setItem(LS_BESTSCORE_KEY, String(acc.bestScore)); } catch (_) { /* ignore */ }
+    try {
+      localStorage.setItem(LS_COMPANY_KEY, JSON.stringify({
+        replacedWorkers: acc.replacedWorkers,
+        ownedAgents:     acc.ownedAgents,
+      }));
+    } catch (_) { /* ignore */ }
   }
 
   function currentTapMultiplier() {
@@ -2045,10 +2080,16 @@
       : impact.waterL.toFixed(2) + ' L';
     setAccelText('accelWater', waterVal);
 
+    // Passive rate display
+    setAccelText('passiveRateDisplay', formatTokenCount(acc.passiveRate) + ' tokens/sec');
+
     updateComboDisplay();
     updateMilestoneRace();
     updateBestScore();
     renderUpgradeShop();
+    renderWorkforcePanel();
+    renderAgentShop();
+    updateCompanyStage();
 
     // Show/hide share button
     const shareBtn = document.getElementById('shareAccelerationBtn');
@@ -2193,6 +2234,139 @@
     });
   }
 
+  // ---- Workforce panel (fire workers) ----------------------
+
+  function fireWorker(id) {
+    const role = COMPANY_ROLES.find((r) => r.id === id);
+    if (!role || acc.replacedWorkers[id]) return;
+    if (acc.doomPoints < role.cost) return;
+    acc.doomPoints -= role.cost;
+    acc.replacedWorkers[id] = true;
+    acc.passiveRate = computePassiveRate(acc.ownedAgents, acc.replacedWorkers);
+    saveAcceleratorState();
+    queueToast({
+      icon:  role.icon,
+      name:  'Role Automated: ' + role.name,
+      desc:  role.flavour + ' (+' + formatTokenCount(role.tps) + '/sec)',
+    });
+    updateAcceleratorUI();
+    renderWorkforcePanel();
+    checkCompanyAchievements();
+    updateChallengeProgress();
+  }
+
+  function renderWorkforcePanel() {
+    const panel = document.getElementById('workforcePanel');
+    if (!panel) return;
+    panel.innerHTML = '';
+    COMPANY_ROLES.forEach((r) => {
+      const fired      = !!acc.replacedWorkers[r.id];
+      const affordable = !fired && acc.doomPoints >= r.cost;
+      const card       = document.createElement('button');
+      card.className   = 'worker-card' +
+        (fired ? ' fired' : '') +
+        (!fired && !affordable ? ' unaffordable' : '');
+      card.setAttribute('aria-label', fired
+        ? r.name + ' (automated)'
+        : r.name + ' — fire for ' + r.cost + ' DP'
+      );
+      if (fired) card.setAttribute('aria-disabled', 'true');
+      card.innerHTML = `
+        <span class="worker-card-icon" aria-hidden="true">${escHtml(r.icon)}</span>
+        <div class="worker-card-name">${escHtml(r.name)}</div>
+        <div class="worker-card-flavour">${escHtml(r.flavour)}</div>
+        <div class="worker-card-tps">+${escHtml(formatTokenCount(r.tps))}/sec</div>
+        <div class="worker-card-cost">${fired ? '🤖 Automated' : escHtml(String(r.cost)) + ' DP'}</div>`;
+      if (!fired) {
+        card.addEventListener('click', () => fireWorker(r.id));
+      }
+      panel.appendChild(card);
+    });
+  }
+
+  // ---- AI Agent shop (passive generators) ------------------
+
+  function purchaseAgent(id) {
+    const agent = AI_AGENTS.find((a) => a.id === id);
+    if (!agent) return;
+    if (acc.doomPoints < agent.cost) return;
+    acc.doomPoints -= agent.cost;
+    acc.ownedAgents[id] = (acc.ownedAgents[id] || 0) + 1;
+    acc.passiveRate = computePassiveRate(acc.ownedAgents, acc.replacedWorkers);
+    saveAcceleratorState();
+    updateAcceleratorUI();
+    renderAgentShop();
+    checkCompanyAchievements();
+    updateChallengeProgress();
+  }
+
+  function renderAgentShop() {
+    const shop = document.getElementById('agentShop');
+    if (!shop) return;
+    shop.innerHTML = '';
+    AI_AGENTS.forEach((a) => {
+      const count      = acc.ownedAgents[a.id] || 0;
+      const affordable = acc.doomPoints >= a.cost;
+      const card       = document.createElement('button');
+      card.className   = 'agent-card' + (!affordable ? ' unaffordable' : '');
+      card.setAttribute('aria-label',
+        a.name + (count ? ' (×' + count + ' owned)' : '') + ' — costs ' + a.cost + ' DP'
+      );
+      card.innerHTML = `
+        <span class="agent-card-icon" aria-hidden="true">${escHtml(a.icon)}</span>
+        <div class="agent-card-name">${escHtml(a.name)}</div>
+        <div class="agent-card-flavour">${escHtml(a.flavour)}</div>
+        <div class="agent-card-tps">+${escHtml(formatTokenCount(a.tps))}/sec each</div>
+        <div class="agent-card-cost">${escHtml(String(a.cost))} DP</div>
+        ${count ? `<div class="agent-card-owned">\u00D7${count} deployed</div>` : ''}`;
+      card.addEventListener('click', () => purchaseAgent(a.id));
+      shop.appendChild(card);
+    });
+  }
+
+  // ---- Company stage display --------------------------------
+
+  function updateCompanyStage() {
+    const replaced = Object.keys(acc.replacedWorkers).length;
+    const stage    = getCompanyStage(replaced);
+    const iconEl   = document.getElementById('companyStageIcon');
+    const nameEl   = document.getElementById('companyStageName');
+    if (iconEl) iconEl.textContent = stage.icon;
+    if (nameEl) nameEl.textContent = stage.name;
+  }
+
+  // ---- Company achievements --------------------------------
+
+  function checkCompanyAchievements() {
+    const replaced = Object.keys(acc.replacedWorkers).length;
+    if (replaced >= 1) awardBadge('layoff_legend');
+    if (replaced >= 5) awardBadge('ai_native_ceo');
+    if (replaced >= COMPANY_ROLES.length) awardBadge('lights_out');
+    const hasAgent = AI_AGENTS.some((a) => (acc.ownedAgents[a.id] || 0) > 0);
+    if (hasAgent) awardBadge('token_maxxer_badge');
+  }
+
+  // ---- Passive token generation loop -----------------------
+
+  function startPassiveLoop() {
+    // Tick every 200 ms — add passiveRate × 0.2 tokens per tick.
+    // Only update the minimal counter elements here; full UI re-renders
+    // (shop affordability, challenge progress bars) happen via handleTap() and
+    // purchase actions so we avoid heavy DOM churn every 200 ms.
+    setInterval(() => {
+      if (acc.passiveRate <= 0) return;
+      const tokensAdded = acc.passiveRate * 0.2;
+      acc.personalTokens += tokensAdded;
+      acc.doomPoints     += tokensAdded * ACC_DP_PER_TOKEN;
+      // Update only the lightweight numeric displays
+      setAccelText('accelTokens', formatTokenCount(acc.personalTokens));
+      setAccelText('accelDp',     formatDoomPoints(acc.doomPoints));
+      updateMilestoneRace();
+      updateBestScore();
+      updateChallengeProgress();
+    }, 200);
+  }
+
   function renderChallenges() {
     const row = document.getElementById('challengeRow');
     if (!row) return;
@@ -2277,6 +2451,9 @@
           initChallengeProgress();
           renderChallenges();
           renderUpgradeShop();
+          renderWorkforcePanel();
+          renderAgentShop();
+          updateCompanyStage();
           updateAcceleratorUI();
           // Show best score from storage
           const valueEl = document.getElementById('bestScoreValue');
@@ -2307,6 +2484,8 @@
 
     // Combo reset timer
     startComboResetLoop();
+    // Passive token generation loop
+    startPassiveLoop();
   }
 
   // ---- Bootstrap ------------------------------------------
