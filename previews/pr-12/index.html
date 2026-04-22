@@ -7,7 +7,7 @@
   <meta name="description" content="Visualise the environmental cost of global AI token consumption — live counters, milestone tracker, and projections." />
 
   <!-- Content-Security-Policy: restrict scripts to self + jsDelivr CDN, styles to self + Google Fonts -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
 
   <!-- Chart.js (pinned UMD build with SRI hash, loaded from CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"
@@ -56,8 +56,8 @@
 
       <div class="counter-box">
         <div class="counter-label">🔥 Current Rate (Estimated)</div>
-        <div class="counter-value rate">100,000,000</div>
-        <div class="counter-subtitle">tokens per second, globally</div>
+        <div id="rateCounter" class="counter-value rate">100,000,000</div>
+        <div class="counter-subtitle" id="rateEvent">tokens per second, globally</div>
       </div>
     </div>
 
@@ -170,19 +170,6 @@
   </div>
 </section>
 
-<!-- ── Prompt / PR Scoring ─────────────────────────────────── -->
-<section id="scoring-section">
-  <div class="container">
-    <p class="section-label">&#x25A0; Meta</p>
-    <h2>Prompt &amp; PR Quality Score</h2>
-    <button class="scoring-toggle-btn" id="scoringToggle" aria-expanded="false" aria-controls="scoring-content">
-      ▶ Show Scoring Details
-    </button>
-    <div id="scoring-content" role="region" aria-labelledby="scoringToggle">
-      <!-- populated by script.js -->
-    </div>
-  </div>
-</section>
 
 <!-- ── Footer ─────────────────────────────────────────────── -->
 <footer>
@@ -198,6 +185,8 @@
 
 <!-- Core logic (no DOM deps — loaded first so script.js can use it) -->
 <script src="death-clock-core.js"></script>
+<!-- Minimal Chart.js date adapter (required for time-scale x-axis) -->
+<script src="chart-date-adapter.js"></script>
 <!-- DOM / Chart logic -->
 <script src="script.js"></script>
 </body>

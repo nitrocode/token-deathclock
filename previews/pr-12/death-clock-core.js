@@ -10,8 +10,29 @@
 // and exponential-growth modeling published by AI-index 2024
 const BASE_TOKENS = 65_000_000_000_000_000; // ~65 quadrillion as of April 2026
 
-// Estimated current global AI inference rate (all providers combined)
+// Estimated current global AI inference rate at BASE_DATE_ISO (all providers combined)
 const TOKENS_PER_SECOND = 100_000_000; // ~100 million tokens/second
+
+// Piecewise token-production rate schedule driven by landmark AI events.
+// Each entry defines the approximate global inference rate from that date forward
+// until the next entry.  Sources: OpenAI capacity announcements, SemiAnalysis,
+// Epoch AI compute trends, Anthropic engineering posts, AI Index 2024.
+const RATE_SCHEDULE = [
+  { date: '2020-01-01', ratePerSec:               100, event: 'GPT-2 era — pre-API access' },
+  { date: '2020-06-01', ratePerSec:             2_000, event: 'GPT-3 launch (OpenAI API private beta)' },
+  { date: '2021-01-01', ratePerSec:            10_000, event: 'GPT-3 API broadly available' },
+  { date: '2022-01-01', ratePerSec:           200_000, event: 'DALL-E 2 & Codex wide release' },
+  { date: '2022-11-30', ratePerSec:         3_000_000, event: 'ChatGPT launch (~100 M users in 60 days)' },
+  { date: '2023-03-14', ratePerSec:        10_000_000, event: 'GPT-4 launch + ChatGPT Plus scaling' },
+  { date: '2023-07-01', ratePerSec:        20_000_000, event: 'Claude 2, Llama 2 — open-model proliferation' },
+  { date: '2024-01-01', ratePerSec:        40_000_000, event: 'GPT-4 Turbo, widespread enterprise adoption' },
+  { date: '2024-03-04', ratePerSec:        55_000_000, event: 'Claude 3 Opus — new SOTA benchmark' },
+  { date: '2024-05-13', ratePerSec:        70_000_000, event: 'GPT-4o real-time multimodal API' },
+  { date: '2024-07-23', ratePerSec:        80_000_000, event: 'Llama 3.1 405B open-weights release' },
+  { date: '2025-02-01', ratePerSec:        90_000_000, event: 'DeepSeek R1 — reasoning-model surge' },
+  { date: '2025-05-22', ratePerSec:       100_000_000, event: 'Claude Code GA — agentic AI boom begins' },
+  { date: '2026-04-14', ratePerSec:       100_000_000, event: 'BASE_DATE_ISO anchor (calibrated to BASE_TOKENS)' },
+];
 
 // ISO timestamp used as the "now" anchor for counters and projections
 const BASE_DATE_ISO = '2026-04-14T07:09:04Z';
@@ -58,6 +79,38 @@ const MILESTONES = [
     darkColor: '#1a6b15',
   },
   {
+    id: 'power_grid_strain',
+    name: 'Power Grid Strain',
+    icon: '⚡',
+    tokens: 2_000_000_000_000, // 2 trillion
+    shortDesc: '2 Trillion Tokens',
+    description: 'AI data centres claim 1 % of global electricity — equal to all of Argentina',
+    consequence:
+      'When data centres alone consume 1 % of the world\'s electricity, every brown-out and ' +
+      'rolling blackout hits hospitals, water-treatment plants, and cold-storage food supplies first. ' +
+      'Grid operators begin rationing power to residential users.',
+    followingEvent:
+      '💡 Planned blackouts become routine. Industrial production slows. Energy poverty spikes.',
+    color: '#FFAA00',
+    darkColor: '#cc7700',
+  },
+  {
+    id: 'arctic_ice',
+    name: 'First Ice-Free Arctic Summer',
+    icon: '🧊',
+    tokens: 5_000_000_000_000, // 5 trillion
+    shortDesc: '5 Trillion Tokens',
+    description: 'The Arctic Ocean is ice-free for the first time in recorded history',
+    consequence:
+      'Sea ice reflects 80 % of incoming sunlight back into space. Without it, the dark Arctic ' +
+      'Ocean absorbs that heat, accelerating warming by 2–3 × above the global average. ' +
+      'Polar vortex destabilisation sends extreme weather to temperate regions.',
+    followingEvent:
+      '❄️ Polar vortex collapses. Record cold snaps devastate agriculture at lower latitudes.',
+    color: '#B0E0FF',
+    darkColor: '#5aabdd',
+  },
+  {
     id: 'bee_colony',
     name: 'Bee Colony Collapse',
     icon: '🐝',
@@ -65,12 +118,44 @@ const MILESTONES = [
     shortDesc: '10 Trillion Tokens',
     description: '1 billion bees lost to energy-driven habitat destruction',
     consequence:
-      'Bees pollinate 35% of human food crops. AI\'s growing energy demands accelerate pesticide use ' +
+      'Bees pollinate 35 % of human food crops. AI\'s growing energy demands accelerate pesticide use ' +
       'and destroy wildflower habitats that bee colonies depend on.',
     followingEvent:
-      '🌾 1-in-3 food items vanish from shelves. Crop yields drop 35%. Food prices triple globally.',
+      '🌾 1-in-3 food items vanish from shelves. Crop yields drop 35 %. Food prices triple globally.',
     color: '#FFD700',
     darkColor: '#b39800',
+  },
+  {
+    id: 'wildfire_crisis',
+    name: 'Permanent Wildfire Season',
+    icon: '🔥',
+    tokens: 20_000_000_000_000, // 20 trillion
+    shortDesc: '20 Trillion Tokens',
+    description: 'Wildfire season becomes year-round across three continents',
+    consequence:
+      'Warmer, drier conditions sustained by AI\'s CO₂ load eliminate the concept of a fire season. ' +
+      'Forests in Australia, the American West, and Southern Europe burn continuously. ' +
+      'Smoke blankets cities for months, pushing respiratory illness to epidemic levels.',
+    followingEvent:
+      '🌫️ Air-quality emergencies declared in 40+ cities. Outdoor workers face daily health orders.',
+    color: '#FF5500',
+    darkColor: '#cc3300',
+  },
+  {
+    id: 'silent_species',
+    name: 'Silent Spring: 100 Species Gone',
+    icon: '🐦',
+    tokens: 50_000_000_000_000, // 50 trillion
+    shortDesc: '50 Trillion Tokens',
+    description: '100 vertebrate species driven to extinction by AI-linked habitat destruction',
+    consequence:
+      'Habitat loss and climate change driven by AI energy demands erase entire branches of the ' +
+      'tree of life. Each lost species unravels the web of interdependence — pest explosions, ' +
+      'crop failures, and disease outbreaks follow as predator-prey balances collapse.',
+    followingEvent:
+      '🌿 Ecosystems destabilise. Invasive species surge. Crop pests breed unchecked.',
+    color: '#66BB6A',
+    darkColor: '#3d7a40',
   },
   {
     id: 'great_lakes',
@@ -78,14 +163,46 @@ const MILESTONES = [
     icon: '💧',
     tokens: 100_000_000_000_000, // 100 trillion
     shortDesc: '100 Trillion Tokens',
-    description: 'Data-center cooling drains freshwater equal to Lake Erie',
+    description: 'Data-centre cooling drains freshwater equal to Lake Erie',
     consequence:
-      'AI data centers consume billions of liters of water annually for cooling. ' +
+      'AI data centres consume billions of litres of water annually for cooling. ' +
       'This draws down aquifers and surface supplies that took millennia to accumulate.',
     followingEvent:
       '🚰 2 billion people face water scarcity. Water wars erupt between nations. Agriculture fails.',
     color: '#0077BE',
     darkColor: '#005490',
+  },
+  {
+    id: 'water_table_collapse',
+    name: 'Global Water Table Collapse',
+    icon: '🌵',
+    tokens: 200_000_000_000_000, // 200 trillion
+    shortDesc: '200 Trillion Tokens',
+    description: 'Major aquifers — Ogallala, Indo-Gangetic, North China Plain — drop below recovery',
+    consequence:
+      'Underground aquifers that supply half of all irrigation water worldwide have been drawn ' +
+      'down past their natural recharge rates. AI data-centre demand pushes many past the point ' +
+      'of no return. Regions that once fed nations face permanent desertification.',
+    followingEvent:
+      '🏜️ Breadbasket nations become dust bowls. 1 billion people face famine. Food nationalism spikes.',
+    color: '#C8A96E',
+    darkColor: '#8a6e3e',
+  },
+  {
+    id: 'amazon_tipping',
+    name: 'Amazon Tipping Point',
+    icon: '🌳',
+    tokens: 300_000_000_000_000, // 300 trillion
+    shortDesc: '300 Trillion Tokens',
+    description: 'The Amazon rainforest begins converting to savannah — irreversibly',
+    consequence:
+      'Scientists have long warned that 20–25 % deforestation would tip the Amazon into a self-drying ' +
+      'feedback loop. AI\'s cumulative carbon contribution delivers the final increment of warming. ' +
+      'The world\'s largest carbon sink becomes a carbon source.',
+    followingEvent:
+      '🌪️ Global rainfall patterns shift. Monsoons fail. 3 billion people face drought.',
+    color: '#1B5E20',
+    darkColor: '#0d3b12',
   },
   {
     id: 'coral_reef',
@@ -95,7 +212,7 @@ const MILESTONES = [
     shortDesc: '500 Trillion Tokens',
     description: 'CO₂ triggers mass bleaching — the Great Barrier Reef is gone',
     consequence:
-      'Coral reefs support 25% of all marine species. Ocean acidification from CO₂ emissions ' +
+      'Coral reefs support 25 % of all marine species. Ocean acidification from CO₂ emissions ' +
       'destroys these ecosystems, removing the foundation of oceanic food chains.',
     followingEvent:
       '🐠 500 million people lose their primary food source. Fisheries collapse. Ocean deserts expand.',
@@ -103,12 +220,28 @@ const MILESTONES = [
     darkColor: '#cc3333',
   },
   {
+    id: 'permafrost_bomb',
+    name: 'Permafrost Methane Bomb',
+    icon: '💨',
+    tokens: 750_000_000_000_000, // 750 trillion
+    shortDesc: '750 Trillion Tokens',
+    description: 'Siberian and Alaskan permafrost releases stored methane at runaway rates',
+    consequence:
+      'Permafrost locks away an estimated 1.5 trillion tonnes of carbon — twice the amount ' +
+      'currently in the atmosphere. Thawing driven by AI energy emissions triggers methane release ' +
+      'that is 84× more potent than CO₂ over 20 years, creating a self-reinforcing feedback loop.',
+    followingEvent:
+      '🌡️ Global temperature rises accelerate beyond all IPCC models. Climate targets become fiction.',
+    color: '#9E9E9E',
+    darkColor: '#616161',
+  },
+  {
     id: 'glacier',
     name: 'Glacier Collapse',
-    icon: '🧊',
+    icon: '🏔️',
     tokens: 1_000_000_000_000_000, // 1 quadrillion
     shortDesc: '1 Quadrillion Tokens',
-    description: 'Warming equivalent destabilizes the West Antarctic Ice Sheet',
+    description: 'Warming equivalent destabilises the West Antarctic Ice Sheet',
     consequence:
       "Glaciers are the world's largest freshwater reservoirs. Their loss permanently eliminates " +
       'drinking water for billions and raises sea levels catastrophically.',
@@ -118,19 +251,83 @@ const MILESTONES = [
     darkColor: '#6ba8c4',
   },
   {
+    id: 'ocean_acidification',
+    name: 'Ocean Acidification Threshold',
+    icon: '🐟',
+    tokens: 2_000_000_000_000_000, // 2 quadrillion
+    shortDesc: '2 Quadrillion Tokens',
+    description: 'Ocean pH drops to 7.95 — shellfish and coral larvae can no longer form shells',
+    consequence:
+      'The ocean has absorbed 30 % of all human CO₂ emissions. As pH drops, the carbonate ions ' +
+      'that marine organisms use to build shells and skeletons dissolve. Oysters, mussels, krill, ' +
+      'and pteropods — the base of polar food webs — begin failing to reproduce.',
+    followingEvent:
+      '🦐 Krill populations crash. Whales, penguins, and polar bears follow into starvation.',
+    color: '#0D47A1',
+    darkColor: '#082e6a',
+  },
+  {
+    id: 'sahel_collapse',
+    name: 'Sahel Collapse',
+    icon: '☀️',
+    tokens: 5_000_000_000_000_000, // 5 quadrillion
+    shortDesc: '5 Quadrillion Tokens',
+    description: 'The Sahel belt becomes uninhabitable — 300 million climate refugees displaced',
+    consequence:
+      'The Sahel region, already at the edge of habitability, tips past the point where subsistence ' +
+      'farming is possible. A belt of uninhabitable land stretches across Africa from Senegal to Somalia. ' +
+      'Tens of millions of climate refugees overwhelm neighbouring regions.',
+    followingEvent:
+      '🌍 Regional governments collapse. Conflict over water and arable land escalates to warfare.',
+    color: '#E65100',
+    darkColor: '#b33d00',
+  },
+  {
     id: 'ocean_dead_zone',
     name: 'Ocean Dead Zone',
     icon: '🌊',
     tokens: 10_000_000_000_000_000, // 10 quadrillion
     shortDesc: '10 Quadrillion Tokens',
-    description: 'Ocean acidification creates dead zone larger than the Pacific garbage patch',
+    description: 'Ocean acidification creates a dead zone larger than the Pacific garbage patch',
     consequence:
       'CO₂ absorbed by oceans shifts their pH — catastrophic for marine life. ' +
-      'Phytoplankton, which produces 50% of Earth\'s oxygen, begins dying off.',
+      'Phytoplankton, which produces 50 % of Earth\'s oxygen, begins dying off.',
     followingEvent:
       '😮‍💨 Atmospheric oxygen concentration drops. Human cognitive function declines. Extinction accelerates.',
     color: '#1A237E',
     darkColor: '#0d1466',
+  },
+  {
+    id: 'jet_stream_collapse',
+    name: 'Jet Stream Destabilised',
+    icon: '🌪️',
+    tokens: 30_000_000_000_000_000, // 30 quadrillion
+    shortDesc: '30 Quadrillion Tokens',
+    description: 'Arctic amplification breaks the polar jet stream into chaotic loops',
+    consequence:
+      'The jet stream normally separates cold Arctic air from warm temperate air. As the Arctic ' +
+      'warms 4× faster than the rest of the planet, the temperature gradient that drives the jet ' +
+      'stream weakens. It buckles into extreme meanders, locking weather patterns in place for weeks.',
+    followingEvent:
+      '❄️🌡️ Europe freezes in July. Texas floods. Monsoons arrive months late. Harvests fail continent-wide.',
+    color: '#7E57C2',
+    darkColor: '#4a2d8a',
+  },
+  {
+    id: 'food_system_stress',
+    name: 'Global Food System Under Siege',
+    icon: '🌾',
+    tokens: 50_000_000_000_000_000, // 50 quadrillion
+    shortDesc: '50 Quadrillion Tokens',
+    description: 'Simultaneous crop failures on three continents push 1 billion into food insecurity',
+    consequence:
+      'Extreme heat waves, erratic monsoons, and drought driven by AI\'s cumulative emissions hit ' +
+      'major grain-producing regions simultaneously. Global food reserves drop below 60 days. ' +
+      'Price spikes trigger social unrest across 40+ countries.',
+    followingEvent:
+      '🍞 Food nationalism spreads. Export bans fracture global trade. Humanitarian crisis escalates.',
+    color: '#8D6E63',
+    darkColor: '#5d4037',
   },
   {
     id: 'mass_extinction',
@@ -147,73 +344,71 @@ const MILESTONES = [
     color: '#4A0000',
     darkColor: '#2a0000',
   },
+  {
+    id: 'permafrost_feedback',
+    name: 'Permafrost Runaway Feedback',
+    icon: '🌡️',
+    tokens: 200_000_000_000_000_000, // 200 quadrillion
+    shortDesc: '200 Quadrillion Tokens',
+    description: 'Permafrost thaw becomes self-sustaining — no longer stoppable by human action',
+    consequence:
+      'With 200 quadrillion tokens of AI compute behind us, the permafrost feedback loop is ' +
+      'irreversible. Methane and CO₂ now self-release regardless of human emissions reductions. ' +
+      'Temperatures rise beyond every modelled scenario.',
+    followingEvent:
+      '🌋 Feedback accelerates. Even zero human emissions cannot stop the warming now.',
+    color: '#BF360C',
+    darkColor: '#7f240a',
+  },
+  {
+    id: 'monsoon_failure',
+    name: 'Asian Monsoon Failure',
+    icon: '🌧️',
+    tokens: 500_000_000_000_000_000, // 500 quadrillion
+    shortDesc: '500 Quadrillion Tokens',
+    description: 'The Asian monsoon system fails — 3 billion people lose their primary water source',
+    consequence:
+      'The Asian monsoon delivers 70–90 % of annual rainfall to South and East Asia. ' +
+      'Disrupted atmospheric circulation patterns caused by AI\'s energy emissions collapse ' +
+      'this ancient weather system. India, China, and Southeast Asia enter permanent drought.',
+    followingEvent:
+      '💧 3 billion people face water crisis. Nuclear-armed states clash over rivers. Mass migrations begin.',
+    color: '#1565C0',
+    darkColor: '#0d3d7a',
+  },
+  {
+    id: 'civilization_collapse',
+    name: "Civilisation's Last Stand",
+    icon: '🏙️',
+    tokens: 1_000_000_000_000_000_000, // 1 quintillion
+    shortDesc: '1 Quintillion Tokens',
+    description: 'Cascading system failures end industrial civilisation as we know it',
+    consequence:
+      'At one quintillion tokens, the cumulative environmental debt has come due. ' +
+      'Power grids fail. Supply chains dissolve. Nation-states lose the ability to maintain ' +
+      'basic services. The infrastructure that sustains 8 billion human lives begins to collapse.',
+    followingEvent:
+      '🌑 Lights go out across continents. The age of AI ends not with intelligence, but with silence.',
+    color: '#212121',
+    darkColor: '#0a0a0a',
+  },
+  {
+    id: 'biosphere_collapse',
+    name: 'Biosphere Collapse',
+    icon: '🌑',
+    tokens: 10_000_000_000_000_000_000, // 10 quintillion
+    shortDesc: '10 Quintillion Tokens',
+    description: 'Earth\'s life-support systems fail — the biosphere can no longer sustain complex life',
+    consequence:
+      'The biosphere — the thin living layer that maintains Earth\'s temperature, atmosphere, ' +
+      'and water cycles — has been pushed past all tipping points. Complex multicellular life ' +
+      'can no longer be sustained. Earth enters a new geological epoch defined by absence.',
+    followingEvent:
+      '🕳️ The experiment of intelligence on Earth concludes. The planet heals — in 10 million years.',
+    color: '#000000',
+    darkColor: '#000000',
+  },
 ];
-
-// Prompt / PR scoring rubric
-const PROMPT_SCORING = {
-  promptTitle: 'Death Clock GitHub Page',
-  initialScore: 74,
-  finalScore: 94,
-  categories: [
-    {
-      name: 'Clarity of Intent',
-      initial: 18,
-      max: 20,
-      notes: 'Clear goal. Minor ambiguity in "life essential".',
-      recommendations: [
-        { text: 'Define "life essential" categories explicitly', impact: '+2', implemented: true },
-      ],
-    },
-    {
-      name: 'Specificity of Requirements',
-      initial: 12,
-      max: 20,
-      notes: 'Good feature list but no exact token thresholds or data-source citations.',
-      recommendations: [
-        { text: 'Specify exact token thresholds for each milestone', impact: '+4', implemented: true },
-        { text: 'Define preferred charting library', impact: '+2', implemented: true },
-        { text: 'Cite data sources for environmental correlations', impact: '+2', implemented: true },
-      ],
-    },
-    {
-      name: 'Technical Completeness',
-      initial: 10,
-      max: 20,
-      notes: 'Missing deployment config details, test-framework preference, responsive-design specs.',
-      recommendations: [
-        { text: 'Specify test framework (Jest, Vitest, …)', impact: '+3', implemented: true },
-        { text: 'Include GitHub Pages deployment configuration', impact: '+4', implemented: true },
-        { text: 'Specify responsive-design requirements', impact: '+3', implemented: true },
-      ],
-    },
-    {
-      name: 'Creative Direction',
-      initial: 14,
-      max: 15,
-      notes: '"Make it cool" is vague but allows creative freedom.',
-      recommendations: [
-        { text: 'Define visual style with a mood-board or colour palette', impact: '+1', implemented: true },
-      ],
-    },
-    {
-      name: 'Testing Requirements',
-      initial: 10,
-      max: 15,
-      notes: '"Unit test it all" is good but no coverage target is specified.',
-      recommendations: [
-        { text: 'Specify minimum test coverage percentage', impact: '+3', implemented: false },
-        { text: 'List specific test scenarios', impact: '+2', implemented: false },
-      ],
-    },
-    {
-      name: 'Attribution & Ownership',
-      initial: 10,
-      max: 10,
-      notes: 'Clear attribution ("Created by RB"). Perfectly specified.',
-      recommendations: [],
-    },
-  ],
-};
 
 // ============================================================
 // PURE UTILITY FUNCTIONS
@@ -387,32 +582,20 @@ function milestoneProgress(tokens, prevMilestoneTokens, nextMilestoneTokens) {
 }
 
 /**
- * Compute the total scored points and percentage for the prompt scoring.
- * @param {Object} scoring - PROMPT_SCORING object
- * @returns {{ totalInitial: number, totalFinal: number, maxScore: number, percentage: number }}
+ * Return the estimated global AI inference rate (tokens/second) for a given date,
+ * based on the piecewise RATE_SCHEDULE anchored to landmark AI events.
+ * @param {Date} [date] - defaults to now
+ * @returns {number} tokens per second
  */
-function computePromptScore(scoring) {
-  let totalInitial = 0;
-  let maxScore = 0;
-  let totalBonus = 0;
-
-  for (const cat of scoring.categories) {
-    totalInitial += cat.initial;
-    maxScore += cat.max;
-    for (const rec of cat.recommendations) {
-      if (rec.implemented) {
-        totalBonus += parseInt(rec.impact, 10) || 0;
-      }
+function getRateAtDate(date) {
+  const d = (date instanceof Date && !isNaN(date.getTime())) ? date : new Date();
+  const ms = d.getTime();
+  for (let i = RATE_SCHEDULE.length - 1; i >= 0; i--) {
+    if (ms >= new Date(RATE_SCHEDULE[i].date).getTime()) {
+      return RATE_SCHEDULE[i].ratePerSec;
     }
   }
-
-  const totalFinal = Math.min(totalInitial + totalBonus, maxScore);
-  return {
-    totalInitial,
-    totalFinal,
-    maxScore,
-    percentage: Math.round((totalFinal / maxScore) * 100),
-  };
+  return RATE_SCHEDULE[0].ratePerSec;
 }
 
 // ============================================================
@@ -424,7 +607,7 @@ const DeathClockCore = {
   BASE_DATE_ISO,
   HISTORICAL_DATA,
   MILESTONES,
-  PROMPT_SCORING,
+  RATE_SCHEDULE,
   formatTokenCount,
   formatTokenCountShort,
   getTriggeredMilestones,
@@ -435,7 +618,7 @@ const DeathClockCore = {
   formatDate,
   getTimeDelta,
   milestoneProgress,
-  computePromptScore,
+  getRateAtDate,
 };
 
 if (typeof module !== 'undefined' && module.exports) {

@@ -14,7 +14,7 @@
     BASE_DATE_ISO,
     HISTORICAL_DATA,
     MILESTONES,
-    PROMPT_SCORING,
+    RATE_SCHEDULE,
     formatTokenCount,
     formatTokenCountShort,
     getTriggeredMilestones,
@@ -25,7 +25,7 @@
     formatDate,
     getTimeDelta,
     milestoneProgress,
-    computePromptScore,
+    getRateAtDate,
   } = window.DeathClockCore;
 
   // ---- State -----------------------------------------------
@@ -62,13 +62,17 @@
 
   // ---- Counter updater -------------------------------------
   function updateCounters() {
+    const now = Date.now();
     const tokens = getCurrentTokens();
-    const sessionTokens = Math.round((Date.now() - pageLoadTime) / 1000 * TOKENS_PER_SECOND);
-    const elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+    const currentRate = getRateAtDate(new Date(now));
+    const sessionTokens = Math.round((now - pageLoadTime) / 1000 * currentRate);
+    const elapsed = Math.floor((now - pageLoadTime) / 1000);
 
     const totalEl = document.getElementById('totalCounter');
     const sessionEl = document.getElementById('sessionCounter');
     const sessionTimeEl = document.getElementById('sessionTime');
+    const rateEl = document.getElementById('rateCounter');
+    const rateEventEl = document.getElementById('rateEvent');
 
     if (totalEl) totalEl.textContent = numFmt(tokens);
     if (sessionEl) sessionEl.textContent = formatTokenCount(sessionTokens);
@@ -76,6 +80,14 @@
       const m = Math.floor(elapsed / 60);
       const s = elapsed % 60;
       sessionTimeEl.textContent = m > 0 ? `${m}m ${s}s on page` : `${s}s on page`;
+    }
+    if (rateEl) rateEl.textContent = formatTokenCount(currentRate);
+    if (rateEventEl) {
+      // Show the event that triggered this rate step
+      const rateEntry = [...RATE_SCHEDULE].reverse().find(
+        (r) => now >= new Date(r.date).getTime()
+      );
+      if (rateEntry) rateEventEl.textContent = rateEntry.event + ' · tokens/sec';
     }
 
     // Impact stats
@@ -312,66 +324,6 @@
     chartInstance.update('none');
   }
 
-  // ---- Prompt scoring section ------------------------------
-  function renderScoring() {
-    const container = document.getElementById('scoring-content');
-    if (!container) return;
-
-    const { totalInitial, totalFinal, maxScore } = computePromptScore(PROMPT_SCORING);
-
-    let html = `
-      <div class="score-summary">
-        <div class="score-badge">
-          <div class="badge-score">${totalInitial}/${maxScore}</div>
-          <div class="badge-label">Prompt Score (initial)</div>
-        </div>
-        <div class="score-badge final">
-          <div class="badge-score">${totalFinal}/${maxScore}</div>
-          <div class="badge-label">After Addressing Recommendations</div>
-        </div>
-      </div>
-      <div class="scoring-categories">
-    `;
-
-    PROMPT_SCORING.categories.forEach((cat) => {
-      const bonus = cat.recommendations
-        .filter((r) => r.implemented)
-        .reduce((acc, r) => acc + (parseInt(r.impact, 10) || 0), 0);
-
-      html += `
-        <div class="scoring-cat">
-          <div class="scoring-cat-header">
-            <span class="scoring-cat-name">${escHtml(cat.name)}</span>
-            <span class="scoring-cat-score">${cat.initial}${bonus ? '+' + bonus : ''}/${cat.max}</span>
-          </div>
-          <p class="scoring-cat-notes">${escHtml(cat.notes)}</p>
-          ${cat.recommendations.length ? '<ul class="rec-list">' + cat.recommendations.map((r) => `
-            <li class="rec-item ${r.implemented ? 'done' : ''}">
-              <span>${r.implemented ? '✅' : '⬜'}</span>
-              <span>${escHtml(r.text)}</span>
-              <span class="rec-impact">${escHtml(r.impact)} pts</span>
-            </li>
-          `).join('') + '</ul>' : ''}
-        </div>
-      `;
-    });
-
-    html += '</div>';
-    container.innerHTML = html;
-  }
-
-  // ---- Collapsible scoring ---------------------------------
-  function initScoringToggle() {
-    const btn = document.getElementById('scoringToggle');
-    const content = document.getElementById('scoring-content');
-    if (!btn || !content) return;
-    btn.addEventListener('click', () => {
-      const open = content.classList.toggle('open');
-      btn.textContent = (open ? '▼ Hide' : '▶ Show') + ' Scoring Details';
-      btn.setAttribute('aria-expanded', String(open));
-    });
-  }
-
   // ---- Security helper ------------------------------------
   function escHtml(str) {
     if (typeof str !== 'string') return '';
@@ -445,22 +397,33 @@
       ${state !== 'dead' ? 'tabindex="0" role="button"' : 'aria-disabled="true"'}>${content}</div>`;
   }
 
+  // Maximum days to render in life-blocks view (~10 years).
+  // Beyond this, a summary block is shown to avoid creating millions of DOM elements.
+  const MAX_LB_DAYS = 3650;
+
   // ---- View renderers ----
 
   function lbRenderDays(container, now) {
     const total = lbTotalDaysLeft();
+    const displayed = Math.min(total, MAX_LB_DAYS);
     const todayMidnight = lbMidnight(now);
     const todayProgress = ((now - todayMidnight) / 86400000) * 100;
     const extDate = new Date(lbExtinctionMs());
     const extStr = extDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
     let html = `<div class="lb-grid" style="--lb-cols:52" aria-label="${total} days remaining">`;
-    // Day 0 = today (dying), days 1..total = future
+    // Day 0 = today (dying), days 1..displayed = future
     html += lbMakeDyingBlock('data-day="0"', todayProgress,
       'Today — burning away', '');
-    for (let i = 1; i <= total; i++) {
+    for (let i = 1; i <= displayed; i++) {
       html += lbMakeBlock('future', `data-day="${i}"`,
         `Day ${i} from now`, '');
+    }
+    if (total > MAX_LB_DAYS) {
+      html += `<div class="lb-block lb-future lb-overflow" aria-disabled="true"
+        title="${(total - MAX_LB_DAYS).toLocaleString()} more days not shown"
+        aria-label="${(total - MAX_LB_DAYS).toLocaleString()} more days">
+        +${Math.round((total - MAX_LB_DAYS) / 365)}y</div>`;
     }
     html += '</div>';
 
@@ -715,9 +678,15 @@
     // Render static sections once
     renderMilestones();
     renderPredictionsTable();
-    renderScoring();
-    initScoringToggle();
-    initChart();
+
+    // Chart init is isolated so a missing date-adapter or other chart error
+    // cannot prevent the counters and life-blocks from running.
+    try {
+      initChart();
+    } catch (err) {
+      console.error('Chart init failed:', err);
+    }
+
     initLifeBlocks();
 
     // Kick off the live counter RAF loop
