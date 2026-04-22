@@ -125,12 +125,12 @@ Tests are in `tests/death-clock.test.js` and cover all pure functions in `death-
 - [x] Add Dependabot config (`.github/dependabot.yml`) for automatic npm and GitHub Actions version bumps.
 
 #### Priority 4 — Test completeness
-- [ ] Add integration / smoke tests for `script.js` DOM logic using `jest-environment-jsdom`.
-- [ ] Cover the two uncovered lines in `death-clock-core.js` (lines 251, 443-444).
-- [ ] Add a test that asserts `getCurrentTokens()` grows with time rather than resetting on reload.
+- [x] Add integration / smoke tests for `script.js` DOM logic using `jest-environment-jsdom`.
+- [x] Cover the two uncovered lines in `death-clock-core.js` (line 251 now covered; lines 443-444 are the browser-only `window` export path that is unreachable in Jest's Node module environment — behaviour is verified via `vm.runInNewContext`).
+- [x] Add a test that asserts `getCurrentTokens()` grows with time rather than resetting on reload.
 
 #### Priority 5 — Developer experience
-- [ ] Add `.nvmrc` to pin the Node.js version.
-- [ ] Add `.editorconfig` or a Prettier config for consistent formatting.
-- [ ] Add a `"homepage"` field in `package.json` matching the GitHub Pages URL.
-- [ ] Add a `CHANGELOG.md` to track releases.
+- [x] Add `.nvmrc` to pin the Node.js version.
+- [x] Add `.editorconfig` or a Prettier config for consistent formatting.
+- [x] Add a `"homepage"` field in `package.json` matching the GitHub Pages URL.
+- [x] Add a `CHANGELOG.md` to track releases.
