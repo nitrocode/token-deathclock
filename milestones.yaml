@@ -1,0 +1,547 @@
+# AI Death Clock — Milestone Definitions
+# ============================================================
+# This file is the human-readable source of truth for all milestone data.
+# Edit this file to add, remove, or update milestones.
+#
+# After editing, regenerate milestones-data.js by running:
+#   npm run build:milestones
+#
+# Fields:
+#   id          (string)  Unique identifier (snake_case)
+#   name        (string)  Short display name
+#   icon        (string)  Emoji icon
+#   tokens      (integer) Cumulative global token threshold
+#   shortDesc   (string)  Token count summary (e.g. "1 Trillion Tokens")
+#   description (string)  One-line description of the environmental event
+#   consequence (string)  Multi-sentence explanation of the impact
+#   followingEvent (string) Follow-on consequence (starts with emoji)
+#   color       (string)  Light-mode accent colour (CSS hex)
+#   darkColor   (string)  Dark-mode accent colour (CSS hex)
+#   reference   (string)  Optional URL to a supporting source (omit if none)
+#
+# IMPORTANT: Keep entries sorted in ascending `tokens` order.
+# ============================================================
+
+milestones:
+
+  - id: first_forest
+    name: First Forest Felled
+    icon: "\U0001F332"
+    tokens: 1000000000000
+    shortDesc: 1 Trillion Tokens
+    description: "CO₂ equivalent of 50,000 mature trees cut down"
+    consequence: >-
+      A single trillion tokens generates CO₂ equal to the annual absorption of
+      50,000 mature trees. The Amazon loses 4.3 million acres per year —
+      AI energy demands accelerate this.
+    followingEvent: "\U0001F525 Regional droughts intensify. Species lose habitat. The carbon feedback loop begins."
+    color: '#2D9B27'
+    darkColor: '#1a6b15'
+    reference: 'https://www.iea.org/reports/electricity-2024'
+
+  - id: power_grid_strain
+    name: Power Grid Strain
+    icon: "⚡"
+    tokens: 2000000000000
+    shortDesc: 2 Trillion Tokens
+    description: "AI data centres claim 1 % of global electricity — equal to all of Argentina"
+    consequence: >-
+      When data centres alone consume 1 % of the world's electricity, every
+      brown-out and rolling blackout hits hospitals, water-treatment plants, and
+      cold-storage food supplies first. Grid operators begin rationing power to
+      residential users.
+    followingEvent: "\U0001F4A1 Planned blackouts become routine. Industrial production slows. Energy poverty spikes."
+    color: '#FFAA00'
+    darkColor: '#cc7700'
+    reference: 'https://www.iea.org/reports/electricity-2024'
+
+  - id: arctic_ice
+    name: First Ice-Free Arctic Summer
+    icon: "\U0001F9CA"
+    tokens: 5000000000000
+    shortDesc: 5 Trillion Tokens
+    description: The Arctic Ocean is ice-free for the first time in recorded history
+    consequence: >-
+      Sea ice reflects 80 % of incoming sunlight back into space. Without it, the
+      dark Arctic Ocean absorbs that heat, accelerating warming by 2–3 × above
+      the global average. Polar vortex destabilisation sends extreme weather to
+      temperate regions.
+    followingEvent: "❄️ Polar vortex collapses. Record cold snaps devastate agriculture at lower latitudes."
+    color: '#B0E0FF'
+    darkColor: '#5aabdd'
+    reference: 'https://www.nature.com/articles/s41586-022-05185-z'
+
+  - id: bee_colony
+    name: Bee Colony Collapse
+    icon: "\U0001F41D"
+    tokens: 10000000000000
+    shortDesc: 10 Trillion Tokens
+    description: 1 billion bees lost to energy-driven habitat destruction
+    consequence: >-
+      Bees pollinate 35 % of human food crops. AI's growing energy demands
+      accelerate pesticide use and destroy wildflower habitats that bee
+      colonies depend on.
+    followingEvent: "\U0001F33E 1-in-3 food items vanish from shelves. Crop yields drop 35 %. Food prices triple globally."
+    color: '#FFD700'
+    darkColor: '#b39800'
+    reference: 'https://www.science.org/doi/10.1126/science.1253124'
+
+  - id: wildfire_crisis
+    name: Permanent Wildfire Season
+    icon: "\U0001F525"
+    tokens: 20000000000000
+    shortDesc: 20 Trillion Tokens
+    description: Wildfire season becomes year-round across three continents
+    consequence: >-
+      Warmer, drier conditions sustained by AI's CO₂ load eliminate the concept
+      of a fire season. Forests in Australia, the American West, and Southern
+      Europe burn continuously. Smoke blankets cities for months, pushing
+      respiratory illness to epidemic levels.
+    followingEvent: "\U0001F32B️ Air-quality emergencies declared in 40+ cities. Outdoor workers face daily health orders."
+    color: '#FF5500'
+    darkColor: '#cc3300'
+    reference: 'https://www.pnas.org/doi/10.1073/pnas.2011048117'
+
+  - id: silent_species
+    name: "Silent Spring: 100 Species Gone"
+    icon: "\U0001F426"
+    tokens: 50000000000000
+    shortDesc: 50 Trillion Tokens
+    description: 100 vertebrate species driven to extinction by AI-linked habitat destruction
+    consequence: >-
+      Habitat loss and climate change driven by AI energy demands erase entire
+      branches of the tree of life. Each lost species unravels the web of
+      interdependence — pest explosions, crop failures, and disease outbreaks
+      follow as predator-prey balances collapse.
+    followingEvent: "\U0001F33F Ecosystems destabilise. Invasive species surge. Crop pests breed unchecked."
+    color: '#66BB6A'
+    darkColor: '#3d7a40'
+    reference: 'https://www.pnas.org/doi/10.1073/pnas.2306987120'
+
+  - id: great_lakes
+    name: Great Lakes Drained
+    icon: "\U0001F4A7"
+    tokens: 100000000000000
+    shortDesc: 100 Trillion Tokens
+    description: "Data-centre cooling drains freshwater equal to Lake Erie"
+    consequence: >-
+      AI data centres consume billions of litres of water annually for cooling.
+      This draws down aquifers and surface supplies that took millennia to
+      accumulate.
+    followingEvent: "\U0001F6B0 2 billion people face water scarcity. Water wars erupt between nations. Agriculture fails."
+    color: '#0077BE'
+    darkColor: '#005490'
+    reference: 'https://www.nature.com/articles/d41586-024-00278-9'
+
+  - id: water_table_collapse
+    name: Global Water Table Collapse
+    icon: "\U0001F335"
+    tokens: 200000000000000
+    shortDesc: 200 Trillion Tokens
+    description: "Major aquifers — Ogallala, Indo-Gangetic, North China Plain — drop below recovery"
+    consequence: >-
+      Underground aquifers that supply half of all irrigation water worldwide
+      have been drawn down past their natural recharge rates. AI data-centre
+      demand pushes many past the point of no return. Regions that once fed
+      nations face permanent desertification.
+    followingEvent: "\U0001F3DC️ Breadbasket nations become dust bowls. 1 billion people face famine. Food nationalism spikes."
+    color: '#C8A96E'
+    darkColor: '#8a6e3e'
+    reference: 'https://www.science.org/doi/10.1126/science.aaf3776'
+
+  - id: amazon_tipping
+    name: Amazon Tipping Point
+    icon: "\U0001F333"
+    tokens: 300000000000000
+    shortDesc: 300 Trillion Tokens
+    description: The Amazon rainforest begins converting to savannah — irreversibly
+    consequence: >-
+      Scientists have long warned that 20–25 % deforestation would tip the Amazon
+      into a self-drying feedback loop. AI's cumulative carbon contribution
+      delivers the final increment of warming. The world's largest carbon sink
+      becomes a carbon source.
+    followingEvent: "\U0001F32A️ Global rainfall patterns shift. Monsoons fail. 3 billion people face drought."
+    color: '#1B5E20'
+    darkColor: '#0d3b12'
+    reference: 'https://www.science.org/doi/10.1126/sciadv.abi4517'
+
+  - id: coral_reef
+    name: Great Barrier Reef Lost
+    icon: "\U0001FAB8"
+    tokens: 500000000000000
+    shortDesc: 500 Trillion Tokens
+    description: "CO₂ triggers mass bleaching — the Great Barrier Reef is gone"
+    consequence: >-
+      Coral reefs support 25 % of all marine species. Ocean acidification from
+      CO₂ emissions destroys these ecosystems, removing the foundation of
+      oceanic food chains.
+    followingEvent: "\U0001F420 500 million people lose their primary food source. Fisheries collapse. Ocean deserts expand."
+    color: '#FF6B6B'
+    darkColor: '#cc3333'
+    reference: 'https://www.nature.com/articles/s41558-017-0012-x'
+
+  - id: permafrost_bomb
+    name: Permafrost Methane Bomb
+    icon: "\U0001F4A8"
+    tokens: 750000000000000
+    shortDesc: 750 Trillion Tokens
+    description: Siberian and Alaskan permafrost releases stored methane at runaway rates
+    consequence: >-
+      Permafrost locks away an estimated 1.5 trillion tonnes of carbon — twice
+      the amount currently in the atmosphere. Thawing driven by AI energy
+      emissions triggers methane release that is 84× more potent than CO₂
+      over 20 years, creating a self-reinforcing feedback loop.
+    followingEvent: "\U0001F321️ Global temperature rises accelerate beyond all IPCC models. Climate targets become fiction."
+    color: '#9E9E9E'
+    darkColor: '#616161'
+    reference: 'https://www.nature.com/articles/s41586-018-0807-z'
+
+  - id: glacier
+    name: Glacier Collapse
+    icon: "\U0001F3D4️"
+    tokens: 1000000000000000
+    shortDesc: 1 Quadrillion Tokens
+    description: Warming equivalent destabilises the West Antarctic Ice Sheet
+    consequence: >-
+      Glaciers are the world's largest freshwater reservoirs. Their loss
+      permanently eliminates drinking water for billions and raises sea levels
+      catastrophically.
+    followingEvent: "\U0001F30A Coastal cities begin flooding. 600 million people displaced. Sea level rises 3 metres."
+    color: '#A8D8EA'
+    darkColor: '#6ba8c4'
+    reference: 'https://www.nature.com/articles/s41558-023-01682-9'
+
+  - id: ocean_acidification
+    name: Ocean Acidification Threshold
+    icon: "\U0001F41F"
+    tokens: 2000000000000000
+    shortDesc: 2 Quadrillion Tokens
+    description: "Ocean pH drops to 7.95 — shellfish and coral larvae can no longer form shells"
+    consequence: >-
+      The ocean has absorbed 30 % of all human CO₂ emissions. As pH drops,
+      the carbonate ions that marine organisms use to build shells and skeletons
+      dissolve. Oysters, mussels, krill, and pteropods — the base of polar
+      food webs — begin failing to reproduce.
+    followingEvent: "\U0001F990 Krill populations crash. Whales, penguins, and polar bears follow into starvation."
+    color: '#0D47A1'
+    darkColor: '#082e6a'
+    reference: 'https://www.nature.com/articles/s41561-023-01163-y'
+
+  - id: sahel_collapse
+    name: Sahel Collapse
+    icon: "☀️"
+    tokens: 5000000000000000
+    shortDesc: 5 Quadrillion Tokens
+    description: "The Sahel belt becomes uninhabitable — 300 million climate refugees displaced"
+    consequence: >-
+      The Sahel region, already at the edge of habitability, tips past the
+      point where subsistence farming is possible. A belt of uninhabitable land
+      stretches across Africa from Senegal to Somalia. Tens of millions of
+      climate refugees overwhelm neighbouring regions.
+    followingEvent: "\U0001F30D Regional governments collapse. Conflict over water and arable land escalates to warfare."
+    color: '#E65100'
+    darkColor: '#b33d00'
+
+  - id: ocean_dead_zone
+    name: Ocean Dead Zone
+    icon: "\U0001F30A"
+    tokens: 10000000000000000
+    shortDesc: 10 Quadrillion Tokens
+    description: Ocean acidification creates a dead zone larger than the Pacific garbage patch
+    consequence: >-
+      CO₂ absorbed by oceans shifts their pH — catastrophic for marine life.
+      Phytoplankton, which produces 50 % of Earth's oxygen, begins dying off.
+    followingEvent: "\U0001F62E‍\U0001F4A8 Atmospheric oxygen concentration drops. Human cognitive function declines. Extinction accelerates."
+    color: '#1A237E'
+    darkColor: '#0d1466'
+    reference: 'https://www.science.org/doi/10.1126/science.aam6321'
+
+  - id: jet_stream_collapse
+    name: Jet Stream Destabilised
+    icon: "\U0001F32A️"
+    tokens: 30000000000000000
+    shortDesc: 30 Quadrillion Tokens
+    description: Arctic amplification breaks the polar jet stream into chaotic loops
+    consequence: >-
+      The jet stream normally separates cold Arctic air from warm temperate
+      air. As the Arctic warms 4× faster than the rest of the planet, the
+      temperature gradient that drives the jet stream weakens. It buckles into
+      extreme meanders, locking weather patterns in place for weeks.
+    followingEvent: "❄️\U0001F321️ Europe freezes in July. Texas floods. Monsoons arrive months late. Harvests fail continent-wide."
+    color: '#7E57C2'
+    darkColor: '#4a2d8a'
+    reference: 'https://www.nature.com/articles/s41561-021-00848-8'
+
+  - id: food_system_stress
+    name: Global Food System Under Siege
+    icon: "\U0001F33E"
+    tokens: 50000000000000000
+    shortDesc: 50 Quadrillion Tokens
+    description: Simultaneous crop failures on three continents push 1 billion into food insecurity
+    consequence: >-
+      Extreme heat waves, erratic monsoons, and drought driven by AI's
+      cumulative emissions hit major grain-producing regions simultaneously.
+      Global food reserves drop below 60 days. Price spikes trigger social
+      unrest across 40+ countries.
+    followingEvent: "\U0001F35E Food nationalism spreads. Export bans fracture global trade. Humanitarian crisis escalates."
+    color: '#8D6E63'
+    darkColor: '#5d4037'
+
+  # ── Near-term milestones (hours → years from April 2026) ──────────────────
+
+  - id: ai_thirst_today
+    name: AI Thirst Today
+    icon: "\U0001F4A7"
+    tokens: 65075000000000000
+    shortDesc: 65.075 Quadrillion Tokens
+    description: "Data centres consume 4.3 billion litres of water — today's share of AI cooling"
+    consequence: >-
+      Each day, global AI inference consumes water equivalent to the daily
+      supply of a city of 1.5 million people. Cooling systems in hyperscale
+      data centres draw on local aquifers and municipal water supplies,
+      competing directly with residential and agricultural demand.
+    followingEvent: "\U0001F6B0 Water stress alerts issued in tech-hub regions. Residents face hosepipe bans during heatwaves."
+    color: '#29B6F6'
+    darkColor: '#0277bd'
+    reference: 'https://www.nature.com/articles/d41586-024-00278-9'
+
+  - id: daily_energy_reckoning
+    name: Daily Energy Reckoning
+    icon: "⚡"
+    tokens: 65080000000000000
+    shortDesc: 65.08 Quadrillion Tokens
+    description: "Today’s AI inference consumes enough energy to power 25,000 homes for a year"
+    consequence: >-
+      The global AI industry now processes tokens at a rate that demands
+      roughly 8.6 trillion tokens worth of energy every day. At current
+      efficiency rates that equates to 2.6 million kWh — enough to power
+      a small town for a year, consumed in 24 hours.
+    followingEvent: "\U0001F3ED Industrial electricity tariffs rise as data-centre demand crowds out manufacturing."
+    color: '#FFA726'
+    darkColor: '#e65100'
+    reference: 'https://www.iea.org/energy-system/technology/data-centres-and-data-transmission-networks'
+
+  - id: carbon_checkpoint
+    name: Carbon Checkpoint
+    icon: "\U0001F321️"
+    tokens: 65100000000000000
+    shortDesc: 65.1 Quadrillion Tokens
+    description: "Cumulative AI emissions now exceed the annual CO₂ output of a mid-sized nation"
+    consequence: >-
+      In just a few days, global AI systems will add token counts equivalent
+      to the annual carbon footprint of a country of 10 million people.
+      The rate is accelerating: what took years to accumulate early in AI's
+      history now happens in weeks.
+    followingEvent: "\U0001F4CA Emissions trackers begin flagging AI as a discrete industrial sector in national inventories."
+    color: '#EF5350'
+    darkColor: '#b71c1c'
+
+  - id: fortnight_forest_impact
+    name: Fortnight Forest Impact
+    icon: "\U0001F333"
+    tokens: 65200000000000000
+    shortDesc: 65.2 Quadrillion Tokens
+    description: "Two weeks of AI token growth equals the carbon sequestration of 100,000 acres of forest"
+    consequence: >-
+      In the time it takes to grow two weeks' worth of tokens, AI systems
+      generate CO₂ that would take 100,000 acres of mature forest a full year
+      to reabsorb. Global deforestation is already outpacing replanting;
+      AI adds a growing supplementary load.
+    followingEvent: "\U0001F333 Forest carbon credits tighten. Offsetting schemes struggle to keep pace with AI emissions."
+    color: '#66BB6A'
+    darkColor: '#2e7d32'
+
+  - id: city_power_month
+    name: City Power Month
+    icon: "\U0001F3D9️"
+    tokens: 65500000000000000
+    shortDesc: 65.5 Quadrillion Tokens
+    description: "Seven weeks of AI inference draws the same electricity as powering London for a month"
+    consequence: >-
+      Over the past seven weeks, global AI has consumed tokens generating
+      electricity demand equivalent to powering a city the size of London for
+      an entire month. Grid operators in high-density tech corridors now model
+      AI load as a primary planning variable, alongside industrial and
+      residential demand.
+    followingEvent: "\U0001F4A1 Power utilities begin curtailment schedules for non-critical AI workloads during peak demand."
+    color: '#AB47BC'
+    darkColor: '#6a1b9a'
+    reference: 'https://www.iea.org/reports/electricity-2024'
+
+  - id: quarterly_climate_cost
+    name: Quarterly Climate Cost
+    icon: "\U0001F30A"
+    tokens: 66000000000000000
+    shortDesc: 66 Quadrillion Tokens
+    description: "AI’s quarterly token growth adds CO₂ equivalent to burning 5 billion kilograms of coal"
+    consequence: >-
+      In less than four months, the world's AI systems will process another
+      quadrillion tokens. The energy bill: carbon equivalent to 5 billion kg
+      of coal burned. Regulators in the EU and US begin mandating AI energy
+      disclosures in quarterly corporate reports.
+    followingEvent: "\U0001F4CB Mandatory AI carbon audits proposed in 40 countries. Data-centre planning approvals stall."
+    color: '#26A69A'
+    darkColor: '#00695c'
+
+  - id: monsoon_disruption_warning
+    name: Monsoon Disruption Warning
+    icon: "\U0001F327️"
+    tokens: 67000000000000000
+    shortDesc: 67 Quadrillion Tokens
+    description: "Climate scientists flag AI energy heat-islands as a measurable monsoon disruptor"
+    consequence: >-
+      Concentrated heat output from mega-data-centre clusters alters local
+      atmospheric moisture patterns. Research links the density of data-centre
+      heat plumes in South and Southeast Asia to measurable shifts in
+      pre-monsoon cloud formation. Delayed monsoons reduce crop yields for
+      hundreds of millions of subsistence farmers.
+    followingEvent: "\U0001F4A7 Monsoon onset delayed by 10–14 days in three major agricultural regions. Rice harvest forecasts cut."
+    color: '#42A5F5'
+    darkColor: '#1565c0'
+    reference: 'https://www.nature.com/articles/s41612-023-00387-4'
+
+  - id: annual_energy_audit
+    name: Annual Energy Audit
+    icon: "\U0001F3ED"
+    tokens: 68000000000000000
+    shortDesc: 68 Quadrillion Tokens
+    description: "One year of AI growth consumes electricity equivalent to all of India for six months"
+    consequence: >-
+      A full year of AI token production adds 3+ quadrillion tokens to the
+      cumulative total. The electricity bill for that year rivals the annual
+      consumption of a G20 nation's residential sector. Power grids in major
+      tech hubs routinely operate above 95 % capacity, leaving no margin
+      for unexpected demand spikes.
+    followingEvent: "\U0001F6A8 Grid fragility incidents rise. Rolling brownouts reported in data-centre-dense regions."
+    color: '#FF7043'
+    darkColor: '#bf360c'
+    reference: 'https://www.iea.org/reports/electricity-2024'
+
+  - id: two_year_carbon_budget
+    name: Two-Year Carbon Budget Warning
+    icon: "\U0001F331"
+    tokens: 72000000000000000
+    shortDesc: 72 Quadrillion Tokens
+    description: "Two years of AI compound growth consumes a measurable slice of the 1.5°C carbon budget"
+    consequence: >-
+      Scientists tracking the remaining carbon budget for 1.5°C identify
+      AI infrastructure as one of the fastest-growing emission categories.
+      Compound growth in token production means each passing year adds
+      proportionally more CO₂, not less. The window for course correction
+      narrows with every billion tokens.
+    followingEvent: "\U0001F6A8 IPCC emergency review triggered. AI emissions added to national carbon accounting frameworks."
+    color: '#8BC34A'
+    darkColor: '#33691e'
+    reference: 'https://www.ipcc.ch/report/ar6/syr/'
+
+  - id: grid_breaking_point
+    name: Grid Infrastructure Breaking Point
+    icon: "\U0001F50B"
+    tokens: 80000000000000000
+    shortDesc: 80 Quadrillion Tokens
+    description: "AI now consumes more electricity than the entire global residential sector did in 2020"
+    consequence: >-
+      At 80 quadrillion tokens, AI's cumulative energy demand has grown to
+      rival the residential electricity consumption of the entire planet circa
+      2020. Existing transmission infrastructure was not designed for this
+      load. Brownouts, grid faults, and demand-rationing become normalised
+      in regions without proactive investment.
+    followingEvent: "\U0001F4A5 Major grid failures reported in three continents. Hospitals and data centres compete for backup power."
+    color: '#F57F17'
+    darkColor: '#e65100'
+    reference: 'https://www.iea.org/energy-system/technology/data-centres-and-data-transmission-networks'
+
+  - id: decade_of_damage
+    name: Decade of Damage
+    icon: "\U0001F30E"
+    tokens: 90000000000000000
+    shortDesc: 90 Quadrillion Tokens
+    description: "Eight years of unchecked AI growth locks in 0.1°C of additional warming"
+    consequence: >-
+      Climate models incorporating AI's compound energy trajectory show that
+      eight years of growth at historical rates locks in an additional
+      0.1°C of warming above already-committed levels. That fraction of a
+      degree translates into millions more people exposed to extreme heat,
+      rising seas, and failing harvests.
+    followingEvent: "\U0001F4CA Climate departure dates brought forward by 3–5 years in tropical regions. Adaptation plans rewritten."
+    color: '#D32F2F'
+    darkColor: '#7f0000'
+    reference: 'https://www.nature.com/articles/s41558-022-01533-z'
+
+  # ── Far-future milestones ─────────────────────────────────────────────────
+
+  - id: mass_extinction
+    name: Sixth Mass Extinction
+    icon: "\U0001F480"
+    tokens: 100000000000000000
+    shortDesc: 100 Quadrillion Tokens
+    description: "AI energy demands push 10,000+ species to irreversible extinction"
+    consequence: >-
+      We are already in the sixth mass extinction. AI's insatiable energy
+      hunger accelerates species loss beyond any recovery. Biodiversity
+      collapses irreversibly.
+    followingEvent: "\U0001F311 Ecosystem services fail. Agriculture collapses. Civilisation as we know it ends. The clock reaches zero."
+    color: '#4A0000'
+    darkColor: '#2a0000'
+    reference: 'https://www.pnas.org/doi/10.1073/pnas.2306987120'
+
+  - id: permafrost_feedback
+    name: Permafrost Runaway Feedback
+    icon: "\U0001F321️"
+    tokens: 200000000000000000
+    shortDesc: 200 Quadrillion Tokens
+    description: "Permafrost thaw becomes self-sustaining — no longer stoppable by human action"
+    consequence: >-
+      With 200 quadrillion tokens of AI compute behind us, the permafrost
+      feedback loop is irreversible. Methane and CO₂ now self-release
+      regardless of human emissions reductions. Temperatures rise beyond
+      every modelled scenario.
+    followingEvent: "\U0001F30B Feedback accelerates. Even zero human emissions cannot stop the warming now."
+    color: '#BF360C'
+    darkColor: '#7f240a'
+    reference: 'https://www.nature.com/articles/s41586-018-0807-z'
+
+  - id: monsoon_failure
+    name: Asian Monsoon Failure
+    icon: "\U0001F327️"
+    tokens: 500000000000000000
+    shortDesc: 500 Quadrillion Tokens
+    description: "The Asian monsoon system fails — 3 billion people lose their primary water source"
+    consequence: >-
+      The Asian monsoon delivers 70–90 % of annual rainfall to South and
+      East Asia. Disrupted atmospheric circulation patterns caused by AI's
+      energy emissions collapse this ancient weather system. India, China,
+      and Southeast Asia enter permanent drought.
+    followingEvent: "\U0001F4A7 3 billion people face water crisis. Nuclear-armed states clash over rivers. Mass migrations begin."
+    color: '#1565C0'
+    darkColor: '#0d3d7a'
+
+  - id: civilization_collapse
+    name: "Civilisation’s Last Stand"
+    icon: "\U0001F3D9️"
+    tokens: 1000000000000000000
+    shortDesc: 1 Quintillion Tokens
+    description: Cascading system failures end industrial civilisation as we know it
+    consequence: >-
+      At one quintillion tokens, the cumulative environmental debt has come
+      due. Power grids fail. Supply chains dissolve. Nation-states lose the
+      ability to maintain basic services. The infrastructure that sustains
+      8 billion human lives begins to collapse.
+    followingEvent: "\U0001F311 Lights go out across continents. The age of AI ends not with intelligence, but with silence."
+    color: '#212121'
+    darkColor: '#0a0a0a'
+
+  - id: biosphere_collapse
+    name: Biosphere Collapse
+    icon: "\U0001F311"
+    tokens: 10000000000000000000
+    shortDesc: 10 Quintillion Tokens
+    description: "Earth’s life-support systems fail — the biosphere can no longer sustain complex life"
+    consequence: >-
+      The biosphere — the thin living layer that maintains Earth's
+      temperature, atmosphere, and water cycles — has been pushed past all
+      tipping points. Complex multicellular life can no longer be sustained.
+      Earth enters a new geological epoch defined by absence.
+    followingEvent: "\U0001F573️ The experiment of intelligence on Earth concludes. The planet heals — in 10 million years."
+    color: '#000000'
+    darkColor: '#000000'

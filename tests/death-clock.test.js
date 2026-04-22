@@ -7,6 +7,7 @@
  */
 
 const core = require('../death-clock-core');
+const milestonesData = require('../milestones-data');
 
 const {
   formatTokenCount,
@@ -20,6 +21,8 @@ const {
   getTimeDelta,
   milestoneProgress,
   getRateAtDate,
+  calculateTipImpact,
+  TOKEN_TIPS,
   generateEquivalences,
   calculatePersonalFootprint,
   sessionEquivalences,
@@ -469,13 +472,35 @@ describe('Browser window export', () => {
     const vm = require('vm');
     const fs = require('fs');
     const path = require('path');
-    const code = fs.readFileSync(path.join(__dirname, '../death-clock-core.js'), 'utf8');
-    // Run in a sandbox where `module` is undefined and `window` is available.
-    // This exercises the `else if (typeof window !== 'undefined')` branch (lines 443-444).
-    const sandboxWindow = {};
-    vm.runInNewContext(code, { window: sandboxWindow });
+    const coreCode = fs.readFileSync(path.join(__dirname, '../death-clock-core.js'), 'utf8');
+    // Run in a sandbox where `module` is undefined and `window` is available,
+    // with MilestonesData pre-loaded so the MILESTONES branch is fully exercised.
+    const sandboxWindow = { MilestonesData: milestonesData };
+    vm.runInNewContext(coreCode, { window: sandboxWindow });
     expect(typeof sandboxWindow.DeathClockCore).toBe('object');
     expect(typeof sandboxWindow.DeathClockCore.formatTokenCount).toBe('function');
+  });
+
+  test('MILESTONES loads from window.MilestonesData in browser context', () => {
+    const vm = require('vm');
+    const fs = require('fs');
+    const path = require('path');
+    const coreCode = fs.readFileSync(path.join(__dirname, '../death-clock-core.js'), 'utf8');
+    const sandboxWindow = { MilestonesData: milestonesData };
+    vm.runInNewContext(coreCode, { window: sandboxWindow });
+    expect(Array.isArray(sandboxWindow.DeathClockCore.MILESTONES)).toBe(true);
+    expect(sandboxWindow.DeathClockCore.MILESTONES.length).toBeGreaterThan(0);
+  });
+
+  test('MILESTONES falls back to empty array when MilestonesData is absent', () => {
+    const vm = require('vm');
+    const fs = require('fs');
+    const path = require('path');
+    const coreCode = fs.readFileSync(path.join(__dirname, '../death-clock-core.js'), 'utf8');
+    const sandboxWindow = {};
+    vm.runInNewContext(coreCode, { window: sandboxWindow });
+    expect(Array.isArray(sandboxWindow.DeathClockCore.MILESTONES)).toBe(true);
+    expect(sandboxWindow.DeathClockCore.MILESTONES.length).toBe(0);
   });
 });
 
@@ -606,6 +631,194 @@ describe('Extended MILESTONES', () => {
     const ids = MILESTONES.map((m) => m.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
+  });
+});
+
+// ============================================================
+// getTimeDelta — hours/minutes/seconds granularity
+// ============================================================
+describe('getTimeDelta sub-day granularity', () => {
+  const now = new Date('2026-01-01T00:00:00Z');
+
+  test('returns hours for a 3-hour future date', () => {
+    const future = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+    const result = getTimeDelta(future, now);
+    expect(result).toMatch(/hour/);
+  });
+
+  test('returns singular hour for exactly 1 hour', () => {
+    const future = new Date(now.getTime() + 1 * 60 * 60 * 1000);
+    expect(getTimeDelta(future, now)).toBe('in ~1 hour');
+  });
+
+  test('returns minutes for a 45-minute future', () => {
+    const future = new Date(now.getTime() + 45 * 60 * 1000);
+    expect(getTimeDelta(future, now)).toMatch(/minute/);
+  });
+
+  test('returns singular minute for exactly 1 minute', () => {
+    const future = new Date(now.getTime() + 60 * 1000);
+    expect(getTimeDelta(future, now)).toBe('in ~1 minute');
+  });
+
+  test('returns seconds for a 30-second future', () => {
+    const future = new Date(now.getTime() + 30 * 1000);
+    expect(getTimeDelta(future, now)).toMatch(/second/);
+  });
+
+  test('returns singular second for exactly 1 second', () => {
+    const future = new Date(now.getTime() + 1000);
+    expect(getTimeDelta(future, now)).toBe('in ~1 second');
+  });
+});
+
+// ============================================================
+// generateProjectionData — exponential growth
+// ============================================================
+describe('generateProjectionData with annualGrowthRate', () => {
+  const now = new Date('2026-01-01T00:00:00Z');
+
+  test('linear (growth=0) produces same result as before', () => {
+    const linear = generateProjectionData(0, 1_000_000, 12, now, 0);
+    expect(linear.length).toBe(13);
+    // Last point is 12 months of constant rate
+    const lastLinear = linear[linear.length - 1].tokensT;
+    expect(lastLinear).toBeGreaterThan(0);
+  });
+
+  test('exponential produces larger values than linear over same period', () => {
+    const linear = generateProjectionData(0, 1_000_000, 12, now, 0);
+    const expo   = generateProjectionData(0, 1_000_000, 12, now, 0.5);
+    const lastLinear = linear[linear.length - 1].tokensT;
+    const lastExpo   = expo[linear.length - 1].tokensT;
+    expect(lastExpo).toBeGreaterThan(lastLinear);
+  });
+
+  test('first data point is the same regardless of growth rate', () => {
+    const linear = generateProjectionData(1e15, 1_000_000, 6, now, 0);
+    const expo   = generateProjectionData(1e15, 1_000_000, 6, now, 1.0);
+    expect(linear[0].tokensT).toBeCloseTo(expo[0].tokensT, 2);
+  });
+
+  test('values are monotonically increasing with exponential growth', () => {
+    const data = generateProjectionData(0, 1_000_000, 6, now, 0.5);
+    for (let i = 1; i < data.length; i++) {
+      expect(data[i].tokensT).toBeGreaterThan(data[i - 1].tokensT);
+    }
+  });
+
+  test('negative annualGrowthRate is treated as linear (0)', () => {
+    const result = generateProjectionData(0, 1_000_000, 3, now, -0.5);
+    // Should still return data without errors
+    expect(result.length).toBe(4);
+    result.forEach((d) => expect(typeof d.tokensT).toBe('number'));
+  });
+});
+
+// ============================================================
+// calculateTipImpact
+// ============================================================
+describe('calculateTipImpact', () => {
+  test('returns zeros for invalid savingPct', () => {
+    const r = calculateTipImpact('bad', 10);
+    expect(r.tokensPerDay).toBe(0);
+    expect(r.kWhPerDay).toBe(0);
+  });
+
+  test('returns zeros for invalid percentOfUsers', () => {
+    const r = calculateTipImpact(50, 'bad');
+    expect(r.tokensPerDay).toBe(0);
+  });
+
+  test('returns zeros for negative savingPct', () => {
+    const r = calculateTipImpact(-10, 5);
+    expect(r.tokensPerDay).toBe(0);
+  });
+
+  test('returns zeros for negative percentOfUsers', () => {
+    const r = calculateTipImpact(50, -1);
+    expect(r.tokensPerDay).toBe(0);
+  });
+
+  test('positive values for valid inputs', () => {
+    const r = calculateTipImpact(30, 1);
+    expect(r.tokensPerDay).toBeGreaterThan(0);
+    expect(r.kWhPerDay).toBeGreaterThan(0);
+    expect(r.co2KgPerDay).toBeGreaterThan(0);
+    expect(r.waterLPerDay).toBeGreaterThan(0);
+  });
+
+  test('scales linearly with percentOfUsers', () => {
+    const r1 = calculateTipImpact(30, 1);
+    const r2 = calculateTipImpact(30, 2);
+    expect(r2.tokensPerDay).toBeCloseTo(r1.tokensPerDay * 2, 0);
+  });
+
+  test('scales linearly with savingPct', () => {
+    const r1 = calculateTipImpact(10, 1);
+    const r2 = calculateTipImpact(20, 1);
+    expect(r2.tokensPerDay).toBeCloseTo(r1.tokensPerDay * 2, 0);
+  });
+
+  test('caps savingPct at 100', () => {
+    const r100 = calculateTipImpact(100, 1);
+    const r200 = calculateTipImpact(200, 1);
+    expect(r100.tokensPerDay).toBeCloseTo(r200.tokensPerDay, 0);
+  });
+
+  test('caps percentOfUsers at 100', () => {
+    const r100 = calculateTipImpact(30, 100);
+    const r200 = calculateTipImpact(30, 200);
+    expect(r100.tokensPerDay).toBeCloseTo(r200.tokensPerDay, 0);
+  });
+
+  test('uses custom ratePerSec when provided', () => {
+    const r = calculateTipImpact(100, 100, 1);
+    // 1 token/sec * 86400 sec * 100% saving * 100% users = 86400 tokens
+    expect(r.tokensPerDay).toBeCloseTo(86400, 0);
+  });
+
+  test('falls back to TOKENS_PER_SECOND when ratePerSec is invalid', () => {
+    const rDefault = calculateTipImpact(10, 1);
+    const rExplicit = calculateTipImpact(10, 1, TOKENS_PER_SECOND);
+    expect(rDefault.tokensPerDay).toBeCloseTo(rExplicit.tokensPerDay, 0);
+  });
+});
+
+// ============================================================
+// TOKEN_TIPS
+// ============================================================
+describe('TOKEN_TIPS', () => {
+  test('is a non-empty array', () => {
+    expect(Array.isArray(TOKEN_TIPS)).toBe(true);
+    expect(TOKEN_TIPS.length).toBeGreaterThan(0);
+  });
+
+  test('each tip has required fields', () => {
+    TOKEN_TIPS.forEach((tip) => {
+      expect(typeof tip.id).toBe('string');
+      expect(typeof tip.icon).toBe('string');
+      expect(typeof tip.title).toBe('string');
+      expect(typeof tip.tip).toBe('string');
+      expect(typeof tip.detail).toBe('string');
+      expect(typeof tip.savingPct).toBe('number');
+      expect(tip.savingPct).toBeGreaterThan(0);
+      expect(tip.savingPct).toBeLessThanOrEqual(100);
+    });
+  });
+
+  test('all tip ids are unique', () => {
+    const ids = TOKEN_TIPS.map((t) => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test('optional reference field is a string URL when present', () => {
+    TOKEN_TIPS.forEach((tip) => {
+      if (tip.reference !== undefined) {
+        expect(typeof tip.reference).toBe('string');
+        expect(tip.reference).toMatch(/^https?:\/\//);
+      }
+    });
   });
 });
 
