@@ -301,6 +301,28 @@ header::after {
 /* ---- Milestones ---- */
 #milestones-section { background: var(--bg); }
 
+.milestone-filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 0.5rem;
+}
+
+.milestone-filter-label input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--accent);
+  width: 1rem;
+  height: 1rem;
+}
+
+.milestones-grid.hide-completed .milestone-card.triggered {
+  display: none;
+}
+
 .milestones-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
