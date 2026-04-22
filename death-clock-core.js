@@ -515,6 +515,80 @@ function sessionEquivalences(sessionTokens) {
 }
 
 // ============================================================
+// ACCELERATOR GAME — Pure Helpers
+// ============================================================
+
+/**
+ * All possible session challenge definitions.
+ * Each entry: { id, icon, label, desc, type, target, rewardDp }
+ * type: 'taps' | 'tokens' | 'combo' | 'speed' | 'upgrade' | 'co2'
+ */
+const SESSION_CHALLENGE_DEFS = [
+  { id: 'rapid_fire',    icon: '👆', label: 'Rapid Fire',         desc: 'Tap 100 times',                                      type: 'taps',    target: 100,   rewardDp: 200  },
+  { id: 'billionaire',   icon: '💎', label: 'Token Billionaire',  desc: 'Contribute 1 billion personal tokens',               type: 'tokens',  target: 1e9,   rewardDp: 100  },
+  { id: 'trillion',      icon: '💰', label: 'Trillion Touched',   desc: 'Contribute 1 trillion personal tokens',              type: 'tokens',  target: 1e12,  rewardDp: 1000 },
+  { id: 'combo_king',    icon: '🔥', label: 'Combo King',         desc: 'Hit 10× combo 3 times',                              type: 'combo',   target: 3,     rewardDp: 500  },
+  { id: 'speed_demon',   icon: '⚡', label: 'Speed Demon',        desc: 'Tap 50 times in under 10 seconds',                   type: 'speed',   target: 50,    rewardDp: 500  },
+  { id: 'first_upgrade', icon: '🛒', label: 'Consumer Capitalism',desc: 'Purchase your first upgrade',                        type: 'upgrade', target: 1,     rewardDp: 50   },
+  { id: 'carbon_sprint', icon: '💨', label: 'Carbon Sprint',      desc: 'Generate 1 tonne CO₂-equivalent in one session',    type: 'co2',     target: 1000,  rewardDp: 750  },
+];
+
+/**
+ * Return the first personal milestone that the player has not yet crossed.
+ * @param {number} personalTokens
+ * @param {Array}  milestones
+ * @returns {Object|null}
+ */
+function getNextMilestoneForPlayer(personalTokens, milestones) {
+  if (typeof personalTokens !== 'number' || !Array.isArray(milestones)) return null;
+  return milestones.find((m) => personalTokens < m.tokens) || null;
+}
+
+/**
+ * Calculate the combo multiplier based on recent tap timestamps.
+ * Counts taps within the last 1,000 ms of the most recent tap, capped at 10.
+ * @param {number[]} tapTimestamps - array of epoch-ms tap times (oldest first)
+ * @returns {number} integer 1–10
+ */
+function computeComboMultiplier(tapTimestamps) {
+  if (!Array.isArray(tapTimestamps) || tapTimestamps.length === 0) return 1;
+  const latest = tapTimestamps[tapTimestamps.length - 1];
+  if (typeof latest !== 'number' || !isFinite(latest)) return 1;
+  const cutoff = latest - 1000;
+  const recent = tapTimestamps.filter((t) => typeof t === 'number' && t >= cutoff);
+  return Math.min(10, Math.max(1, recent.length));
+}
+
+/**
+ * Return 3 session challenges selected deterministically from SESSION_CHALLENGE_DEFS
+ * using a daily seed (changes once per UTC day).
+ * @param {number} [seedMs] - seed timestamp in ms (defaults to Date.now())
+ * @returns {Array<Object>} exactly 3 challenge definition objects
+ */
+function getSessionChallenges(seedMs) {
+  const ts = typeof seedMs === 'number' && isFinite(seedMs) ? seedMs : Date.now();
+  const dayBucket = Math.abs(Math.floor(ts / 86400000));
+  const start = dayBucket % SESSION_CHALLENGE_DEFS.length;
+  const result = [];
+  for (let i = 0; i < 3; i++) {
+    result.push(SESSION_CHALLENGE_DEFS[(start + i) % SESSION_CHALLENGE_DEFS.length]);
+  }
+  return result;
+}
+
+/**
+ * Format a Doom Points value into a human-readable string.
+ * @param {number} dp
+ * @returns {string}
+ */
+function formatDoomPoints(dp) {
+  if (typeof dp !== 'number' || isNaN(dp) || dp < 0) return '0 DP';
+  if (dp >= 1e6) return (dp / 1e6).toFixed(1).replace(/\.0$/, '') + 'M DP';
+  if (dp >= 1e3) return (dp / 1e3).toFixed(1).replace(/\.0$/, '') + 'K DP';
+  return Math.round(dp) + ' DP';
+}
+
+// ============================================================
 // EXPORTS — CommonJS for Jest; window global for the browser
 // ============================================================
 const DeathClockCore = {
@@ -524,6 +598,7 @@ const DeathClockCore = {
   HISTORICAL_DATA,
   MILESTONES,
   RATE_SCHEDULE,
+  SESSION_CHALLENGE_DEFS,
   TOKEN_TIPS,
   formatTokenCount,
   formatTokenCountShort,
@@ -540,6 +615,10 @@ const DeathClockCore = {
   generateEquivalences,
   calculatePersonalFootprint,
   sessionEquivalences,
+  getNextMilestoneForPlayer,
+  computeComboMultiplier,
+  getSessionChallenges,
+  formatDoomPoints,
 };
 
 if (typeof module !== 'undefined' && module.exports) {
