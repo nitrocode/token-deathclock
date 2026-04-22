@@ -161,9 +161,9 @@ describe('Theme toggle (DOM)', () => {
   test('button label reflects the active theme', () => {
     const btn = document.getElementById('themeToggle');
     btn.click(); // dark -> light
-    expect(btn.textContent).toContain('Dark Mode');
+    expect(btn.textContent).toContain('🌙');
     btn.click(); // light -> dark
-    expect(btn.textContent).toContain('Light Mode');
+    expect(btn.textContent).toContain('☀️');
   });
 });
 
