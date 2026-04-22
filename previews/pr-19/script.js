@@ -15,6 +15,7 @@
     HISTORICAL_DATA,
     MILESTONES,
     RATE_SCHEDULE,
+    TOKEN_TIPS,
     formatTokenCount,
     formatTokenCountShort,
     getTriggeredMilestones,
@@ -26,6 +27,7 @@
     getTimeDelta,
     milestoneProgress,
     getRateAtDate,
+    calculateTipImpact,
     generateEquivalences,
     calculatePersonalFootprint,
     sessionEquivalences,
@@ -169,7 +171,8 @@
             <div class="progress-fill" style="width:${pct}%"></div>
           </div>
         </div>
-        ${prediction ? `<div class="milestone-predict">⏱ Predicted: ${escHtml(formatDate(prediction))}</div>` : ''}
+        ${prediction ? `<div class="milestone-predict">⏱ Predicted: ${escHtml(formatDate(prediction))} (${escHtml(getTimeDelta(prediction))})</div>` : ''}
+        ${m.reference ? `<a href="${escHtml(m.reference)}" class="milestone-ref" target="_blank" rel="noopener noreferrer">📎 Source</a>` : ''}
       `;
       grid.appendChild(card);
     });
@@ -205,7 +208,9 @@
   function buildChartData() {
     const tokens = getCurrentTokens();
     const historical = HISTORICAL_DATA.map((d) => ({ x: d.date, y: d.tokensT }));
-    const projection = generateProjectionData(tokens, TOKENS_PER_SECOND, 18).map((d) => ({
+    // 60-month projection with 50 % annual growth in token-production rate,
+    // producing the hockey-stick acceleration observed historically.
+    const projection = generateProjectionData(tokens, TOKENS_PER_SECOND, 60, undefined, 0.5).map((d) => ({
       x: d.date,
       y: +d.tokensT.toFixed(2),
     }));
@@ -282,7 +287,7 @@
         scales: {
           x: {
             type: 'time',
-            time: { unit: 'month', tooltipFormat: 'MMM yyyy', displayFormats: { month: 'MMM yy' } },
+            time: { tooltipFormat: 'MMM yyyy', displayFormats: { month: 'MMM yy', year: 'yyyy', quarter: 'MMM yy' } },
             grid: { color: colors.gridColor },
             ticks: { color: colors.tickColor, maxRotation: 45 },
           },
@@ -1056,6 +1061,37 @@
     observer.observe(section);
   }
 
+  // ---- Render token-saving tips ---------------------------
+  function renderTips() {
+    const grid = document.getElementById('tipsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    TOKEN_TIPS.forEach((tip) => {
+      const card = document.createElement('div');
+      card.className = 'tip-card';
+      card.id = 'tip-' + escHtml(tip.id);
+      const impact = calculateTipImpact(tip.savingPct, 1); // 1 % of global users
+      const savedTokensStr = formatTokenCountShort(impact.tokensPerDay);
+      const savedCo2Str = formatTokenCountShort(impact.co2KgPerDay);
+      card.innerHTML = `
+        <div class="tip-header">
+          <span class="tip-icon" aria-hidden="true">${tip.icon}</span>
+          <div class="tip-title">${escHtml(tip.title)}</div>
+        </div>
+        <p class="tip-text">${escHtml(tip.tip)}</p>
+        <p class="tip-detail">${escHtml(tip.detail)}</p>
+        <div class="tip-impact">
+          If 1&#x202F;% of global users applied this tip:<br>
+          <strong>${escHtml(savedTokensStr)} tokens/day saved</strong> ·
+          <strong>${escHtml(savedCo2Str)} kg CO₂/day avoided</strong>
+        </div>
+        ${tip.reference ? `<a href="${escHtml(tip.reference)}" class="tip-ref" target="_blank" rel="noopener noreferrer">📎 Learn more</a>` : ''}
+      `;
+      grid.appendChild(card);
+    });
+  }
+
   // ============================================================
   // FUN FEATURES
   // ============================================================
@@ -1750,6 +1786,7 @@
     // Render static sections once
     renderMilestones();
     renderPredictionsTable();
+    renderTips();
 
     // Chart init is isolated so a missing date-adapter or other chart error
     // cannot prevent the counters and life-blocks from running.
