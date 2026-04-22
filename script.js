@@ -2309,11 +2309,39 @@
     startComboResetLoop();
   }
 
+  // ---- Tab navigation ------------------------------------
+  function initTabs() {
+    const tabBtns = document.querySelectorAll('.tab-btn[data-tab]');
+
+    function switchTab(targetTab) {
+      tabBtns.forEach((btn) => {
+        const isActive = btn.dataset.tab === targetTab;
+        btn.classList.toggle('tab-btn--active', isActive);
+        btn.setAttribute('aria-selected', String(isActive));
+      });
+      document.querySelectorAll('[role="tabpanel"]').forEach((panel) => {
+        panel.hidden = panel.id !== 'tab-' + targetTab;
+      });
+    }
+
+    tabBtns.forEach((btn) => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    // Inline "Dashboard" link inside the About tab
+    document.querySelectorAll('.about-inline-tab-link[data-switch-tab]').forEach((link) => {
+      link.addEventListener('click', () => switchTab(link.dataset.switchTab));
+    });
+  }
+
   // ---- Bootstrap ------------------------------------------
   function init() {
     // Theme toggle
     const toggleBtn = document.getElementById('themeToggle');
     if (toggleBtn) toggleBtn.addEventListener('click', toggleTheme);
+
+    // Tab navigation
+    initTabs();
 
     // Render static sections once
     renderMilestones();

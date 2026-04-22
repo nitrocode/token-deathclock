@@ -207,6 +207,219 @@ header::after {
   letter-spacing: 0.1em;
 }
 
+/* ---- Tab Bar ---- */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  background: var(--bg-alt);
+  border-bottom: 2px solid var(--border);
+  padding: 0 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+}
+
+.tab-btn {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  padding: 0.85rem 1.25rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover {
+  color: var(--text);
+}
+
+.tab-btn--active,
+.tab-btn[aria-selected="true"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---- About Page ---- */
+.about-section {
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.about-lead {
+  font-size: 1.1rem;
+  line-height: 1.75;
+  color: var(--text);
+  max-width: 720px;
+  margin-bottom: 2rem;
+}
+
+.about-body {
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--text-dim);
+  max-width: 720px;
+  margin-bottom: 1.25rem;
+}
+
+.about-origin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.about-origin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.about-origin-card:hover { box-shadow: 0 0 20px var(--accent-glow); }
+
+.about-origin-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.about-origin-card h3 {
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+
+.about-origin-card p {
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
+.about-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 680px;
+  margin-top: 1.5rem;
+}
+
+.about-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.about-step-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--accent);
+  min-width: 2.2rem;
+  line-height: 1.4;
+}
+
+.about-step strong { color: var(--text); }
+
+.about-step div:last-child {
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
+.about-sources-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.about-sources-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.about-sources-table th,
+.about-sources-table td {
+  text-align: left;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--border);
+}
+
+.about-sources-table thead th {
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.about-sources-table tbody tr:nth-child(odd) { background: var(--surface); }
+.about-sources-table tbody tr:nth-child(even) { background: var(--bg-alt); }
+.about-sources-table tbody td { color: var(--text-dim); }
+.about-sources-table tbody td:first-child { color: var(--text); font-weight: 700; }
+.about-sources-table tbody td:nth-child(2) { color: var(--accent-2); font-family: 'Orbitron', monospace; font-size: 0.72rem; }
+
+.about-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.about-action-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.about-action-card:hover { box-shadow: 0 0 16px var(--accent-glow); }
+
+.about-action-card span { font-size: 1.8rem; }
+
+.about-action-card strong {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  color: var(--accent-3);
+  letter-spacing: 0.04em;
+}
+
+.about-action-card p {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.about-inline-tab-link {
+  background: none;
+  border: none;
+  color: var(--accent-4);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.about-inline-tab-link:hover { color: var(--accent); }
+
+
 /* ---- Live Counter Section ---- */
 #counter-section { background: var(--bg-alt); }
 
