@@ -10,8 +10,29 @@
 // and exponential-growth modeling published by AI-index 2024
 const BASE_TOKENS = 65_000_000_000_000_000; // ~65 quadrillion as of April 2026
 
-// Estimated current global AI inference rate (all providers combined)
+// Estimated current global AI inference rate at BASE_DATE_ISO (all providers combined)
 const TOKENS_PER_SECOND = 100_000_000; // ~100 million tokens/second
+
+// Piecewise token-production rate schedule driven by landmark AI events.
+// Each entry defines the approximate global inference rate from that date forward
+// until the next entry.  Sources: OpenAI capacity announcements, SemiAnalysis,
+// Epoch AI compute trends, Anthropic engineering posts, AI Index 2024.
+const RATE_SCHEDULE = [
+  { date: '2020-01-01', ratePerSec:               100, event: 'GPT-2 era — pre-API access' },
+  { date: '2020-06-01', ratePerSec:             2_000, event: 'GPT-3 launch (OpenAI API private beta)' },
+  { date: '2021-01-01', ratePerSec:            10_000, event: 'GPT-3 API broadly available' },
+  { date: '2022-01-01', ratePerSec:           200_000, event: 'DALL-E 2 & Codex wide release' },
+  { date: '2022-11-30', ratePerSec:         3_000_000, event: 'ChatGPT launch (~100 M users in 60 days)' },
+  { date: '2023-03-14', ratePerSec:        10_000_000, event: 'GPT-4 launch + ChatGPT Plus scaling' },
+  { date: '2023-07-01', ratePerSec:        20_000_000, event: 'Claude 2, Llama 2 — open-model proliferation' },
+  { date: '2024-01-01', ratePerSec:        40_000_000, event: 'GPT-4 Turbo, widespread enterprise adoption' },
+  { date: '2024-03-04', ratePerSec:        55_000_000, event: 'Claude 3 Opus — new SOTA benchmark' },
+  { date: '2024-05-13', ratePerSec:        70_000_000, event: 'GPT-4o real-time multimodal API' },
+  { date: '2024-07-23', ratePerSec:        80_000_000, event: 'Llama 3.1 405B open-weights release' },
+  { date: '2025-02-01', ratePerSec:        90_000_000, event: 'DeepSeek R1 — reasoning-model surge' },
+  { date: '2025-05-22', ratePerSec:       100_000_000, event: 'Claude Code GA — agentic AI boom begins' },
+  { date: '2026-04-14', ratePerSec:       100_000_000, event: 'BASE_DATE_ISO anchor (calibrated to BASE_TOKENS)' },
+];
 
 // ISO timestamp used as the "now" anchor for counters and projections
 const BASE_DATE_ISO = '2026-04-14T07:09:04Z';
@@ -35,185 +56,89 @@ const HISTORICAL_DATA = [
   { date: '2026-04-14', tokensT: 65000 },
 ];
 
-// Environmental milestone definitions
-// Token thresholds represent cumulative global AI inference since 2020.
-// Environmental correlations are symbolic/illustrative based on:
-// - Energy: 1,000 tokens ≈ 0.0003 kWh inference energy (Google/DeepMind estimates)
-// - CO₂: 0.4 kg CO₂ per kWh (global average grid intensity)
-// - Water: 0.5 L per 1,000 tokens (Microsoft data-center cooling research)
-const MILESTONES = [
+// ── Milestone data ────────────────────────────────────────────────────────────
+// MILESTONES are defined in milestones.yaml (human-readable source of truth).
+// The build step (`npm run build:milestones`) generates milestones-data.js.
+//
+// In the browser : milestones-data.js is loaded via <script> before this file,
+//                  which sets window.MilestonesData.
+// In Node.js/Jest: milestones-data.js is loaded via require().
+/* istanbul ignore next */
+const MILESTONES = (
+  typeof window !== 'undefined' && window.MilestonesData
+    ? window.MilestonesData.MILESTONES
+    : typeof require === 'function'
+      ? require('./milestones-data').MILESTONES
+      : []
+);
+
+// ── Token-saving tips ─────────────────────────────────────────────────────────
+// Each tip includes an estimate of token savings when applied consistently.
+// savingPct: percentage of tokens saved (0-100) relative to typical usage.
+// Sources: OpenAI prompt engineering guide, Anthropic documentation,
+// academic work on LLM efficiency.
+const TOKEN_TIPS = [
   {
-    id: 'first_forest',
-    name: 'First Forest Felled',
-    icon: '🌲',
-    tokens: 1_000_000_000_000, // 1 trillion
-    shortDesc: '1 Trillion Tokens',
-    description: 'CO₂ equivalent of 50,000 mature trees cut down',
-    consequence:
-      'A single trillion tokens generates CO₂ equal to the annual absorption of 50,000 mature trees. ' +
-      'The Amazon loses 4.3 million acres per year — AI energy demands accelerate this.',
-    followingEvent:
-      '🔥 Regional droughts intensify. Species lose habitat. The carbon feedback loop begins.',
-    color: '#2D9B27',
-    darkColor: '#1a6b15',
+    id: 'focused_prompts',
+    icon: '✏️',
+    title: 'Write Focused Prompts',
+    tip: 'Be specific and remove filler words. A 30 % shorter prompt usually gets the same quality response with far fewer input tokens.',
+    savingPct: 30,
+    detail: 'Studies show that redundant preambles, excessive politeness markers, and repeated context each add tokens without improving output quality. Aim to cut prompt length by a third without losing essential context.',
+    reference: 'https://platform.openai.com/docs/guides/prompt-engineering',
   },
   {
-    id: 'bee_colony',
-    name: 'Bee Colony Collapse',
-    icon: '🐝',
-    tokens: 10_000_000_000_000, // 10 trillion
-    shortDesc: '10 Trillion Tokens',
-    description: '1 billion bees lost to energy-driven habitat destruction',
-    consequence:
-      'Bees pollinate 35% of human food crops. AI\'s growing energy demands accelerate pesticide use ' +
-      'and destroy wildflower habitats that bee colonies depend on.',
-    followingEvent:
-      '🌾 1-in-3 food items vanish from shelves. Crop yields drop 35%. Food prices triple globally.',
-    color: '#FFD700',
-    darkColor: '#b39800',
+    id: 'right_model_size',
+    icon: '🎯',
+    title: 'Match Model to Task',
+    tip: 'Don\'t use a frontier model (GPT-4, Claude 3.5 Opus) for simple tasks. Smaller models can be 10–100× cheaper on summarisation, classification, and simple Q&A.',
+    savingPct: 80,
+    detail: 'Frontier models are optimised for complex reasoning. For routine tasks — extracting data, reformatting, answering FAQs — a small model (7B parameters or fewer) achieves comparable accuracy at a fraction of the energy cost.',
+    reference: 'https://www.anthropic.com/pricing',
   },
   {
-    id: 'great_lakes',
-    name: 'Great Lakes Drained',
-    icon: '💧',
-    tokens: 100_000_000_000_000, // 100 trillion
-    shortDesc: '100 Trillion Tokens',
-    description: 'Data-center cooling drains freshwater equal to Lake Erie',
-    consequence:
-      'AI data centers consume billions of liters of water annually for cooling. ' +
-      'This draws down aquifers and surface supplies that took millennia to accumulate.',
-    followingEvent:
-      '🚰 2 billion people face water scarcity. Water wars erupt between nations. Agriculture fails.',
-    color: '#0077BE',
-    darkColor: '#005490',
+    id: 'avoid_repetition',
+    icon: '♻️',
+    title: 'Avoid Repeating Context',
+    tip: 'Modern models retain conversation history — there\'s no need to re-explain background in every message. Reuse the session instead of starting fresh.',
+    savingPct: 25,
+    detail: 'Re-sending the same system prompt or background document at every turn can easily double the token count of a long conversation. Keep the context window lean and leverage the model\'s memory.',
   },
   {
-    id: 'coral_reef',
-    name: 'Great Barrier Reef Lost',
-    icon: '🪸',
-    tokens: 500_000_000_000_000, // 500 trillion
-    shortDesc: '500 Trillion Tokens',
-    description: 'CO₂ triggers mass bleaching — the Great Barrier Reef is gone',
-    consequence:
-      'Coral reefs support 25% of all marine species. Ocean acidification from CO₂ emissions ' +
-      'destroys these ecosystems, removing the foundation of oceanic food chains.',
-    followingEvent:
-      '🐠 500 million people lose their primary food source. Fisheries collapse. Ocean deserts expand.',
-    color: '#FF6B6B',
-    darkColor: '#cc3333',
+    id: 'cache_responses',
+    icon: '💾',
+    title: 'Cache Repeated Queries',
+    tip: 'In automated pipelines, cache responses to identical queries. A cached response costs zero tokens.',
+    savingPct: 60,
+    detail: 'Many production AI workflows repeatedly ask the same questions (e.g. processing templated documents). Semantic caching — returning stored results for near-identical inputs — can eliminate the majority of API calls in high-volume pipelines.',
+    reference: 'https://platform.openai.com/docs/guides/prompt-caching',
   },
   {
-    id: 'glacier',
-    name: 'Glacier Collapse',
-    icon: '🧊',
-    tokens: 1_000_000_000_000_000, // 1 quadrillion
-    shortDesc: '1 Quadrillion Tokens',
-    description: 'Warming equivalent destabilizes the West Antarctic Ice Sheet',
-    consequence:
-      "Glaciers are the world's largest freshwater reservoirs. Their loss permanently eliminates " +
-      'drinking water for billions and raises sea levels catastrophically.',
-    followingEvent:
-      '🌊 Coastal cities begin flooding. 600 million people displaced. Sea level rises 3 metres.',
-    color: '#A8D8EA',
-    darkColor: '#6ba8c4',
+    id: 'batch_requests',
+    icon: '📦',
+    title: 'Batch Related Requests',
+    tip: 'Instead of five separate API calls, ask for everything in one well-structured prompt. Each round trip carries overhead tokens for context and formatting.',
+    savingPct: 20,
+    detail: 'System messages and conversation headers are repeated for every independent call. Batching reduces per-request overhead and often allows the model to reason across sub-tasks more efficiently.',
   },
   {
-    id: 'ocean_dead_zone',
-    name: 'Ocean Dead Zone',
-    icon: '🌊',
-    tokens: 10_000_000_000_000_000, // 10 quadrillion
-    shortDesc: '10 Quadrillion Tokens',
-    description: 'Ocean acidification creates dead zone larger than the Pacific garbage patch',
-    consequence:
-      'CO₂ absorbed by oceans shifts their pH — catastrophic for marine life. ' +
-      'Phytoplankton, which produces 50% of Earth\'s oxygen, begins dying off.',
-    followingEvent:
-      '😮‍💨 Atmospheric oxygen concentration drops. Human cognitive function declines. Extinction accelerates.',
-    color: '#1A237E',
-    darkColor: '#0d1466',
+    id: 'summarise_request',
+    icon: '📋',
+    title: 'Request Concise Outputs',
+    tip: 'Ask for bullet points or a 3-sentence summary rather than full paragraphs when a summary suffices. Output tokens cost as much as input tokens.',
+    savingPct: 40,
+    detail: 'The default verbosity of large language models is a significant source of token waste. Explicit length constraints ("in 50 words or fewer", "bullet list only") reduce output tokens dramatically with minimal quality loss for most use-cases.',
   },
   {
-    id: 'mass_extinction',
-    name: 'Sixth Mass Extinction',
-    icon: '💀',
-    tokens: 100_000_000_000_000_000, // 100 quadrillion
-    shortDesc: '100 Quadrillion Tokens',
-    description: 'AI energy demands push 10,000+ species to irreversible extinction',
-    consequence:
-      "We are already in the sixth mass extinction. AI's insatiable energy hunger " +
-      'accelerates species loss beyond any recovery. Biodiversity collapses irreversibly.',
-    followingEvent:
-      '🌑 Ecosystem services fail. Agriculture collapses. Civilisation as we know it ends. The clock reaches zero.',
-    color: '#4A0000',
-    darkColor: '#2a0000',
+    id: 'local_models',
+    icon: '🏠',
+    title: 'Run Local Models',
+    tip: 'Tools like Ollama let you run efficient open-weight models (Phi-3, Llama 3.1 8B) on your own hardware — zero cloud tokens, and often better privacy.',
+    savingPct: 100,
+    detail: 'For private documents, repetitive internal tasks, or offline use cases, running a local model eliminates cloud API calls entirely. Modern quantised models run on a laptop with 16 GB RAM and are competitive with GPT-3.5 on many tasks.',
+    reference: 'https://ollama.com',
   },
 ];
-
-// Prompt / PR scoring rubric
-const PROMPT_SCORING = {
-  promptTitle: 'Death Clock GitHub Page',
-  initialScore: 74,
-  finalScore: 94,
-  categories: [
-    {
-      name: 'Clarity of Intent',
-      initial: 18,
-      max: 20,
-      notes: 'Clear goal. Minor ambiguity in "life essential".',
-      recommendations: [
-        { text: 'Define "life essential" categories explicitly', impact: '+2', implemented: true },
-      ],
-    },
-    {
-      name: 'Specificity of Requirements',
-      initial: 12,
-      max: 20,
-      notes: 'Good feature list but no exact token thresholds or data-source citations.',
-      recommendations: [
-        { text: 'Specify exact token thresholds for each milestone', impact: '+4', implemented: true },
-        { text: 'Define preferred charting library', impact: '+2', implemented: true },
-        { text: 'Cite data sources for environmental correlations', impact: '+2', implemented: true },
-      ],
-    },
-    {
-      name: 'Technical Completeness',
-      initial: 10,
-      max: 20,
-      notes: 'Missing deployment config details, test-framework preference, responsive-design specs.',
-      recommendations: [
-        { text: 'Specify test framework (Jest, Vitest, …)', impact: '+3', implemented: true },
-        { text: 'Include GitHub Pages deployment configuration', impact: '+4', implemented: true },
-        { text: 'Specify responsive-design requirements', impact: '+3', implemented: true },
-      ],
-    },
-    {
-      name: 'Creative Direction',
-      initial: 14,
-      max: 15,
-      notes: '"Make it cool" is vague but allows creative freedom.',
-      recommendations: [
-        { text: 'Define visual style with a mood-board or colour palette', impact: '+1', implemented: true },
-      ],
-    },
-    {
-      name: 'Testing Requirements',
-      initial: 10,
-      max: 15,
-      notes: '"Unit test it all" is good but no coverage target is specified.',
-      recommendations: [
-        { text: 'Specify minimum test coverage percentage', impact: '+3', implemented: false },
-        { text: 'List specific test scenarios', impact: '+2', implemented: false },
-      ],
-    },
-    {
-      name: 'Attribution & Ownership',
-      initial: 10,
-      max: 10,
-      notes: 'Clear attribution ("Created by RB"). Perfectly specified.',
-      recommendations: [],
-    },
-  ],
-};
 
 // ============================================================
 // PURE UTILITY FUNCTIONS
@@ -314,14 +239,22 @@ function calculateEnvironmentalImpact(tokens) {
 }
 
 /**
- * Generate future projection data points.
- * @param {number} currentTokens - tokens at `now`
- * @param {number} ratePerSec    - tokens per second
- * @param {number} months        - how many months to project
- * @param {Date}   [now]         - optional date override
+ * Generate future projection data points with optional exponential rate growth.
+ *
+ * With annualGrowthRate = 0 (default) the projection is linear (constant rate).
+ * With annualGrowthRate > 0 the token-production rate itself grows by that
+ * fraction each year — matching the observed hyper-exponential trajectory of
+ * global AI inference and producing the classic "hockey stick" on a linear axis.
+ *
+ * @param {number} currentTokens    - tokens at `now`
+ * @param {number} ratePerSec       - tokens per second at `now`
+ * @param {number} months           - how many months to project
+ * @param {Date}   [now]            - optional date override
+ * @param {number} [annualGrowthRate] - fractional annual growth of ratePerSec
+ *                                     (e.g. 0.5 = 50 % more tokens/sec each year)
  * @returns {Array<{ date: string, tokensT: number }>}
  */
-function generateProjectionData(currentTokens, ratePerSec, months, now) {
+function generateProjectionData(currentTokens, ratePerSec, months, now, annualGrowthRate) {
   if (
     typeof currentTokens !== 'number' ||
     typeof ratePerSec !== 'number' ||
@@ -331,14 +264,27 @@ function generateProjectionData(currentTokens, ratePerSec, months, now) {
     return [];
   }
   const base = now instanceof Date ? now : new Date();
+  const growth = typeof annualGrowthRate === 'number' && annualGrowthRate > 0
+    ? annualGrowthRate
+    : 0;
+  const SECS_PER_YEAR = 365.25 * 24 * 3600;
   const data = [];
   for (let i = 0; i <= months; i++) {
     const d = new Date(base.getTime());
     d.setMonth(d.getMonth() + i);
-    const elapsed = (d - base) / 1000;
+    const elapsed = (d - base) / 1000; // seconds since base
+    let additionalTokens;
+    if (growth === 0) {
+      additionalTokens = ratePerSec * elapsed;
+    } else {
+      // Integral of rate*(1+g)^(t/year) dt from 0 to elapsed:
+      // = rate/k * ((1+g)^(elapsed/year) - 1)  where k = ln(1+g)/year
+      const k = Math.log(1 + growth) / SECS_PER_YEAR;
+      additionalTokens = (ratePerSec / k) * (Math.exp(k * elapsed) - 1);
+    }
     data.push({
       date: d.toISOString().split('T')[0],
-      tokensT: (currentTokens + ratePerSec * elapsed) / 1e12,
+      tokensT: (currentTokens + additionalTokens) / 1e12,
     });
   }
   return data;
@@ -355,7 +301,8 @@ function formatDate(date) {
 }
 
 /**
- * Return a friendly "in X days/months/years" string.
+ * Return a friendly "in X hours/days/months/years" string.
+ * Supports hours and minutes for near-term milestones.
  * @param {Date|null} date
  * @param {Date}      [now]
  * @returns {string}
@@ -365,12 +312,18 @@ function getTimeDelta(date, now) {
   const base = now instanceof Date ? now : new Date();
   const diff = date - base;
   if (diff <= 0) return 'Already passed';
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const years = Math.floor(days / 365);
-  const months = Math.floor(days / 30);
-  if (years > 0) return `in ~${years} year${years > 1 ? 's' : ''}`;
-  if (months > 0) return `in ~${months} month${months > 1 ? 's' : ''}`;
-  return `in ~${days} day${days !== 1 ? 's' : ''}`;
+  const totalSeconds = Math.floor(diff / 1000);
+  const totalMinutes = Math.floor(diff / (1000 * 60));
+  const totalHours   = Math.floor(diff / (1000 * 60 * 60));
+  const days         = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const years        = Math.floor(days / 365);
+  const months       = Math.floor(days / 30);
+  if (years > 0)        return `in ~${years} year${years > 1 ? 's' : ''}`;
+  if (months > 0)       return `in ~${months} month${months > 1 ? 's' : ''}`;
+  if (days > 0)         return `in ~${days} day${days !== 1 ? 's' : ''}`;
+  if (totalHours > 0)   return `in ~${totalHours} hour${totalHours !== 1 ? 's' : ''}`;
+  if (totalMinutes > 0) return `in ~${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`;
+  return `in ~${totalSeconds} second${totalSeconds !== 1 ? 's' : ''}`;
 }
 
 /**
@@ -387,32 +340,178 @@ function milestoneProgress(tokens, prevMilestoneTokens, nextMilestoneTokens) {
 }
 
 /**
- * Compute the total scored points and percentage for the prompt scoring.
- * @param {Object} scoring - PROMPT_SCORING object
- * @returns {{ totalInitial: number, totalFinal: number, maxScore: number, percentage: number }}
+ * Return the estimated global AI inference rate (tokens/second) for a given date,
+ * based on the piecewise RATE_SCHEDULE anchored to landmark AI events.
+ * @param {Date} [date] - defaults to now
+ * @returns {number} tokens per second
  */
-function computePromptScore(scoring) {
-  let totalInitial = 0;
-  let maxScore = 0;
-  let totalBonus = 0;
-
-  for (const cat of scoring.categories) {
-    totalInitial += cat.initial;
-    maxScore += cat.max;
-    for (const rec of cat.recommendations) {
-      if (rec.implemented) {
-        totalBonus += parseInt(rec.impact, 10) || 0;
-      }
+function getRateAtDate(date) {
+  const d = (date instanceof Date && !isNaN(date.getTime())) ? date : new Date();
+  const ms = d.getTime();
+  for (let i = RATE_SCHEDULE.length - 1; i >= 0; i--) {
+    if (ms >= new Date(RATE_SCHEDULE[i].date).getTime()) {
+      return RATE_SCHEDULE[i].ratePerSec;
     }
   }
+  return RATE_SCHEDULE[0].ratePerSec;
+}
 
-  const totalFinal = Math.min(totalInitial + totalBonus, maxScore);
+/**
+ * Calculate the collective daily environmental impact if a fraction of global users
+ * consistently applies a token-saving tip.
+ *
+ * @param {number} savingPct      - 0–100, percentage of tokens saved per user per prompt
+ * @param {number} percentOfUsers - 0–100, percentage of global users applying the tip
+ * @param {number} [ratePerSec]   - tokens/sec globally (defaults to TOKENS_PER_SECOND)
+ * @returns {{ tokensPerDay: number, kWhPerDay: number, co2KgPerDay: number, waterLPerDay: number }}
+ */
+function calculateTipImpact(savingPct, percentOfUsers, ratePerSec) {
+  const rate = typeof ratePerSec === 'number' && ratePerSec > 0
+    ? ratePerSec
+    : TOKENS_PER_SECOND;
+  if (
+    typeof savingPct !== 'number' || savingPct < 0 ||
+    typeof percentOfUsers !== 'number' || percentOfUsers < 0
+  ) {
+    return { tokensPerDay: 0, kWhPerDay: 0, co2KgPerDay: 0, waterLPerDay: 0 };
+  }
+  const tokensPerDay = rate * 86400; // 86400 seconds/day
+  const saved = tokensPerDay * (Math.min(savingPct, 100) / 100) * (Math.min(percentOfUsers, 100) / 100);
+  const impact = calculateEnvironmentalImpact(saved);
   return {
-    totalInitial,
-    totalFinal,
-    maxScore,
-    percentage: Math.round((totalFinal / maxScore) * 100),
+    tokensPerDay: saved,
+    kWhPerDay:    impact.kWh,
+    co2KgPerDay:  impact.co2Kg,
+    waterLPerDay: impact.waterL,
   };
+}
+
+// ============================================================
+// FUN FEATURE HELPERS
+// ============================================================
+
+/**
+ * Internal compact number formatter used by equivalence helpers.
+ * NOT exported — used only within this module.
+ * @param {number} n
+ * @returns {string}
+ */
+function _niceFmt(n) {
+  if (typeof n !== 'number' || isNaN(n) || !isFinite(n)) return '0';
+  const v = Math.max(0, n);
+  if (v >= 1e9) return (v / 1e9).toFixed(1).replace(/\.0$/, '') + ' billion';
+  if (v >= 1e6) return (v / 1e6).toFixed(1).replace(/\.0$/, '') + ' million';
+  if (v >= 1e3) return Math.round(v / 1e3) + 'K';
+  if (v < 0.001) return '< 0.001';
+  if (v < 1) return v.toFixed(3).replace(/\.?0+$/, '');
+  return Math.round(v).toString();
+}
+
+/**
+ * Generate a list of "what we could have done instead" equivalences for a
+ * given cumulative token count.
+ * @param {number}              tokens - cumulative token count
+ * @param {'hopeful'|'snarky'} [mode='hopeful']
+ * @returns {Array<{ icon: string, text: string }>}
+ */
+function generateEquivalences(tokens, mode) {
+  if (typeof tokens !== 'number' || tokens < 0) return [];
+  const { kWh, co2Kg, waterL, treesEquivalent } = calculateEnvironmentalImpact(tokens);
+  const snarky = mode === 'snarky';
+  return [
+    {
+      icon: '🏠',
+      text: snarky
+        ? `Kept ${_niceFmt(kWh / 10500)} fridges running while their owners argued about AI on social media`
+        : `Powered ${_niceFmt(kWh / 10500)} homes for a year`,
+    },
+    {
+      icon: '🚗',
+      text: snarky
+        ? `Charged ${_niceFmt(kWh / 75)} electric cars that will get stuck in AI-managed traffic`
+        : `Fully charged ${_niceFmt(kWh / 75)} electric cars`,
+    },
+    {
+      icon: '🏊',
+      text: snarky
+        ? `Filled ${_niceFmt(waterL / 2_500_000)} Olympic pools — for robots who can't swim`
+        : `Filled ${_niceFmt(waterL / 2_500_000)} Olympic swimming pools`,
+    },
+    {
+      icon: '☕',
+      text: snarky
+        ? `Wasted water for ${_niceFmt(waterL / 0.2)} cups of coffee that fuelled even more AI prompts`
+        : `Brewed ${_niceFmt(waterL / 0.2)} cups of coffee`,
+    },
+    {
+      icon: '🌳',
+      text: snarky
+        ? `Needed ${_niceFmt(treesEquivalent)} trees to offset — trees AI's data centres helped cut down`
+        : `Offset by ${_niceFmt(treesEquivalent)} trees growing for a year`,
+    },
+    {
+      icon: '📚',
+      text: snarky
+        ? `Generated ${_niceFmt(tokens / 90000)} novels' worth of text nobody asked for`
+        : `Written the text of ${_niceFmt(tokens / 90000)} novels`,
+    },
+    {
+      icon: '🚀',
+      text: snarky
+        ? `Burned the energy of ${_niceFmt(kWh / 1361)} rocket launches — to autocomplete emails`
+        : `Equivalent to ${_niceFmt(kWh / 1361)} Falcon 9 rocket launches`,
+    },
+    {
+      icon: '🏥',
+      text: snarky
+        ? `Used energy for ${_niceFmt(kWh / 20)} MRI machine-hours — to generate haiku about productivity`
+        : `Run ${_niceFmt(kWh / 20)} MRI machine-hours`,
+    },
+  ];
+}
+
+/**
+ * Calculate a personal weekly and annual AI usage footprint.
+ * @param {number} promptsPerWeek
+ * @param {number} tokensEach       - average tokens per prompt (input + output combined)
+ * @param {number} modelMultiplier  - energy cost multiplier relative to GPT-3.5 baseline
+ * @returns {{ weeklyTokens: number, weekly: object, annual: object, globalWeeklyCo2Kg: number }}
+ */
+function calculatePersonalFootprint(promptsPerWeek, tokensEach, modelMultiplier) {
+  if (
+    typeof promptsPerWeek  !== 'number' || promptsPerWeek  < 0 ||
+    typeof tokensEach      !== 'number' || tokensEach      <= 0 ||
+    typeof modelMultiplier !== 'number' || modelMultiplier <= 0
+  ) {
+    const zero = calculateEnvironmentalImpact(0);
+    return { weeklyTokens: 0, weekly: zero, annual: zero, globalWeeklyCo2Kg: 0 };
+  }
+  const weeklyTokens      = promptsPerWeek * tokensEach * modelMultiplier;
+  const weekly            = calculateEnvironmentalImpact(weeklyTokens);
+  const annual            = calculateEnvironmentalImpact(weeklyTokens * 52);
+  const globalWeeklyCo2Kg = weekly.co2Kg * 500_000_000; // ~500 M active AI users
+  return { weeklyTokens, weekly, annual, globalWeeklyCo2Kg };
+}
+
+/**
+ * Generate human-readable equivalence phrases for a session token count,
+ * intended for social share text.
+ * @param {number} sessionTokens - tokens consumed globally during the visitor's session
+ * @returns {string[]}
+ */
+function sessionEquivalences(sessionTokens) {
+  if (typeof sessionTokens !== 'number' || sessionTokens <= 0) return [];
+  const { kWh, co2Kg, waterL } = calculateEnvironmentalImpact(sessionTokens);
+  const list = [];
+  const km      = co2Kg / 0.171;     // avg car emits 171 g CO₂/km
+  if (km      >= 0.001) list.push('the CO₂ of driving '        + _niceFmt(km)           + ' km');
+  const coffees = waterL / 0.2;      // 200 mL per cup
+  if (coffees >= 0.01)  list.push('water for '                 + _niceFmt(coffees)      + ' cups of coffee');
+  const charges = kWh / 0.015;       // 15 Wh per smartphone charge
+  if (charges >= 0.01)  list.push('electricity for '           + _niceFmt(charges)      + ' phone charges');
+  const novels  = sessionTokens / 90000; // average novel ≈ 90 k tokens
+  if (novels  >= 0.001) list.push('enough text to fill '       + _niceFmt(novels)       + ' novels');
+  return list;
 }
 
 // ============================================================
@@ -424,7 +523,8 @@ const DeathClockCore = {
   BASE_DATE_ISO,
   HISTORICAL_DATA,
   MILESTONES,
-  PROMPT_SCORING,
+  RATE_SCHEDULE,
+  TOKEN_TIPS,
   formatTokenCount,
   formatTokenCountShort,
   getTriggeredMilestones,
@@ -435,7 +535,11 @@ const DeathClockCore = {
   formatDate,
   getTimeDelta,
   milestoneProgress,
-  computePromptScore,
+  getRateAtDate,
+  calculateTipImpact,
+  generateEquivalences,
+  calculatePersonalFootprint,
+  sessionEquivalences,
 };
 
 if (typeof module !== 'undefined' && module.exports) {
