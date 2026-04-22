@@ -84,6 +84,44 @@
         <div class="stat-label">Trees' CO₂ Capacity</div>
       </div>
     </div>
+
+    <!-- What could we have done instead -->
+    <div class="equiv-wrap">
+      <div class="equiv-header">
+        <span class="equiv-label">♻️ What we could have done instead:</span>
+        <button id="snarkToggle" class="snarky-toggle" aria-pressed="false">😤 Snarky Mode</button>
+      </div>
+      <div id="equivDisplay" class="equiv-display" role="status" aria-live="polite" aria-atomic="true">
+        <span id="equivIcon" class="equiv-icon" aria-hidden="true"></span>
+        <span id="equivText" class="equiv-text"></span>
+      </div>
+    </div>
+
+    <!-- Get My Receipt -->
+    <div class="receipt-trigger-wrap">
+      <button id="getReceiptBtn" class="receipt-trigger-btn">🧾 Get My Session Receipt</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── AI Is Currently Writing Ticker ───────────────────── -->
+<section id="ticker-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Live Activity</p>
+    <h2>🤖 AI Is Currently Generating…</h2>
+    <div id="ai-ticker-wrap" class="ai-ticker-wrap">
+      <div class="ai-ticker-header">
+        <div id="ai-ticker-text" class="ai-ticker-text" role="status" aria-live="polite" aria-atomic="true"></div>
+        <button id="ai-ticker-toggle" class="ai-ticker-toggle-btn" aria-pressed="false">⏸ Pause</button>
+      </div>
+      <div id="ai-ticker-expanded" class="ai-ticker-expanded" hidden>
+        <pre id="ai-ticker-math" class="ai-ticker-math"></pre>
+        <div class="ai-ticker-actions">
+          <button id="ai-ticker-share" class="btn-sm">📤 Share this fact</button>
+          <button id="ai-ticker-resume" class="btn-sm">▶ Resume</button>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -171,6 +209,62 @@
 </section>
 
 
+<!-- ── Personal Footprint Calculator ─────────────────────── -->
+<section id="calculator-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Personal Impact</p>
+    <h2>💻 How Much Did <em>You</em> Destroy?</h2>
+    <button id="calcToggleBtn" class="scoring-toggle-btn" aria-expanded="false" aria-controls="calc-content">
+      ▶ Open Personal AI Carbon Footprint Calculator
+    </button>
+    <div id="calc-content" class="calc-content" hidden>
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <label for="calcPrompts" class="calc-label">
+            🗣️ Prompts sent this week: <strong id="calcPromptsVal">20</strong>
+          </label>
+          <input type="range" id="calcPrompts" class="calc-range" min="1" max="500" value="20" aria-valuemin="1" aria-valuemax="500" aria-valuenow="20" />
+        </div>
+        <div class="calc-field">
+          <label for="calcLength" class="calc-label">📏 Typical prompt length:</label>
+          <select id="calcLength" class="calc-select">
+            <option value="100">Short tweet-style (~100 tokens)</option>
+            <option value="500" selected>Medium paragraph (~500 tokens)</option>
+            <option value="2000">Long essay / code review (~2,000 tokens)</option>
+            <option value="8000">Deep research / long doc (~8,000 tokens)</option>
+          </select>
+        </div>
+        <div class="calc-field">
+          <label for="calcModel" class="calc-label">🤖 Which AI do you use most?</label>
+          <select id="calcModel" class="calc-select">
+            <option value="1">GPT-3.5 / smaller models (1×)</option>
+            <option value="3" selected>GPT-4o / Claude 3 (3×)</option>
+            <option value="4">GPT-4 class (4×)</option>
+            <option value="8">o1 / reasoning models (8×)</option>
+            <option value="0.1">Local CPU model (0.1×)</option>
+          </select>
+        </div>
+      </div>
+      <div id="calc-results" class="calc-results" aria-live="polite"></div>
+      <div class="calc-actions">
+        <button id="calcShareBtn" class="btn-primary">📤 Share My Footprint</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Doom Achievements ──────────────────────────────────── -->
+<section id="achievements-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Achievements</p>
+    <h2>🏆 Your Doom Badges</h2>
+    <p class="lb-desc">Earn badges for how long you stare into the abyss — and for what you do while you're here.</p>
+    <div id="badges-grid" class="badges-grid" aria-label="Badge collection">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
 <!-- ── Footer ─────────────────────────────────────────────── -->
 <footer>
   <div class="container">
@@ -182,6 +276,40 @@
     </p>
   </div>
 </footer>
+
+<!-- ── Share Your Doom (floating) ────────────────────────── -->
+<div id="share-doom-panel" class="share-doom-panel" hidden>
+  <div id="share-doom-options" class="share-doom-options" hidden>
+    <button id="shareTwitterBtn" class="share-opt-btn">🐦 Twitter / X</button>
+    <button id="shareRedditBtn"  class="share-opt-btn">🤖 Reddit</button>
+    <button id="shareCopyBtn"    class="share-opt-btn">📋 Copy text</button>
+    <button id="shareCloseBtn"   class="share-opt-close" aria-label="Close share options">✕</button>
+  </div>
+  <button id="shareDoomBtn" class="share-doom-btn">📤 Share Your Doom</button>
+</div>
+
+<!-- ── Receipt Modal ─────────────────────────────────────── -->
+<div id="receipt-modal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="receipt-heading">
+  <div class="receipt-card" role="document">
+    <h2 id="receipt-heading" class="sr-only">Session Receipt</h2>
+    <pre id="receipt-body" class="receipt-body"></pre>
+    <div class="receipt-actions">
+      <button id="receiptShareBtn" class="btn-primary">📤 Share Receipt</button>
+      <button id="receiptCopyBtn"  class="btn-secondary">📋 Copy Text</button>
+      <button id="receiptCloseBtn" class="btn-ghost">✕ Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Notification ─────────────────────────────────── -->
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden>
+  <span id="toast-icon"  class="toast-icon"></span>
+  <div class="toast-content">
+    <div id="toast-title" class="toast-title"></div>
+    <div id="toast-desc"  class="toast-desc"></div>
+  </div>
+  <button id="toast-close" class="toast-close" aria-label="Close notification">✕</button>
+</div>
 
 <!-- Core logic (no DOM deps — loaded first so script.js can use it) -->
 <script src="death-clock-core.js"></script>
