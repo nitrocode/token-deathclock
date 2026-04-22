@@ -599,6 +599,134 @@ function getRateAtDate(date) {
 }
 
 // ============================================================
+// FUN FEATURE HELPERS
+// ============================================================
+
+/**
+ * Internal compact number formatter used by equivalence helpers.
+ * NOT exported — used only within this module.
+ * @param {number} n
+ * @returns {string}
+ */
+function _niceFmt(n) {
+  if (typeof n !== 'number' || isNaN(n) || !isFinite(n)) return '0';
+  const v = Math.max(0, n);
+  if (v >= 1e9) return (v / 1e9).toFixed(1).replace(/\.0$/, '') + ' billion';
+  if (v >= 1e6) return (v / 1e6).toFixed(1).replace(/\.0$/, '') + ' million';
+  if (v >= 1e3) return Math.round(v / 1e3) + 'K';
+  if (v < 0.001) return '< 0.001';
+  if (v < 1) return v.toFixed(3).replace(/\.?0+$/, '');
+  return Math.round(v).toString();
+}
+
+/**
+ * Generate a list of "what we could have done instead" equivalences for a
+ * given cumulative token count.
+ * @param {number}              tokens - cumulative token count
+ * @param {'hopeful'|'snarky'} [mode='hopeful']
+ * @returns {Array<{ icon: string, text: string }>}
+ */
+function generateEquivalences(tokens, mode) {
+  if (typeof tokens !== 'number' || tokens < 0) return [];
+  const { kWh, co2Kg, waterL, treesEquivalent } = calculateEnvironmentalImpact(tokens);
+  const snarky = mode === 'snarky';
+  return [
+    {
+      icon: '🏠',
+      text: snarky
+        ? `Kept ${_niceFmt(kWh / 10500)} fridges running while their owners argued about AI on social media`
+        : `Powered ${_niceFmt(kWh / 10500)} homes for a year`,
+    },
+    {
+      icon: '🚗',
+      text: snarky
+        ? `Charged ${_niceFmt(kWh / 75)} electric cars that will get stuck in AI-managed traffic`
+        : `Fully charged ${_niceFmt(kWh / 75)} electric cars`,
+    },
+    {
+      icon: '🏊',
+      text: snarky
+        ? `Filled ${_niceFmt(waterL / 2_500_000)} Olympic pools — for robots who can't swim`
+        : `Filled ${_niceFmt(waterL / 2_500_000)} Olympic swimming pools`,
+    },
+    {
+      icon: '☕',
+      text: snarky
+        ? `Wasted water for ${_niceFmt(waterL / 0.2)} cups of coffee that fuelled even more AI prompts`
+        : `Brewed ${_niceFmt(waterL / 0.2)} cups of coffee`,
+    },
+    {
+      icon: '🌳',
+      text: snarky
+        ? `Needed ${_niceFmt(treesEquivalent)} trees to offset — trees AI's data centres helped cut down`
+        : `Offset by ${_niceFmt(treesEquivalent)} trees growing for a year`,
+    },
+    {
+      icon: '📚',
+      text: snarky
+        ? `Generated ${_niceFmt(tokens / 90000)} novels' worth of text nobody asked for`
+        : `Written the text of ${_niceFmt(tokens / 90000)} novels`,
+    },
+    {
+      icon: '🚀',
+      text: snarky
+        ? `Burned the energy of ${_niceFmt(kWh / 1361)} rocket launches — to autocomplete emails`
+        : `Equivalent to ${_niceFmt(kWh / 1361)} Falcon 9 rocket launches`,
+    },
+    {
+      icon: '🏥',
+      text: snarky
+        ? `Used energy for ${_niceFmt(kWh / 20)} MRI machine-hours — to generate haiku about productivity`
+        : `Run ${_niceFmt(kWh / 20)} MRI machine-hours`,
+    },
+  ];
+}
+
+/**
+ * Calculate a personal weekly and annual AI usage footprint.
+ * @param {number} promptsPerWeek
+ * @param {number} tokensEach       - average tokens per prompt (input + output combined)
+ * @param {number} modelMultiplier  - energy cost multiplier relative to GPT-3.5 baseline
+ * @returns {{ weeklyTokens: number, weekly: object, annual: object, globalWeeklyCo2Kg: number }}
+ */
+function calculatePersonalFootprint(promptsPerWeek, tokensEach, modelMultiplier) {
+  if (
+    typeof promptsPerWeek  !== 'number' || promptsPerWeek  < 0 ||
+    typeof tokensEach      !== 'number' || tokensEach      <= 0 ||
+    typeof modelMultiplier !== 'number' || modelMultiplier <= 0
+  ) {
+    const zero = calculateEnvironmentalImpact(0);
+    return { weeklyTokens: 0, weekly: zero, annual: zero, globalWeeklyCo2Kg: 0 };
+  }
+  const weeklyTokens      = promptsPerWeek * tokensEach * modelMultiplier;
+  const weekly            = calculateEnvironmentalImpact(weeklyTokens);
+  const annual            = calculateEnvironmentalImpact(weeklyTokens * 52);
+  const globalWeeklyCo2Kg = weekly.co2Kg * 500_000_000; // ~500 M active AI users
+  return { weeklyTokens, weekly, annual, globalWeeklyCo2Kg };
+}
+
+/**
+ * Generate human-readable equivalence phrases for a session token count,
+ * intended for social share text.
+ * @param {number} sessionTokens - tokens consumed globally during the visitor's session
+ * @returns {string[]}
+ */
+function sessionEquivalences(sessionTokens) {
+  if (typeof sessionTokens !== 'number' || sessionTokens <= 0) return [];
+  const { kWh, co2Kg, waterL } = calculateEnvironmentalImpact(sessionTokens);
+  const list = [];
+  const km      = co2Kg / 0.171;     // avg car emits 171 g CO₂/km
+  if (km      >= 0.001) list.push('the CO₂ of driving '        + _niceFmt(km)           + ' km');
+  const coffees = waterL / 0.2;      // 200 mL per cup
+  if (coffees >= 0.01)  list.push('water for '                 + _niceFmt(coffees)      + ' cups of coffee');
+  const charges = kWh / 0.015;       // 15 Wh per smartphone charge
+  if (charges >= 0.01)  list.push('electricity for '           + _niceFmt(charges)      + ' phone charges');
+  const novels  = sessionTokens / 90000; // average novel ≈ 90 k tokens
+  if (novels  >= 0.001) list.push('enough text to fill '       + _niceFmt(novels)       + ' novels');
+  return list;
+}
+
+// ============================================================
 // EXPORTS — CommonJS for Jest; window global for the browser
 // ============================================================
 const DeathClockCore = {
@@ -619,6 +747,9 @@ const DeathClockCore = {
   getTimeDelta,
   milestoneProgress,
   getRateAtDate,
+  generateEquivalences,
+  calculatePersonalFootprint,
+  sessionEquivalences,
 };
 
 if (typeof module !== 'undefined' && module.exports) {
