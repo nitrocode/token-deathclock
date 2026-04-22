@@ -855,6 +855,14 @@
   }
 
   function openSharePopup(text) {
+    if (navigator.share) {
+      navigator.share({ text, url: SITE_URL }).catch(() => {
+        // User cancelled or share failed — fall back to Twitter
+        const twitterUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+        window.open(twitterUrl, '_blank', 'noopener,noreferrer,width=560,height=420');
+      });
+      return;
+    }
     const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
     window.open(url, '_blank', 'noopener,noreferrer,width=560,height=420');
   }
@@ -1077,10 +1085,10 @@
         const text   = bodyEl ? bodyEl.textContent : generateReceiptText();
         navigator.clipboard.writeText(text).then(() => {
           copyBtn.textContent = '✅ Copied!';
-          setTimeout(() => { copyBtn.textContent = '📋 Copy Text'; }, 2000);
+          setTimeout(() => { copyBtn.textContent = '📋 Copy Receipt'; }, 2000);
         }).catch(() => {
           copyBtn.textContent = '❌ Failed';
-          setTimeout(() => { copyBtn.textContent = '📋 Copy Text'; }, 2000);
+          setTimeout(() => { copyBtn.textContent = '📋 Copy Receipt'; }, 2000);
         });
       });
     }
@@ -1093,15 +1101,6 @@
       });
     }
 
-    // Offer receipt on beforeunload if session was meaningful
-    window.addEventListener('beforeunload', (e) => {
-      const elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
-      if (elapsed >= 15 && !receiptShown) {
-        showReceiptModal();
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    });
   }
 
   // ---- Personal Footprint Calculator --------------------------
