@@ -217,6 +217,25 @@
   </div>
 </section>
 
+<!-- ── Token-Saving Tips ──────────────────────────────────── -->
+<section id="tips-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Act Now</p>
+    <h2>🌱 How to Reduce Your AI Footprint</h2>
+    <p class="tips-intro">
+      Every prompt matters. Small changes in how you use AI add up to billions of tokens saved —
+      and real environmental resources. The projections above show the worst case.
+      Here's how we change the trajectory.
+    </p>
+    <div class="tips-grid" id="tipsGrid">
+      <!-- populated by script.js -->
+    </div>
+    <div class="tips-impact-wrap" id="tipsImpactWrap">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
 
 <!-- ── Personal Footprint Calculator ─────────────────────── -->
 <section id="calculator-section">
@@ -320,6 +339,8 @@
   <button id="toast-close" class="toast-close" aria-label="Close notification">✕</button>
 </div>
 
+<!-- Milestone data (auto-generated from milestones.yaml) -->
+<script src="milestones-data.js"></script>
 <!-- Core logic (no DOM deps — loaded first so script.js can use it) -->
 <script src="death-clock-core.js"></script>
 <!-- Minimal Chart.js date adapter (required for time-scale x-axis) -->
