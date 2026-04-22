@@ -524,6 +524,81 @@ function sessionEquivalences(sessionTokens) {
 // ACCELERATOR GAME — Pure Helpers
 // ============================================================
 
+// ── Company Roles ─────────────────────────────────────────────────────────────
+// Human job roles that can be "replaced" by AI in the Doom Accelerator game.
+// Firing each role grants passive tokens/sec and costs Doom Points.
+// Sorted ascending by cost for display order.
+const COMPANY_ROLES = [
+  { id: 'social_media_mgr', icon: '📱', name: 'Social Media Manager',  cost:    25, tps:       5_000, flavour: 'GPT handles the posts. And the engagement. And the existential dread.' },
+  { id: 'copywriter',       icon: '✍️',  name: 'Copywriter',             cost:    50, tps:      15_000, flavour: '"Content" flows at 10,000 words/minute. Zero of them are original.' },
+  { id: 'data_analyst',     icon: '📊', name: 'Data Analyst',           cost:   100, tps:      40_000, flavour: 'The model found 47 correlations. All in the deck. None actionable.' },
+  { id: 'junior_dev',       icon: '💻', name: 'Junior Developer',       cost:   150, tps:      80_000, flavour: 'Writes its own tests. They all pass. Nothing works.' },
+  { id: 'support_team',     icon: '🎧', name: 'Customer Support Team',  cost:   250, tps:     150_000, flavour: 'Response time: 0 ms. Empathy: undefined.' },
+  { id: 'hr_manager',       icon: '📋', name: 'HR Manager',             cost:   500, tps:     300_000, flavour: 'The AI now fires the AI. Recursive efficiency unlocked.' },
+  { id: 'cfo',              icon: '💰', name: 'Chief Financial Officer', cost: 1_500, tps:   1_000_000, flavour: 'Projections generated, reviewed, and approved by the same weights.' },
+];
+
+// ── AI Agents ─────────────────────────────────────────────────────────────────
+// Passive token generators purchasable in the Doom Accelerator game.
+// Multiple units of the same agent can be owned; counts stack linearly.
+// Sorted ascending by cost for display order.
+const AI_AGENTS = [
+  { id: 'intern_bot',    icon: '🤖', name: 'ChatBot Intern',          cost:      5, tps:       1_000, flavour: 'Confidently wrong. Always available.' },
+  { id: 'code_agent',    icon: '🐒', name: 'Code Monkey Agent',       cost:     30, tps:       8_000, flavour: "Opens issues about itself. Closes them. Does it again." },
+  { id: 'content_farm',  icon: '🏭', name: 'Content Farm Instance',   cost:    150, tps:      50_000, flavour: '10,000 SEO articles/hr. Zero readers.' },
+  { id: 'token_maxxer',  icon: '📈', name: 'Token Maxxer v1',         cost:    500, tps:     200_000, flavour: 'Optimises prompts to be longer, somehow.' },
+  { id: 'vibe_coder',    icon: '🎵', name: 'Vibe Coding Engine',      cost:  2_000, tps:     900_000, flavour: "Doesn't compile. Vibes immaculate." },
+  { id: 'ai_consultant', icon: '💼', name: 'AI Strategy Consultant',  cost:  8_000, tps:   4_000_000, flavour: '200 slide decks/sec. 0 actionable insights.' },
+];
+
+// Company stage progression ordered by minimum workers replaced.
+const COMPANY_STAGES = [
+  { minReplaced: 0, name: 'Garage Startup',        icon: '🌱' },
+  { minReplaced: 1, name: 'AI-Curious Disruptor',  icon: '🚀' },
+  { minReplaced: 3, name: 'AI-First Pivot',         icon: '🤖' },
+  { minReplaced: 5, name: 'AI-Native Company',      icon: '🏢' },
+  { minReplaced: 7, name: 'Fully Automated Corp',   icon: '☠️'  },
+];
+
+/**
+ * Compute the total passive token generation rate (tokens/sec) from owned AI
+ * agents and fired (replaced) company roles.
+ *
+ * @param {Object} ownedAgents   - { agentId: count }  (non-integer counts are floored)
+ * @param {Object} replacedRoles - { roleId: true }
+ * @returns {number}               tokens per second
+ */
+function computePassiveRate(ownedAgents, replacedRoles) {
+  const agents = (typeof ownedAgents  === 'object' && ownedAgents  !== null) ? ownedAgents  : {};
+  const roles  = (typeof replacedRoles === 'object' && replacedRoles !== null) ? replacedRoles : {};
+  let rate = 0;
+  AI_AGENTS.forEach((a) => {
+    const count = Number.isFinite(agents[a.id]) ? Math.max(0, Math.floor(agents[a.id])) : 0;
+    rate += count * a.tps;
+  });
+  COMPANY_ROLES.forEach((r) => {
+    if (roles[r.id]) rate += r.tps;
+  });
+  return rate;
+}
+
+/**
+ * Return the current company stage for the given number of replaced workers.
+ *
+ * @param {number} workersReplaced
+ * @returns {{ minReplaced: number, name: string, icon: string }}
+ */
+function getCompanyStage(workersReplaced) {
+  const count = (typeof workersReplaced === 'number' && isFinite(workersReplaced))
+    ? Math.max(0, Math.floor(workersReplaced))
+    : 0;
+  let stage = COMPANY_STAGES[0];
+  for (const s of COMPANY_STAGES) {
+    if (count >= s.minReplaced) stage = s;
+  }
+  return stage;
+}
+
 /**
  * All possible session challenge definitions.
  * Each entry: { id, icon, label, desc, type, target, rewardDp }
@@ -606,6 +681,9 @@ const DeathClockCore = {
   RATE_SCHEDULE,
   SESSION_CHALLENGE_DEFS,
   TOKEN_TIPS,
+  COMPANY_ROLES,
+  AI_AGENTS,
+  COMPANY_STAGES,
   formatTokenCount,
   formatTokenCountShort,
   getTriggeredMilestones,
@@ -625,6 +703,8 @@ const DeathClockCore = {
   computeComboMultiplier,
   getSessionChallenges,
   formatDoomPoints,
+  computePassiveRate,
+  getCompanyStage,
 };
 
 if (typeof module !== 'undefined' && module.exports) {

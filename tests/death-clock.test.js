@@ -1165,3 +1165,207 @@ describe('formatDoomPoints', () => {
     expect(formatDoomPoints(9.7)).toBe('10 DP');
   });
 });
+
+// ============================================================
+// COMPANY_ROLES
+// ============================================================
+const { COMPANY_ROLES, AI_AGENTS, COMPANY_STAGES, computePassiveRate, getCompanyStage } = core;
+
+describe('COMPANY_ROLES', () => {
+  test('is a non-empty array', () => {
+    expect(Array.isArray(COMPANY_ROLES)).toBe(true);
+    expect(COMPANY_ROLES.length).toBeGreaterThan(0);
+  });
+
+  test('each role has required fields', () => {
+    COMPANY_ROLES.forEach((r) => {
+      expect(typeof r.id).toBe('string');
+      expect(typeof r.icon).toBe('string');
+      expect(typeof r.name).toBe('string');
+      expect(typeof r.cost).toBe('number');
+      expect(r.cost).toBeGreaterThan(0);
+      expect(typeof r.tps).toBe('number');
+      expect(r.tps).toBeGreaterThan(0);
+      expect(typeof r.flavour).toBe('string');
+    });
+  });
+
+  test('all role ids are unique', () => {
+    const ids = COMPANY_ROLES.map((r) => r.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test('roles are sorted ascending by cost', () => {
+    for (let i = 1; i < COMPANY_ROLES.length; i++) {
+      expect(COMPANY_ROLES[i].cost).toBeGreaterThanOrEqual(COMPANY_ROLES[i - 1].cost);
+    }
+  });
+});
+
+// ============================================================
+// AI_AGENTS
+// ============================================================
+describe('AI_AGENTS', () => {
+  test('is a non-empty array', () => {
+    expect(Array.isArray(AI_AGENTS)).toBe(true);
+    expect(AI_AGENTS.length).toBeGreaterThan(0);
+  });
+
+  test('each agent has required fields', () => {
+    AI_AGENTS.forEach((a) => {
+      expect(typeof a.id).toBe('string');
+      expect(typeof a.icon).toBe('string');
+      expect(typeof a.name).toBe('string');
+      expect(typeof a.cost).toBe('number');
+      expect(a.cost).toBeGreaterThan(0);
+      expect(typeof a.tps).toBe('number');
+      expect(a.tps).toBeGreaterThan(0);
+      expect(typeof a.flavour).toBe('string');
+    });
+  });
+
+  test('all agent ids are unique', () => {
+    const ids = AI_AGENTS.map((a) => a.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test('agents are sorted ascending by cost', () => {
+    for (let i = 1; i < AI_AGENTS.length; i++) {
+      expect(AI_AGENTS[i].cost).toBeGreaterThanOrEqual(AI_AGENTS[i - 1].cost);
+    }
+  });
+});
+
+// ============================================================
+// COMPANY_STAGES
+// ============================================================
+describe('COMPANY_STAGES', () => {
+  test('is a non-empty array', () => {
+    expect(Array.isArray(COMPANY_STAGES)).toBe(true);
+    expect(COMPANY_STAGES.length).toBeGreaterThan(0);
+  });
+
+  test('each stage has required fields', () => {
+    COMPANY_STAGES.forEach((s) => {
+      expect(typeof s.minReplaced).toBe('number');
+      expect(typeof s.name).toBe('string');
+      expect(typeof s.icon).toBe('string');
+    });
+  });
+
+  test('first stage has minReplaced of 0', () => {
+    expect(COMPANY_STAGES[0].minReplaced).toBe(0);
+  });
+
+  test('stages are sorted ascending by minReplaced', () => {
+    for (let i = 1; i < COMPANY_STAGES.length; i++) {
+      expect(COMPANY_STAGES[i].minReplaced).toBeGreaterThan(COMPANY_STAGES[i - 1].minReplaced);
+    }
+  });
+});
+
+// ============================================================
+// computePassiveRate
+// ============================================================
+describe('computePassiveRate', () => {
+  test('returns 0 with empty inputs', () => {
+    expect(computePassiveRate({}, {})).toBe(0);
+  });
+
+  test('returns 0 with null inputs', () => {
+    expect(computePassiveRate(null, null)).toBe(0);
+  });
+
+  test('returns 0 with undefined inputs', () => {
+    expect(computePassiveRate(undefined, undefined)).toBe(0);
+  });
+
+  test('counts single AI agent correctly', () => {
+    const agentId = AI_AGENTS[0].id;
+    const rate = computePassiveRate({ [agentId]: 1 }, {});
+    expect(rate).toBe(AI_AGENTS[0].tps);
+  });
+
+  test('stacks multiple copies of the same agent linearly', () => {
+    const agentId = AI_AGENTS[0].id;
+    const rate3 = computePassiveRate({ [agentId]: 3 }, {});
+    expect(rate3).toBe(AI_AGENTS[0].tps * 3);
+  });
+
+  test('counts fired role correctly', () => {
+    const roleId = COMPANY_ROLES[0].id;
+    const rate = computePassiveRate({}, { [roleId]: true });
+    expect(rate).toBe(COMPANY_ROLES[0].tps);
+  });
+
+  test('sums agents and fired roles together', () => {
+    const agentId = AI_AGENTS[0].id;
+    const roleId  = COMPANY_ROLES[0].id;
+    const rate = computePassiveRate({ [agentId]: 2 }, { [roleId]: true });
+    expect(rate).toBe(AI_AGENTS[0].tps * 2 + COMPANY_ROLES[0].tps);
+  });
+
+  test('ignores unknown agent ids', () => {
+    expect(computePassiveRate({ nonexistent_agent: 5 }, {})).toBe(0);
+  });
+
+  test('ignores unknown role ids', () => {
+    expect(computePassiveRate({}, { nonexistent_role: true })).toBe(0);
+  });
+
+  test('floors fractional agent counts', () => {
+    const agentId = AI_AGENTS[0].id;
+    // 1.9 should floor to 1
+    const rate = computePassiveRate({ [agentId]: 1.9 }, {});
+    expect(rate).toBe(AI_AGENTS[0].tps);
+  });
+
+  test('ignores negative agent counts', () => {
+    const agentId = AI_AGENTS[0].id;
+    expect(computePassiveRate({ [agentId]: -1 }, {})).toBe(0);
+  });
+});
+
+// ============================================================
+// getCompanyStage
+// ============================================================
+describe('getCompanyStage', () => {
+  test('returns the first stage for 0 workers replaced', () => {
+    const stage = getCompanyStage(0);
+    expect(stage).toBe(COMPANY_STAGES[0]);
+  });
+
+  test('returns last stage when all workers are replaced', () => {
+    const lastStage = COMPANY_STAGES[COMPANY_STAGES.length - 1];
+    const stage = getCompanyStage(lastStage.minReplaced);
+    expect(stage).toBe(lastStage);
+  });
+
+  test('returns first stage for negative input', () => {
+    expect(getCompanyStage(-5)).toBe(COMPANY_STAGES[0]);
+  });
+
+  test('returns first stage for non-numeric input', () => {
+    expect(getCompanyStage('all')).toBe(COMPANY_STAGES[0]);
+    expect(getCompanyStage(NaN)).toBe(COMPANY_STAGES[0]);
+    expect(getCompanyStage(null)).toBe(COMPANY_STAGES[0]);
+  });
+
+  test('advances stage at each threshold', () => {
+    // Each stage transition should yield the correct stage
+    for (let i = 0; i < COMPANY_STAGES.length; i++) {
+      const stage = getCompanyStage(COMPANY_STAGES[i].minReplaced);
+      expect(stage).toBe(COMPANY_STAGES[i]);
+    }
+  });
+
+  test('stays at highest stage beyond max threshold', () => {
+    const lastStage = COMPANY_STAGES[COMPANY_STAGES.length - 1];
+    expect(getCompanyStage(lastStage.minReplaced + 100)).toBe(lastStage);
+  });
+
+  test('floors fractional inputs', () => {
+    // e.g. 0.9 should floor to 0 and give stage 0
+    expect(getCompanyStage(0.9)).toBe(COMPANY_STAGES[0]);
+  });
+});

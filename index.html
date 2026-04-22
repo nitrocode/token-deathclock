@@ -44,6 +44,23 @@
   </div>
 </header>
 
+<!-- ── Tab Navigation ────────────────────────────────────── -->
+<nav class="tab-bar" role="tablist" aria-label="Page sections">
+  <button class="tab-btn tab-btn--active" role="tab" id="tab-btn-dashboard"
+          aria-selected="true" aria-controls="tab-dashboard" data-tab="dashboard">
+    📊 Dashboard
+  </button>
+  <button class="tab-btn" role="tab" id="tab-btn-about"
+          aria-selected="false" aria-controls="tab-about" data-tab="about">
+    ℹ️ About
+  </button>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!--  TAB: Dashboard                                         -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div id="tab-dashboard" role="tabpanel" aria-labelledby="tab-btn-dashboard">
+
 <!-- ── Live Counter ────────────────────────────────────────── -->
 <section id="counter-section">
   <div class="container">
@@ -375,6 +392,36 @@
         <!-- populated by script.js -->
       </div>
 
+      <!-- Company Stage Banner -->
+      <div class="accel-section-title">🏢 Build Your AI-Native Company</div>
+      <p class="lb-desc" style="margin-bottom:0.75rem;">
+        Fire your human workforce. Deploy AI agents. Token maxx your way to <em>Fully Automated Corp</em>
+        — all in the name of being AI-Native.
+      </p>
+      <div class="company-stage-banner" id="companyStage" aria-label="Current company stage">
+        <span class="company-stage-icon" id="companyStageIcon" aria-hidden="true">🌱</span>
+        <div>
+          <div class="company-stage-label">Company Stage</div>
+          <div class="company-stage-name" id="companyStageName">Garage Startup</div>
+        </div>
+        <div class="passive-rate-wrap">
+          <div class="passive-rate-label">⚙️ Passive</div>
+          <div class="passive-rate-value" id="passiveRateDisplay">0 tokens/sec</div>
+        </div>
+      </div>
+
+      <!-- Fire Your Human Workers -->
+      <div class="accel-section-title">👔 Replace Your Workforce</div>
+      <div id="workforcePanel" class="workforce-panel" aria-label="Workforce management — fire workers and replace with AI">
+        <!-- populated by script.js -->
+      </div>
+
+      <!-- AI Agents (passive generators) -->
+      <div class="accel-section-title">🤖 Deploy AI Agents</div>
+      <div id="agentShop" class="agent-shop" aria-label="AI agent deployment shop — passive token generation">
+        <!-- populated by script.js -->
+      </div>
+
       <!-- Footer row: best score + share -->
       <div class="accel-footer-row">
         <div id="bestScoreRow" class="best-score-row">🏆 Best session: <span id="bestScoreValue">—</span></div>
@@ -384,6 +431,195 @@
     </div>
   </div>
 </section>
+
+</div><!-- /tab-dashboard -->
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!--  TAB: About                                             -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div id="tab-about" role="tabpanel" aria-labelledby="tab-btn-about" hidden>
+
+  <!-- ── Why This Was Built ──────────────────────────────── -->
+  <section class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Origin</p>
+      <h2>Why We Built This</h2>
+      <p class="about-lead">
+        Every AI prompt silently consumes electricity, emits CO₂, and evaporates cooling
+        water&nbsp;— yet every chat interface shows you exactly none of that.
+        The AI Death Clock exists to make the invisible tangible.
+      </p>
+      <div class="about-origin-grid">
+        <div class="about-origin-card">
+          <span class="about-origin-icon" aria-hidden="true">🌫️</span>
+          <h3>The Cost Is Hidden</h3>
+          <p>
+            AI inference servers run 24 / 7, globally, at enormous scale.
+            The convenience of an instant answer obscures a very real chain of
+            resource consumption that most users never see.
+          </p>
+        </div>
+        <div class="about-origin-card">
+          <span class="about-origin-icon" aria-hidden="true">📈</span>
+          <h3>Growth Is Exponential</h3>
+          <p>
+            Global AI token consumption has grown by orders of magnitude since
+            2020 and is projected to keep accelerating.  Training gets the
+            headlines, but <em>inference</em>&nbsp;— the constant, every-second
+            generation of tokens&nbsp;— is where most ongoing energy goes.
+          </p>
+        </div>
+        <div class="about-origin-card">
+          <span class="about-origin-icon" aria-hidden="true">🔢</span>
+          <h3>Numbers Need Context</h3>
+          <p>
+            &ldquo;65 quadrillion tokens&rdquo; means nothing to most people.
+            Translating it into kWh spent, CO₂ emitted, and trees required to
+            offset it makes the scale viscerally real.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Our Approach ────────────────────────────────────── -->
+  <section class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Methodology</p>
+      <h2>How It Works</h2>
+      <p class="about-body">
+        We estimate cumulative global token consumption from public data
+        (OpenAI usage disclosures, Epoch AI compute trends, AI&nbsp;Index),
+        anchor it to a known point in time, and extrapolate forward at the
+        current estimated global inference rate of&nbsp;100&thinsp;million
+        tokens per second.
+      </p>
+      <p class="about-body">
+        Environmental equivalents are derived from published per-token energy
+        figures and IEA / Microsoft sustainability data (see Sources below).
+        The milestones translate raw token counts into memorable environmental
+        thresholds&nbsp;— not to predict exact doom, but to give scale to what
+        these numbers mean.
+      </p>
+      <div class="about-steps">
+        <div class="about-step">
+          <div class="about-step-num">01</div>
+          <div>
+            <strong>Anchor point</strong> — a verified token-count estimate is
+            fixed to a specific date and time.
+          </div>
+        </div>
+        <div class="about-step">
+          <div class="about-step-num">02</div>
+          <div>
+            <strong>Live extrapolation</strong> — tokens tick forward in
+            real-time using the current estimated global inference rate.
+          </div>
+        </div>
+        <div class="about-step">
+          <div class="about-step-num">03</div>
+          <div>
+            <strong>Environmental conversion</strong> — token count is
+            multiplied by per-token energy, CO₂, and water factors from
+            peer-reviewed sources.
+          </div>
+        </div>
+        <div class="about-step">
+          <div class="about-step-num">04</div>
+          <div>
+            <strong>Milestone triggers</strong> — each environmental threshold
+            is crossed once and only once; the card lights up and stays lit.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Data Sources ────────────────────────────────────── -->
+  <section class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Transparency</p>
+      <h2>Data Sources</h2>
+      <p class="about-body">
+        All figures are illustrative estimates intended to communicate scale,
+        not precise measurements.  The underlying factors are:
+      </p>
+      <div class="about-sources-wrap">
+        <table class="about-sources-table">
+          <thead>
+            <tr><th>Metric</th><th>Value</th><th>Source</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Energy per token</td>
+              <td>~0.0003 kWh / 1K tokens</td>
+              <td>Google / DeepMind inference benchmarks; MLPerf</td>
+            </tr>
+            <tr>
+              <td>CO₂ intensity</td>
+              <td>0.4 kg CO₂ / kWh</td>
+              <td>IEA global average grid intensity, 2024</td>
+            </tr>
+            <tr>
+              <td>Water per token</td>
+              <td>~0.5 L / 1K tokens</td>
+              <td>Microsoft Sustainability Report, 2023</td>
+            </tr>
+            <tr>
+              <td>CO₂ per tree</td>
+              <td>~21 kg CO₂ / year</td>
+              <td>US Forest Service estimates</td>
+            </tr>
+            <tr>
+              <td>Historical token growth</td>
+              <td>2020 – present</td>
+              <td>OpenAI usage blog; Epoch AI; AI Index 2024</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── What You Can Do ─────────────────────────────────── -->
+  <section class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Take Action</p>
+      <h2>What You Can Do</h2>
+      <p class="about-body">
+        Awareness is the first step — but action matters more.  Check the
+        <button class="about-inline-tab-link" data-switch-tab="dashboard"
+                role="link" aria-label="Switch to Dashboard tab">Dashboard</button>
+        for the <strong>Tips</strong> section and the
+        <strong>Personal Footprint Calculator</strong> to see your own impact
+        and how to reduce it.
+      </p>
+      <div class="about-action-grid">
+        <div class="about-action-card">
+          <span aria-hidden="true">✏️</span>
+          <strong>Write tighter prompts</strong>
+          <p>Fewer tokens in means fewer tokens out. Clear, specific questions outperform vague essays every time.</p>
+        </div>
+        <div class="about-action-card">
+          <span aria-hidden="true">🤏</span>
+          <strong>Use the right model</strong>
+          <p>Smaller models handle most everyday tasks at a fraction of the compute cost of frontier models.</p>
+        </div>
+        <div class="about-action-card">
+          <span aria-hidden="true">🔁</span>
+          <strong>Reuse &amp; cache</strong>
+          <p>Re-reading the same content, regenerating the same boilerplate, or spinning up duplicate contexts all cost tokens unnecessarily.</p>
+        </div>
+        <div class="about-action-card">
+          <span aria-hidden="true">📢</span>
+          <strong>Spread awareness</strong>
+          <p>Share this page.  The more people understand the cost, the more pressure builds on AI providers to improve efficiency.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /tab-about -->
 
 <!-- ── Footer ─────────────────────────────────────────────── -->
 <footer>
