@@ -116,7 +116,6 @@ section {
   color: var(--bg);
 }
 .github-corner svg {
-  transform: scaleX(-1);
   fill: var(--accent);
   color: var(--bg);
   transition: fill 0.2s;
