@@ -2349,14 +2349,20 @@
   // ---- Passive token generation loop -----------------------
 
   function startPassiveLoop() {
-    // Tick every 200 ms — add passiveRate × 0.2 tokens per tick
+    // Tick every 200 ms — add passiveRate × 0.2 tokens per tick.
+    // Only update the minimal counter elements here; full UI re-renders
+    // (shop affordability, challenge progress bars) happen via handleTap() and
+    // purchase actions so we avoid heavy DOM churn every 200 ms.
     setInterval(() => {
       if (acc.passiveRate <= 0) return;
       const tokensAdded = acc.passiveRate * 0.2;
       acc.personalTokens += tokensAdded;
       acc.doomPoints     += tokensAdded * ACC_DP_PER_TOKEN;
-      // Update UI cheaply: just the numbers, no full re-render
-      updateAcceleratorUI();
+      // Update only the lightweight numeric displays
+      setAccelText('accelTokens', formatTokenCount(acc.personalTokens));
+      setAccelText('accelDp',     formatDoomPoints(acc.doomPoints));
+      updateMilestoneRace();
+      updateBestScore();
       updateChallengeProgress();
     }, 200);
   }
