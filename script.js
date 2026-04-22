@@ -2519,6 +2519,14 @@
     const toggleBtn = document.getElementById('themeToggle');
     if (toggleBtn) toggleBtn.addEventListener('click', toggleTheme);
 
+    // Hide completed milestones toggle
+    const hideCompletedCb = document.getElementById('hideCompletedMilestones');
+    if (hideCompletedCb) {
+      hideCompletedCb.addEventListener('change', function () {
+        const grid = document.getElementById('milestonesGrid');
+        if (grid) grid.classList.toggle('hide-completed', this.checked);
+      });
+    }
     // Tab navigation
     initTabs();
 
