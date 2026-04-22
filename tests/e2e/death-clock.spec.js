@@ -189,7 +189,72 @@ test.describe('AI Death Clock — end-to-end', () => {
     await expect(html).toHaveAttribute('data-theme', 'dark');
   });
 
-  // ── No JS errors ─────────────────────────────────────────────────────────
+  // ── Always-on stack panel ─────────────────────────────────────────────────
+
+  test('always-on stack panel renders all six rows (AC-1)', async ({ page }) => {
+    await page.waitForSelector('#lb-stack-panel', { timeout: 5000 });
+    const rows = page.locator('#lb-stack-panel .lb-stack-row');
+    await expect(rows).toHaveCount(6);
+    // Each row must contain at least one block
+    for (const id of ['lb-stack-years', 'lb-stack-months', 'lb-stack-days',
+                      'lb-stack-hours', 'lb-stack-minutes', 'lb-stack-seconds']) {
+      const blocks = page.locator(`#${id} .lb-block`);
+      const count = await blocks.count();
+      expect(count).toBeGreaterThan(0);
+    }
+  });
+
+  test('always-on stack panel has one dying block per row', async ({ page }) => {
+    await page.waitForSelector('#lb-stack-panel', { timeout: 5000 });
+    for (const id of ['lb-stack-years', 'lb-stack-months', 'lb-stack-days',
+                      'lb-stack-hours', 'lb-stack-minutes', 'lb-stack-seconds']) {
+      const dying = page.locator(`#${id} .lb-block.lb-dying`);
+      await expect(dying).toHaveCount(1);
+    }
+  });
+
+  test('clicking a block in the seconds row navigates drill-down to seconds view (AC-12)',
+    async ({ page }) => {
+      await page.waitForSelector('#lb-stack-seconds [data-stack-level]', { timeout: 5000 });
+      // Click the first clickable block (dying or future) in the seconds row
+      await page.locator('#lb-stack-seconds [data-stack-level]').first().click();
+      // Drill-down panel should now show 60 second blocks
+      await page.waitForSelector('#lb-container .lb-block', { timeout: 3000 });
+      const blocks = page.locator('#lb-container .lb-block');
+      await expect(blocks).toHaveCount(60);
+    });
+
+  test('clicking a block in the minutes row navigates drill-down to minutes view (AC-12)',
+    async ({ page }) => {
+      await page.waitForSelector('#lb-stack-minutes [data-stack-level]', { timeout: 5000 });
+      await page.locator('#lb-stack-minutes [data-stack-level]').first().click();
+      await page.waitForSelector('#lb-container .lb-block', { timeout: 3000 });
+      const blocks = page.locator('#lb-container .lb-block');
+      await expect(blocks).toHaveCount(60);
+    });
+
+  test('clicking a block in the hours row navigates drill-down to hours view (AC-12)',
+    async ({ page }) => {
+      await page.waitForSelector('#lb-stack-hours [data-stack-level]', { timeout: 5000 });
+      await page.locator('#lb-stack-hours [data-stack-level]').first().click();
+      await page.waitForSelector('#lb-container .lb-block', { timeout: 3000 });
+      const blocks = page.locator('#lb-container .lb-block');
+      await expect(blocks).toHaveCount(24);
+    });
+
+  test('clicking a block in the days row navigates drill-down to days view (AC-12)',
+    async ({ page }) => {
+      await page.waitForSelector('#lb-stack-days [data-stack-level]', { timeout: 5000 });
+      await page.locator('#lb-stack-days [data-stack-level]').first().click();
+      await page.waitForSelector('#lb-container .lb-block', { timeout: 3000 });
+      // days view shows 1+ blocks (variable count)
+      const blocks = page.locator('#lb-container .lb-block');
+      const count = await blocks.count();
+      expect(count).toBeGreaterThan(0);
+      // breadcrumb must be at days level
+      const info = await page.locator('#lb-info').textContent();
+      expect(info).toMatch(/day/i);
+    });
 
   test('page loads without uncaught JS errors', async ({ page }) => {
     const errors = [];
