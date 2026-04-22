@@ -274,6 +274,83 @@
   </div>
 </section>
 
+<!-- ── Accelerate the Doom ──────────────────────────────── -->
+<section id="accelerator-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Gamification</p>
+    <h2>🚀 Accelerate the Doom</h2>
+    <p class="lb-desc">You know it's bad. Tap anyway. Every click adds tokens to your personal contribution to the apocalypse. Earn Doom Points, unlock upgrades, and trigger environmental milestones yourself.</p>
+    <button id="accelToggleBtn" class="scoring-toggle-btn" aria-expanded="false" aria-controls="accel-content">
+      ▶ Open Doom Accelerator
+    </button>
+    <div id="accel-content" hidden>
+
+      <!-- Personal stats strip -->
+      <div class="accel-stats-strip" aria-label="Personal acceleration stats">
+        <div class="accel-stat">
+          <div class="accel-stat-value" id="accelTokens">0</div>
+          <div class="accel-stat-label">Personal Tokens</div>
+        </div>
+        <div class="accel-stat">
+          <div class="accel-stat-value" id="accelCo2">0 g</div>
+          <div class="accel-stat-label">CO₂ Generated</div>
+        </div>
+        <div class="accel-stat">
+          <div class="accel-stat-value" id="accelWater">0 mL</div>
+          <div class="accel-stat-label">Water Used</div>
+        </div>
+        <div class="accel-stat accel-stat-dp">
+          <div class="accel-stat-value" id="accelDp">0 DP</div>
+          <div class="accel-stat-label">Doom Points</div>
+        </div>
+      </div>
+
+      <!-- Big Red Button area -->
+      <div class="brb-wrap">
+        <div id="comboDisplay" class="combo-display" aria-live="polite" aria-atomic="true" aria-label="Combo multiplier: 1×">1×</div>
+        <button id="bigRedButton" class="big-red-button" aria-label="Feed the Machine — 1× combo">
+          <span class="brb-icon" aria-hidden="true">⚙️</span>
+          <span id="brbLabel" class="brb-label">Feed the Machine</span>
+        </button>
+        <div class="brb-rate" id="brbTapRate">Tap to begin</div>
+      </div>
+
+      <!-- Milestone race bar -->
+      <div class="milestone-race-wrap">
+        <div class="milestone-race-header">
+          <span class="milestone-race-label">Next milestone: <strong id="milestoneRaceName">—</strong></span>
+          <span class="milestone-race-pct" id="milestoneRacePct">0%</span>
+        </div>
+        <div class="progress-bar" role="progressbar"
+             aria-label="Personal progress toward next milestone"
+             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+             id="milestoneRaceBar">
+          <div class="progress-fill milestone-race-fill" id="milestoneRaceFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Session Challenges -->
+      <div class="accel-section-title">⚡ Session Challenges</div>
+      <div id="challengeRow" class="challenge-row" role="list" aria-label="Session challenges">
+        <!-- populated by script.js -->
+      </div>
+
+      <!-- Upgrade Shop -->
+      <div class="accel-section-title">🛒 Upgrade Shop</div>
+      <div id="upgradeShop" class="upgrade-shop" aria-label="Upgrade shop">
+        <!-- populated by script.js -->
+      </div>
+
+      <!-- Footer row: best score + share -->
+      <div class="accel-footer-row">
+        <div id="bestScoreRow" class="best-score-row">🏆 Best session: <span id="bestScoreValue">—</span></div>
+        <button id="shareAccelerationBtn" class="btn-secondary" hidden>📤 Share My Destruction</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- ── Footer ─────────────────────────────────────────────── -->
 <footer>
   <div class="container">

@@ -23,9 +23,14 @@ const {
   generateEquivalences,
   calculatePersonalFootprint,
   sessionEquivalences,
+  getNextMilestoneForPlayer,
+  computeComboMultiplier,
+  getSessionChallenges,
+  formatDoomPoints,
   MILESTONES,
   HISTORICAL_DATA,
   RATE_SCHEDULE,
+  SESSION_CHALLENGE_DEFS,
   BASE_TOKENS,
   TOKENS_PER_SECOND,
 } = core;
@@ -738,5 +743,212 @@ describe('sessionEquivalences', () => {
     // A very tiny count may produce fewer phrases (some below minimum threshold)
     const large = sessionEquivalences(1e12);
     expect(large.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+// ============================================================
+// SESSION_CHALLENGE_DEFS
+// ============================================================
+describe('SESSION_CHALLENGE_DEFS', () => {
+  test('is a non-empty array', () => {
+    expect(Array.isArray(SESSION_CHALLENGE_DEFS)).toBe(true);
+    expect(SESSION_CHALLENGE_DEFS.length).toBeGreaterThan(0);
+  });
+
+  test('each challenge has required fields', () => {
+    SESSION_CHALLENGE_DEFS.forEach((c) => {
+      expect(typeof c.id).toBe('string');
+      expect(typeof c.icon).toBe('string');
+      expect(typeof c.label).toBe('string');
+      expect(typeof c.desc).toBe('string');
+      expect(typeof c.type).toBe('string');
+      expect(typeof c.target).toBe('number');
+      expect(c.target).toBeGreaterThan(0);
+      expect(typeof c.rewardDp).toBe('number');
+      expect(c.rewardDp).toBeGreaterThan(0);
+    });
+  });
+
+  test('all challenge ids are unique', () => {
+    const ids = SESSION_CHALLENGE_DEFS.map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test('has at least 3 challenges (enough to always return a full set of 3)', () => {
+    expect(SESSION_CHALLENGE_DEFS.length).toBeGreaterThanOrEqual(3);
+  });
+});
+
+// ============================================================
+// getNextMilestoneForPlayer
+// ============================================================
+describe('getNextMilestoneForPlayer', () => {
+  test('returns first milestone when personalTokens is 0', () => {
+    const result = getNextMilestoneForPlayer(0, MILESTONES);
+    expect(result).toBe(MILESTONES[0]);
+  });
+
+  test('returns null when personalTokens exceeds all milestones', () => {
+    const huge = MILESTONES[MILESTONES.length - 1].tokens + 1;
+    expect(getNextMilestoneForPlayer(huge, MILESTONES)).toBeNull();
+  });
+
+  test('returns the next uncrossed milestone', () => {
+    const first = MILESTONES[0];
+    const result = getNextMilestoneForPlayer(first.tokens, MILESTONES);
+    expect(result).toBe(MILESTONES[1]);
+  });
+
+  test('returns null for non-numeric tokens', () => {
+    expect(getNextMilestoneForPlayer('abc', MILESTONES)).toBeNull();
+  });
+
+  test('returns null for non-array milestones', () => {
+    expect(getNextMilestoneForPlayer(0, null)).toBeNull();
+  });
+
+  test('works with an empty milestones array', () => {
+    expect(getNextMilestoneForPlayer(0, [])).toBeNull();
+  });
+
+  test('returns the exact milestone at the boundary (not yet crossed)', () => {
+    const threshold = MILESTONES[2].tokens;
+    // tokens = threshold - 1 means milestone 2 is not yet reached
+    const result = getNextMilestoneForPlayer(threshold - 1, MILESTONES);
+    expect(result).toBe(MILESTONES[2]);
+  });
+});
+
+// ============================================================
+// computeComboMultiplier
+// ============================================================
+describe('computeComboMultiplier', () => {
+  test('returns 1 for an empty array', () => {
+    expect(computeComboMultiplier([])).toBe(1);
+  });
+
+  test('returns 1 for a non-array argument', () => {
+    expect(computeComboMultiplier(null)).toBe(1);
+    expect(computeComboMultiplier('abc')).toBe(1);
+  });
+
+  test('returns 1 for a single tap', () => {
+    const now = Date.now();
+    expect(computeComboMultiplier([now])).toBe(1);
+  });
+
+  test('counts taps within the last 1000 ms', () => {
+    const now = 1000000000000;
+    // 5 taps all within the last 1 second
+    const timestamps = [now - 900, now - 700, now - 500, now - 300, now];
+    expect(computeComboMultiplier(timestamps)).toBe(5);
+  });
+
+  test('excludes taps older than 1000 ms', () => {
+    const now = 1000000000000;
+    const timestamps = [now - 2000, now - 1500, now - 100, now];
+    // Only the last 2 are within 1 second of `now`
+    expect(computeComboMultiplier(timestamps)).toBe(2);
+  });
+
+  test('caps at 10 regardless of tap count', () => {
+    const now = Date.now();
+    const timestamps = Array.from({ length: 20 }, (_, i) => now - i * 50);
+    expect(computeComboMultiplier(timestamps)).toBe(10);
+  });
+
+  test('returns 1 if the only tap has an invalid timestamp', () => {
+    expect(computeComboMultiplier([NaN])).toBe(1);
+    expect(computeComboMultiplier(['bad'])).toBe(1);
+  });
+});
+
+// ============================================================
+// getSessionChallenges
+// ============================================================
+describe('getSessionChallenges', () => {
+  test('always returns exactly 3 challenges', () => {
+    expect(getSessionChallenges(Date.now()).length).toBe(3);
+    expect(getSessionChallenges(0).length).toBe(3);
+    expect(getSessionChallenges().length).toBe(3);
+  });
+
+  test('each returned challenge is a valid SESSION_CHALLENGE_DEFS entry', () => {
+    const challenges = getSessionChallenges(Date.now());
+    challenges.forEach((c) => {
+      const found = SESSION_CHALLENGE_DEFS.find((d) => d.id === c.id);
+      expect(found).toBeDefined();
+    });
+  });
+
+  test('returns different challenges for different daily seeds', () => {
+    // Find two seeds that yield different starting indices
+    // Try enough days until we see a difference (wraps at SESSION_CHALLENGE_DEFS.length)
+    const daysToCheck = SESSION_CHALLENGE_DEFS.length;
+    const firstDayMs = 0;
+    const sets = [];
+    for (let d = 0; d < daysToCheck; d++) {
+      sets.push(getSessionChallenges(firstDayMs + d * 86400000).map((c) => c.id).join(','));
+    }
+    const unique = new Set(sets);
+    // With 7 challenges there should be 7 different starting positions
+    expect(unique.size).toBeGreaterThan(1);
+  });
+
+  test('same seed always produces same result', () => {
+    const seed = 1714500000000;
+    const a = getSessionChallenges(seed).map((c) => c.id);
+    const b = getSessionChallenges(seed).map((c) => c.id);
+    expect(a).toEqual(b);
+  });
+
+  test('handles non-numeric seed gracefully', () => {
+    expect(getSessionChallenges('abc').length).toBe(3);
+    expect(getSessionChallenges(null).length).toBe(3);
+  });
+});
+
+// ============================================================
+// formatDoomPoints
+// ============================================================
+describe('formatDoomPoints', () => {
+  test('formats zero', () => {
+    expect(formatDoomPoints(0)).toBe('0 DP');
+  });
+
+  test('formats small integer', () => {
+    expect(formatDoomPoints(42)).toBe('42 DP');
+  });
+
+  test('formats thousands with K suffix', () => {
+    expect(formatDoomPoints(1500)).toBe('1.5K DP');
+  });
+
+  test('omits trailing .0 in K suffix', () => {
+    expect(formatDoomPoints(2000)).toBe('2K DP');
+  });
+
+  test('formats millions with M suffix', () => {
+    expect(formatDoomPoints(2500000)).toBe('2.5M DP');
+  });
+
+  test('omits trailing .0 in M suffix', () => {
+    expect(formatDoomPoints(3000000)).toBe('3M DP');
+  });
+
+  test('returns 0 DP for negative values', () => {
+    expect(formatDoomPoints(-5)).toBe('0 DP');
+  });
+
+  test('returns 0 DP for NaN', () => {
+    expect(formatDoomPoints(NaN)).toBe('0 DP');
+  });
+
+  test('returns 0 DP for non-numeric input', () => {
+    expect(formatDoomPoints('lots')).toBe('0 DP');
+  });
+
+  test('rounds sub-threshold values', () => {
+    expect(formatDoomPoints(9.7)).toBe('10 DP');
   });
 });
