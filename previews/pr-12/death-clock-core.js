@@ -3,7 +3,13 @@
 // ============================================================
 // AI DEATH CLOCK — Core Logic
 // Pure functions with no DOM dependencies — safe for unit testing
+//
+// Wrapped in an IIFE so that top-level `const` declarations (e.g. MILESTONES)
+// do not collide with the identically-named global declared by milestones-data.js
+// when both scripts are loaded as classic (non-module) <script> tags.
 // ============================================================
+
+(function () {
 
 // Estimated cumulative global AI tokens consumed since Jan 1, 2020
 // Based on: OpenAI usage reports, scaling to all major model providers,
@@ -515,6 +521,155 @@ function sessionEquivalences(sessionTokens) {
 }
 
 // ============================================================
+// ACCELERATOR GAME — Pure Helpers
+// ============================================================
+
+// ── Company Roles ─────────────────────────────────────────────────────────────
+// Human job roles that can be "replaced" by AI in the Doom Accelerator game.
+// Firing each role grants passive tokens/sec and costs Doom Points.
+// Sorted ascending by cost for display order.
+const COMPANY_ROLES = [
+  { id: 'social_media_mgr', icon: '📱', name: 'Social Media Manager',  cost:    25, tps:       5_000, flavour: 'GPT handles the posts. And the engagement. And the existential dread.' },
+  { id: 'copywriter',       icon: '✍️',  name: 'Copywriter',             cost:    50, tps:      15_000, flavour: '"Content" flows at 10,000 words/minute. Zero of them are original.' },
+  { id: 'data_analyst',     icon: '📊', name: 'Data Analyst',           cost:   100, tps:      40_000, flavour: 'The model found 47 correlations. All in the deck. None actionable.' },
+  { id: 'junior_dev',       icon: '💻', name: 'Junior Developer',       cost:   150, tps:      80_000, flavour: 'Writes its own tests. They all pass. Nothing works.' },
+  { id: 'support_team',     icon: '🎧', name: 'Customer Support Team',  cost:   250, tps:     150_000, flavour: 'Response time: 0 ms. Empathy: undefined.' },
+  { id: 'hr_manager',       icon: '📋', name: 'HR Manager',             cost:   500, tps:     300_000, flavour: 'The AI now fires the AI. Recursive efficiency unlocked.' },
+  { id: 'cfo',              icon: '💰', name: 'Chief Financial Officer', cost: 1_500, tps:   1_000_000, flavour: 'Projections generated, reviewed, and approved by the same weights.' },
+];
+
+// ── AI Agents ─────────────────────────────────────────────────────────────────
+// Passive token generators purchasable in the Doom Accelerator game.
+// Multiple units of the same agent can be owned; counts stack linearly.
+// Sorted ascending by cost for display order.
+const AI_AGENTS = [
+  { id: 'intern_bot',    icon: '🤖', name: 'ChatBot Intern',          cost:      5, tps:       1_000, flavour: 'Confidently wrong. Always available.' },
+  { id: 'code_agent',    icon: '🐒', name: 'Code Monkey Agent',       cost:     30, tps:       8_000, flavour: "Opens issues about itself. Closes them. Does it again." },
+  { id: 'content_farm',  icon: '🏭', name: 'Content Farm Instance',   cost:    150, tps:      50_000, flavour: '10,000 SEO articles/hr. Zero readers.' },
+  { id: 'token_maxxer',  icon: '📈', name: 'Token Maxxer v1',         cost:    500, tps:     200_000, flavour: 'Optimises prompts to be longer, somehow.' },
+  { id: 'vibe_coder',    icon: '🎵', name: 'Vibe Coding Engine',      cost:  2_000, tps:     900_000, flavour: "Doesn't compile. Vibes immaculate." },
+  { id: 'ai_consultant', icon: '💼', name: 'AI Strategy Consultant',  cost:  8_000, tps:   4_000_000, flavour: '200 slide decks/sec. 0 actionable insights.' },
+];
+
+// Company stage progression ordered by minimum workers replaced.
+const COMPANY_STAGES = [
+  { minReplaced: 0, name: 'Garage Startup',        icon: '🌱' },
+  { minReplaced: 1, name: 'AI-Curious Disruptor',  icon: '🚀' },
+  { minReplaced: 3, name: 'AI-First Pivot',         icon: '🤖' },
+  { minReplaced: 5, name: 'AI-Native Company',      icon: '🏢' },
+  { minReplaced: 7, name: 'Fully Automated Corp',   icon: '☠️'  },
+];
+
+/**
+ * Compute the total passive token generation rate (tokens/sec) from owned AI
+ * agents and fired (replaced) company roles.
+ *
+ * @param {Object} ownedAgents   - { agentId: count }  (non-integer counts are floored)
+ * @param {Object} replacedRoles - { roleId: true }
+ * @returns {number}               tokens per second
+ */
+function computePassiveRate(ownedAgents, replacedRoles) {
+  const agents = (typeof ownedAgents  === 'object' && ownedAgents  !== null) ? ownedAgents  : {};
+  const roles  = (typeof replacedRoles === 'object' && replacedRoles !== null) ? replacedRoles : {};
+  let rate = 0;
+  AI_AGENTS.forEach((a) => {
+    const count = Number.isFinite(agents[a.id]) ? Math.max(0, Math.floor(agents[a.id])) : 0;
+    rate += count * a.tps;
+  });
+  COMPANY_ROLES.forEach((r) => {
+    if (roles[r.id]) rate += r.tps;
+  });
+  return rate;
+}
+
+/**
+ * Return the current company stage for the given number of replaced workers.
+ *
+ * @param {number} workersReplaced
+ * @returns {{ minReplaced: number, name: string, icon: string }}
+ */
+function getCompanyStage(workersReplaced) {
+  const count = (typeof workersReplaced === 'number' && isFinite(workersReplaced))
+    ? Math.max(0, Math.floor(workersReplaced))
+    : 0;
+  let stage = COMPANY_STAGES[0];
+  for (const s of COMPANY_STAGES) {
+    if (count >= s.minReplaced) stage = s;
+  }
+  return stage;
+}
+
+/**
+ * All possible session challenge definitions.
+ * Each entry: { id, icon, label, desc, type, target, rewardDp }
+ * type: 'taps' | 'tokens' | 'combo' | 'speed' | 'upgrade' | 'co2'
+ */
+const SESSION_CHALLENGE_DEFS = [
+  { id: 'rapid_fire',    icon: '👆', label: 'Rapid Fire',         desc: 'Tap 100 times',                                      type: 'taps',    target: 100,   rewardDp: 200  },
+  { id: 'billionaire',   icon: '💎', label: 'Token Billionaire',  desc: 'Contribute 1 billion personal tokens',               type: 'tokens',  target: 1e9,   rewardDp: 100  },
+  { id: 'trillion',      icon: '💰', label: 'Trillion Touched',   desc: 'Contribute 1 trillion personal tokens',              type: 'tokens',  target: 1e12,  rewardDp: 1000 },
+  { id: 'combo_king',    icon: '🔥', label: 'Combo King',         desc: 'Hit 10× combo 3 times',                              type: 'combo',   target: 3,     rewardDp: 500  },
+  { id: 'speed_demon',   icon: '⚡', label: 'Speed Demon',        desc: 'Tap 50 times in under 10 seconds',                   type: 'speed',   target: 50,    rewardDp: 500  },
+  { id: 'first_upgrade', icon: '🛒', label: 'Consumer Capitalism',desc: 'Purchase your first upgrade',                        type: 'upgrade', target: 1,     rewardDp: 50   },
+  { id: 'carbon_sprint', icon: '💨', label: 'Carbon Sprint',      desc: 'Generate 1 tonne CO₂-equivalent in one session',    type: 'co2',     target: 1000,  rewardDp: 750  },
+];
+
+/**
+ * Return the first personal milestone that the player has not yet crossed.
+ * @param {number} personalTokens
+ * @param {Array}  milestones
+ * @returns {Object|null}
+ */
+function getNextMilestoneForPlayer(personalTokens, milestones) {
+  if (typeof personalTokens !== 'number' || !Array.isArray(milestones)) return null;
+  return milestones.find((m) => personalTokens < m.tokens) || null;
+}
+
+/**
+ * Calculate the combo multiplier based on recent tap timestamps.
+ * Counts taps within the last 1,000 ms of the most recent tap, capped at 10.
+ * @param {number[]} tapTimestamps - array of epoch-ms tap times (oldest first)
+ * @returns {number} integer 1–10
+ */
+function computeComboMultiplier(tapTimestamps) {
+  if (!Array.isArray(tapTimestamps) || tapTimestamps.length === 0) return 1;
+  const latest = tapTimestamps[tapTimestamps.length - 1];
+  if (typeof latest !== 'number' || !isFinite(latest)) return 1;
+  const cutoff = latest - 1000;
+  const recent = tapTimestamps.filter((t) => typeof t === 'number' && t >= cutoff);
+  return Math.min(10, Math.max(1, recent.length));
+}
+
+/**
+ * Return 3 session challenges selected deterministically from SESSION_CHALLENGE_DEFS
+ * using a daily seed (changes once per UTC day).
+ * @param {number} [seedMs] - seed timestamp in ms (defaults to Date.now())
+ * @returns {Array<Object>} exactly 3 challenge definition objects
+ */
+function getSessionChallenges(seedMs) {
+  const ts = typeof seedMs === 'number' && isFinite(seedMs) ? seedMs : Date.now();
+  const dayBucket = Math.abs(Math.floor(ts / 86400000));
+  const start = dayBucket % SESSION_CHALLENGE_DEFS.length;
+  const result = [];
+  for (let i = 0; i < 3; i++) {
+    result.push(SESSION_CHALLENGE_DEFS[(start + i) % SESSION_CHALLENGE_DEFS.length]);
+  }
+  return result;
+}
+
+/**
+ * Format a Doom Points value into a human-readable string.
+ * @param {number} dp
+ * @returns {string}
+ */
+function formatDoomPoints(dp) {
+  if (typeof dp !== 'number' || isNaN(dp) || dp < 0) return '0 DP';
+  if (dp >= 1e6) return (dp / 1e6).toFixed(1).replace(/\.0$/, '') + 'M DP';
+  if (dp >= 1e3) return (dp / 1e3).toFixed(1).replace(/\.0$/, '') + 'K DP';
+  return Math.round(dp) + ' DP';
+}
+
+// ============================================================
 // EXPORTS — CommonJS for Jest; window global for the browser
 // ============================================================
 const DeathClockCore = {
@@ -524,7 +679,11 @@ const DeathClockCore = {
   HISTORICAL_DATA,
   MILESTONES,
   RATE_SCHEDULE,
+  SESSION_CHALLENGE_DEFS,
   TOKEN_TIPS,
+  COMPANY_ROLES,
+  AI_AGENTS,
+  COMPANY_STAGES,
   formatTokenCount,
   formatTokenCountShort,
   getTriggeredMilestones,
@@ -540,6 +699,12 @@ const DeathClockCore = {
   generateEquivalences,
   calculatePersonalFootprint,
   sessionEquivalences,
+  getNextMilestoneForPlayer,
+  computeComboMultiplier,
+  getSessionChallenges,
+  formatDoomPoints,
+  computePassiveRate,
+  getCompanyStage,
 };
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -547,3 +712,5 @@ if (typeof module !== 'undefined' && module.exports) {
 } else if (typeof window !== 'undefined') {
   window.DeathClockCore = DeathClockCore;
 }
+
+})();
