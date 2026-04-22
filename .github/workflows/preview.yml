@@ -39,7 +39,7 @@ jobs:
           exclude_assets: '.github,node_modules,tests,scripts,package-lock.json,package.json,milestones.yaml'
 
       - name: Post or update preview URL comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const prNumber = context.payload.pull_request.number;
