@@ -757,6 +757,101 @@ tr:hover td { background: var(--surface-2); }
   .lb-grid { --lb-block-size: 8px; --lb-gap: 1px; }
   .lb-grid.lb-zoom { --lb-cols: 10; --lb-block-size: 28px; --lb-gap: 3px; }
 }
+/* ---- Token-Saving Tips Section ---- */
+#tips-section { background: var(--bg-alt); }
+
+.tips-intro {
+  color: var(--text-dim);
+  font-size: .9rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+  max-width: 680px;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.tip-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.tip-card:hover {
+  border-color: var(--accent-3);
+  box-shadow: 0 0 12px rgba(0,204,119,.15);
+}
+
+.tip-header {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+
+.tip-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.tip-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-3);
+  line-height: 1.3;
+}
+
+.tip-text {
+  font-size: .85rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.tip-detail {
+  font-size: .78rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.tip-impact {
+  font-size: .78rem;
+  color: var(--text-dim);
+  background: var(--surface-2);
+  border-radius: 4px;
+  padding: .5rem .75rem;
+  line-height: 1.7;
+}
+
+.tip-impact strong { color: var(--accent-3); }
+
+.tip-ref {
+  font-size: .75rem;
+  color: var(--accent-4);
+  text-decoration: none;
+  margin-top: auto;
+}
+
+.tip-ref:hover { text-decoration: underline; }
+
+/* ---- Milestone reference links ---- */
+.milestone-ref {
+  display: inline-block;
+  font-size: .75rem;
+  color: var(--accent-4);
+  text-decoration: none;
+  margin-top: .4rem;
+}
+
+.milestone-ref:hover { text-decoration: underline; }
+
 footer {
   text-align: center;
   padding: 2rem 1rem;
