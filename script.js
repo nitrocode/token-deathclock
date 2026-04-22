@@ -1295,8 +1295,7 @@
     const options = document.getElementById('share-doom-options');
     if (!panel) return;
 
-    // Show after 10 seconds
-    setTimeout(() => { if (panel) panel.hidden = false; }, 10000);
+    // Share popup disabled
 
     const mainBtn = document.getElementById('shareDoomBtn');
     if (mainBtn) {
