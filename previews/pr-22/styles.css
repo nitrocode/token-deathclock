@@ -51,6 +51,9 @@
 /* ---- Reset & Base ---- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Enforce [hidden] even when a class sets an explicit display value */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 
 body {
