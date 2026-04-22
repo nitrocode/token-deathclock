@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Death Clock 💀</title>
+  <meta name="description" content="Visualise the environmental cost of global AI token consumption — live counters, milestone tracker, and projections." />
+
+  <!-- Content-Security-Policy: restrict scripts to self + jsDelivr CDN, styles to self + Google Fonts -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
+
+  <!-- Chart.js (pinned UMD build with SRI hash, loaded from CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"
+          integrity="sha384-FcQlsUOd0TJjROrBxhJdUhXTUgNJQxTMcxZe6nHbaEfFL1zjQ+bq/uRoBQxb0KMo"
+          crossorigin="anonymous"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ── GitHub Corner Banner ──────────────────────────────── -->
+<a href="https://github.com/nitrocode/token-deathclock" class="github-corner" aria-label="Fork me on GitHub" target="_blank" rel="noopener noreferrer">
+  <svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true">
+    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+    <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" class="octo-arm"></path>
+    <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+  </svg>
+</a>
+
+<!-- ── Theme Toggle ────────────────────────────────────────── -->
+<button id="themeToggle" aria-label="Toggle colour theme">☀️</button>
+
+<!-- ── Header ─────────────────────────────────────────────── -->
+<header>
+  <div class="container">
+    <span class="header-skull" aria-hidden="true">💀</span>
+    <h1 class="site-title glow-text">AI DEATH CLOCK</h1>
+    <p class="site-subtitle">The True Environmental Cost of Global AI Token Consumption</p>
+  </div>
+</header>
+
+<!-- ── Live Counter ────────────────────────────────────────── -->
+<section id="counter-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Live Feed</p>
+    <h2>Global Token Counter</h2>
+
+    <div class="counter-grid">
+      <div class="counter-box">
+        <div class="counter-label">🌍 Total AI Tokens Consumed (Global, Est.)</div>
+        <div id="totalCounter" class="counter-value" aria-live="polite" aria-atomic="true">Loading…</div>
+        <div class="counter-subtitle">since 1 January 2020</div>
+      </div>
+
+      <div class="counter-box">
+        <div class="counter-label">⚡ Tokens Since You Arrived</div>
+        <div id="sessionCounter" class="counter-value session" aria-live="polite" aria-atomic="true">0</div>
+        <div class="counter-subtitle" id="sessionTime">0 seconds ago</div>
+      </div>
+
+      <div class="counter-box">
+        <div class="counter-label">🔥 Current Rate (Estimated)</div>
+        <div id="rateCounter" class="counter-value rate">100,000,000</div>
+        <div class="counter-subtitle" id="rateEvent">tokens per second, globally</div>
+      </div>
+    </div>
+
+    <!-- Environmental impact strip -->
+    <div class="impact-strip" id="impactStrip">
+      <div class="impact-stat">
+        <span class="stat-icon">⚡</span>
+        <div class="stat-value" id="statKwh">—</div>
+        <div class="stat-label">kWh Energy Used</div>
+      </div>
+      <div class="impact-stat">
+        <span class="stat-icon">💨</span>
+        <div class="stat-value" id="statCo2">—</div>
+        <div class="stat-label">kg CO₂ Emitted</div>
+      </div>
+      <div class="impact-stat">
+        <span class="stat-icon">🌊</span>
+        <div class="stat-value" id="statWater">—</div>
+        <div class="stat-label">Litres of Water Used</div>
+      </div>
+      <div class="impact-stat">
+        <span class="stat-icon">🌳</span>
+        <div class="stat-value" id="statTrees">—</div>
+        <div class="stat-label">Trees' CO₂ Capacity</div>
+      </div>
+    </div>
+
+    <!-- What could we have done instead -->
+    <div class="equiv-wrap">
+      <div class="equiv-header">
+        <span class="equiv-label">♻️ What we could have done instead:</span>
+        <button id="snarkToggle" class="snarky-toggle" aria-pressed="false">😤 Snarky Mode</button>
+      </div>
+      <div id="equivDisplay" class="equiv-display" role="status" aria-live="polite" aria-atomic="true">
+        <span id="equivIcon" class="equiv-icon" aria-hidden="true"></span>
+        <span id="equivText" class="equiv-text"></span>
+      </div>
+    </div>
+
+    <!-- Get My Receipt -->
+    <div class="receipt-trigger-wrap">
+      <button id="getReceiptBtn" class="receipt-trigger-btn">🧾 Get My Session Receipt</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── AI Is Currently Writing Ticker ───────────────────── -->
+<section id="ticker-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Live Activity</p>
+    <h2>🤖 AI Is Currently Generating…</h2>
+    <div id="ai-ticker-wrap" class="ai-ticker-wrap">
+      <div class="ai-ticker-header">
+        <div id="ai-ticker-text" class="ai-ticker-text" role="status" aria-live="polite" aria-atomic="true"></div>
+        <button id="ai-ticker-toggle" class="ai-ticker-toggle-btn" aria-pressed="false">⏸ Pause</button>
+      </div>
+      <div id="ai-ticker-expanded" class="ai-ticker-expanded" hidden>
+        <pre id="ai-ticker-math" class="ai-ticker-math"></pre>
+        <div class="ai-ticker-actions">
+          <button id="ai-ticker-share" class="btn-sm">📤 Share this fact</button>
+          <button id="ai-ticker-resume" class="btn-sm">▶ Resume</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Life Blocks ────────────────────────────────────────── -->
+<section id="life-blocks-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Countdown</p>
+    <h2>Life Blocks — Days Until Extinction 💀</h2>
+    <p class="lb-desc">
+      Each block is one day. Click any block to zoom into its hours → minutes → seconds.
+      Watch them die.
+    </p>
+    <div class="lb-controls">
+      <nav id="lb-breadcrumb" class="lb-breadcrumb" aria-label="Life blocks drill-down navigation"></nav>
+      <div id="lb-info" class="lb-info"></div>
+    </div>
+    <div id="lb-container" class="lb-container" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ── Milestones ──────────────────────────────────────────── -->
+<section id="milestones-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Environmental Events</p>
+    <h2>Token Consumption Milestones</h2>
+    <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:1rem;">
+      Each threshold represents the cumulative global AI token count at which a symbolic environmental
+      event occurs.  Triggered milestones are highlighted in red.
+    </p>
+    <div class="milestones-grid" id="milestonesGrid">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Chart ───────────────────────────────────────────────── -->
+<section id="chart-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Visualisation</p>
+    <h2>Token Growth Over Time &amp; Projections</h2>
+    <div class="chart-container">
+      <div class="chart-wrapper">
+        <canvas id="tokenChart" aria-label="Line chart showing historical and projected global AI token consumption"></canvas>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#ff3333;"></div>
+          <span>Historical (estimated)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#ff8800;border-top:2px dashed #ff8800;height:0;margin-top:1px;"></div>
+          <span>Projected</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#00cc77;"></div>
+          <span>Milestone thresholds</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Predictions Table ───────────────────────────────────── -->
+<section id="predictions-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Forecast</p>
+    <h2>Milestone Prediction Dates</h2>
+    <div class="predictions-table-wrap">
+      <table id="predictionsTable">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Threshold</th>
+            <th>Status</th>
+            <th>Predicted Date</th>
+            <th>Time Remaining</th>
+          </tr>
+        </thead>
+        <tbody id="predictionsBody">
+          <!-- populated by script.js -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── Token-Saving Tips ──────────────────────────────────── -->
+<section id="tips-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Act Now</p>
+    <h2>🌱 How to Reduce Your AI Footprint</h2>
+    <p class="tips-intro">
+      Every prompt matters. Small changes in how you use AI add up to billions of tokens saved —
+      and real environmental resources. The projections above show the worst case.
+      Here's how we change the trajectory.
+    </p>
+    <div class="tips-grid" id="tipsGrid">
+      <!-- populated by script.js -->
+    </div>
+    <div class="tips-impact-wrap" id="tipsImpactWrap">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
+
+<!-- ── Personal Footprint Calculator ─────────────────────── -->
+<section id="calculator-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Personal Impact</p>
+    <h2>💻 How Much Did <em>You</em> Destroy?</h2>
+    <button id="calcToggleBtn" class="scoring-toggle-btn" aria-expanded="false" aria-controls="calc-content">
+      ▶ Open Personal AI Carbon Footprint Calculator
+    </button>
+    <div id="calc-content" class="calc-content" hidden>
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <label for="calcPrompts" class="calc-label">
+            🗣️ Prompts sent this week: <strong id="calcPromptsVal">20</strong>
+          </label>
+          <input type="range" id="calcPrompts" class="calc-range" min="1" max="500" value="20" aria-valuemin="1" aria-valuemax="500" aria-valuenow="20" />
+        </div>
+        <div class="calc-field">
+          <label for="calcLength" class="calc-label">📏 Typical prompt length:</label>
+          <select id="calcLength" class="calc-select">
+            <option value="100">Short tweet-style (~100 tokens)</option>
+            <option value="500" selected>Medium paragraph (~500 tokens)</option>
+            <option value="2000">Long essay / code review (~2,000 tokens)</option>
+            <option value="8000">Deep research / long doc (~8,000 tokens)</option>
+          </select>
+        </div>
+        <div class="calc-field">
+          <label for="calcModel" class="calc-label">🤖 Which AI do you use most?</label>
+          <select id="calcModel" class="calc-select">
+            <option value="1">GPT-3.5 / smaller models (1×)</option>
+            <option value="3" selected>GPT-4o / Claude 3 (3×)</option>
+            <option value="4">GPT-4 class (4×)</option>
+            <option value="8">o1 / reasoning models (8×)</option>
+            <option value="0.1">Local CPU model (0.1×)</option>
+          </select>
+        </div>
+      </div>
+      <div id="calc-results" class="calc-results" aria-live="polite"></div>
+      <div class="calc-actions">
+        <button id="calcShareBtn" class="btn-primary">📤 Share My Footprint</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Doom Achievements ──────────────────────────────────── -->
+<section id="achievements-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Achievements</p>
+    <h2>🏆 Your Doom Badges</h2>
+    <p class="lb-desc">Earn badges for how long you stare into the abyss — and for what you do while you're here.</p>
+    <div id="badges-grid" class="badges-grid" aria-label="Badge collection">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <p>Created by <strong>RB</strong> &mdash; AI Death Clock &mdash; 2026</p>
+    <p class="footer-disclaimer">
+      Environmental figures are illustrative estimates based on published AI energy-use research,
+      not official measurements. Sources: Google/DeepMind energy reports, Microsoft sustainability
+      disclosures, Epoch AI compute trends, AI Index 2024.
+    </p>
+  </div>
+</footer>
+
+<!-- ── Share Your Doom (floating) ────────────────────────── -->
+<div id="share-doom-panel" class="share-doom-panel" hidden>
+  <div id="share-doom-options" class="share-doom-options" hidden>
+    <button id="shareTwitterBtn" class="share-opt-btn">🐦 Twitter / X</button>
+    <button id="shareRedditBtn"  class="share-opt-btn">🤖 Reddit</button>
+    <button id="shareCopyBtn"    class="share-opt-btn">📋 Copy text</button>
+    <button id="shareCloseBtn"   class="share-opt-close" aria-label="Close share options">✕</button>
+  </div>
+  <button id="shareDoomBtn" class="share-doom-btn">📤 Share Your Doom</button>
+</div>
+
+<!-- ── Receipt Modal ─────────────────────────────────────── -->
+<div id="receipt-modal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="receipt-heading">
+  <div class="receipt-card" role="document">
+    <h2 id="receipt-heading" class="sr-only">Session Receipt</h2>
+    <pre id="receipt-body" class="receipt-body"></pre>
+    <div class="receipt-actions">
+      <button id="receiptShareBtn" class="btn-primary">📤 Share Receipt</button>
+      <button id="receiptCopyBtn"  class="btn-secondary">📋 Copy Text</button>
+      <button id="receiptCloseBtn" class="btn-ghost">✕ Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Notification ─────────────────────────────────── -->
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden>
+  <span id="toast-icon"  class="toast-icon"></span>
+  <div class="toast-content">
+    <div id="toast-title" class="toast-title"></div>
+    <div id="toast-desc"  class="toast-desc"></div>
+  </div>
+  <button id="toast-close" class="toast-close" aria-label="Close notification">✕</button>
+</div>
+
+<!-- Milestone data (auto-generated from milestones.yaml) -->
+<script src="milestones-data.js"></script>
+<!-- Core logic (no DOM deps — loaded first so script.js can use it) -->
+<script src="death-clock-core.js"></script>
+<!-- Minimal Chart.js date adapter (required for time-scale x-axis) -->
+<script src="chart-date-adapter.js"></script>
+<!-- DOM / Chart logic -->
+<script src="script.js"></script>
+</body>
+</html>
