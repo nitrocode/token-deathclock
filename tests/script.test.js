@@ -34,6 +34,7 @@ const MIN_HTML = `
   <nav id="lb-breadcrumb"></nav>
   <div id="lb-info"></div>
   <div id="lb-container"></div>
+  <div id="tipsGrid"></div>
 `;
 
 function makeChartMock() {
@@ -160,9 +161,9 @@ describe('Theme toggle (DOM)', () => {
   test('button label reflects the active theme', () => {
     const btn = document.getElementById('themeToggle');
     btn.click(); // dark -> light
-    expect(btn.textContent).toContain('Dark Mode');
+    expect(btn.textContent).toContain('🌙');
     btn.click(); // light -> dark
-    expect(btn.textContent).toContain('Light Mode');
+    expect(btn.textContent).toContain('☀️');
   });
 });
 
@@ -251,5 +252,33 @@ describe('initChart (DOM)', () => {
 describe('escHtml (via rendered DOM output)', () => {
   test('milestone grid HTML does not contain unescaped script tags', () => {
     expect(document.getElementById('milestonesGrid').innerHTML).not.toContain('<script>');
+  });
+});
+
+// ============================================================
+// renderTips (DOM)
+// ============================================================
+describe('renderTips (DOM)', () => {
+  test('creates a card for each TOKEN_TIP', () => {
+    const grid = document.getElementById('tipsGrid');
+    expect(grid).not.toBeNull();
+    expect(grid.children.length).toBe(coreModule.TOKEN_TIPS.length);
+  });
+
+  test('each tip card has the expected id', () => {
+    coreModule.TOKEN_TIPS.forEach((tip) => {
+      expect(document.getElementById('tip-' + tip.id)).not.toBeNull();
+    });
+  });
+
+  test('tip grid HTML does not contain unescaped script tags', () => {
+    expect(document.getElementById('tipsGrid').innerHTML).not.toContain('<script>');
+  });
+
+  test('tip cards contain the tip title text', () => {
+    const grid = document.getElementById('tipsGrid');
+    coreModule.TOKEN_TIPS.forEach((tip) => {
+      expect(grid.innerHTML).toContain(tip.title);
+    });
   });
 });

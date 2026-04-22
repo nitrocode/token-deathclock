@@ -15,6 +15,7 @@
     HISTORICAL_DATA,
     MILESTONES,
     RATE_SCHEDULE,
+    TOKEN_TIPS,
     formatTokenCount,
     formatTokenCountShort,
     getTriggeredMilestones,
@@ -26,6 +27,10 @@
     getTimeDelta,
     milestoneProgress,
     getRateAtDate,
+    calculateTipImpact,
+    generateEquivalences,
+    calculatePersonalFootprint,
+    sessionEquivalences,
   } = window.DeathClockCore;
 
   // ---- State -----------------------------------------------
@@ -51,13 +56,15 @@
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
     currentTheme = theme;
     if (chartInstance) updateChartColors();
   }
 
   function toggleTheme() {
-    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    if (newTheme === 'light') awardBadge('optimist');
   }
 
   // ---- Counter updater -------------------------------------
@@ -164,7 +171,8 @@
             <div class="progress-fill" style="width:${pct}%"></div>
           </div>
         </div>
-        ${prediction ? `<div class="milestone-predict">⏱ Predicted: ${escHtml(formatDate(prediction))}</div>` : ''}
+        ${prediction ? `<div class="milestone-predict">⏱ Predicted: ${escHtml(formatDate(prediction))} (${escHtml(getTimeDelta(prediction))})</div>` : ''}
+        ${m.reference ? `<a href="${escHtml(m.reference)}" class="milestone-ref" target="_blank" rel="noopener noreferrer">📎 Source</a>` : ''}
       `;
       grid.appendChild(card);
     });
@@ -200,7 +208,9 @@
   function buildChartData() {
     const tokens = getCurrentTokens();
     const historical = HISTORICAL_DATA.map((d) => ({ x: d.date, y: d.tokensT }));
-    const projection = generateProjectionData(tokens, TOKENS_PER_SECOND, 18).map((d) => ({
+    // 60-month projection with 50 % annual growth in token-production rate,
+    // producing the hockey-stick acceleration observed historically.
+    const projection = generateProjectionData(tokens, TOKENS_PER_SECOND, 60, undefined, 0.5).map((d) => ({
       x: d.date,
       y: +d.tokensT.toFixed(2),
     }));
@@ -277,7 +287,7 @@
         scales: {
           x: {
             type: 'time',
-            time: { unit: 'month', tooltipFormat: 'MMM yyyy', displayFormats: { month: 'MMM yy' } },
+            time: { tooltipFormat: 'MMM yyyy', displayFormats: { month: 'MMM yy', year: 'yyyy', quarter: 'MMM yy' } },
             grid: { color: colors.gridColor },
             ticks: { color: colors.tickColor, maxRotation: 45 },
           },
@@ -1051,6 +1061,722 @@
     observer.observe(section);
   }
 
+  // ---- Render token-saving tips ---------------------------
+  function renderTips() {
+    const grid = document.getElementById('tipsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    TOKEN_TIPS.forEach((tip) => {
+      const card = document.createElement('div');
+      card.className = 'tip-card';
+      card.id = 'tip-' + escHtml(tip.id);
+      const impact = calculateTipImpact(tip.savingPct, 1); // 1 % of global users
+      const savedTokensStr = formatTokenCountShort(impact.tokensPerDay);
+      const savedCo2Str = formatTokenCountShort(impact.co2KgPerDay);
+      card.innerHTML = `
+        <div class="tip-header">
+          <span class="tip-icon" aria-hidden="true">${tip.icon}</span>
+          <div class="tip-title">${escHtml(tip.title)}</div>
+        </div>
+        <p class="tip-text">${escHtml(tip.tip)}</p>
+        <p class="tip-detail">${escHtml(tip.detail)}</p>
+        <div class="tip-impact">
+          If 1&#x202F;% of global users applied this tip:<br>
+          <strong>${escHtml(savedTokensStr)} tokens/day saved</strong> ·
+          <strong>${escHtml(savedCo2Str)} kg CO₂/day avoided</strong>
+        </div>
+        ${tip.reference ? `<a href="${escHtml(tip.reference)}" class="tip-ref" target="_blank" rel="noopener noreferrer">📎 Learn more</a>` : ''}
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // ============================================================
+  // FUN FEATURES
+  // ============================================================
+
+  const SITE_URL = 'https://nitrocode.github.io/token-deathclock/';
+
+  // ---- "AI Is Currently Generating…" Ticker ------------------
+
+  const TICKER_ENTRIES = [
+    { tokensEach: 400,   label: 'LinkedIn posts about disruption, transformation, and journeys' },
+    { tokensEach: 800,   label: 'cover letters for jobs already filled by AI' },
+    { tokensEach: 200,   label: 'apology emails for replying "per my last email"' },
+    { tokensEach: 1500,  label: 'README files for projects that will never be committed' },
+    { tokensEach: 3000,  label: 'passive-aggressive Slack messages softened by three rewrites' },
+    { tokensEach: 600,   label: 'horoscopes for zodiac signs that don\'t exist yet' },
+    { tokensEach: 2000,  label: 'attempts to explain consciousness to a language model' },
+    { tokensEach: 500,   label: 'recursive prompts asking AI if it\'s sentient' },
+    { tokensEach: 1200,  label: 'love poems for someone who asked for "something quick"' },
+    { tokensEach: 400,   label: 'philosophical debates between two instances of the same model' },
+    { tokensEach: 2500,  label: 'security advisories for vulnerabilities AI introduced last week' },
+    { tokensEach: 800,   label: 'slide decks titled "AI Strategy 2026"' },
+    { tokensEach: 300,   label: 'meeting summaries for meetings that could have been emails' },
+    { tokensEach: 5000,  label: 'terms of service that no human will ever read' },
+    { tokensEach: 600,   label: 'bedtime stories featuring a dragon named Gerald' },
+    { tokensEach: 400,   label: 'recipes that add cheese to things that should not have cheese' },
+    { tokensEach: 800,   label: 'cat pictures described in 800 words' },
+    { tokensEach: 250,   label: 'arguments about whether a hot dog is a sandwich' },
+    { tokensEach: 100,   label: 'variations of "hello world" in Rust' },
+    { tokensEach: 1000,  label: 'strongly worded letters about a neighbour\'s leaf blower' },
+  ];
+
+  let tickerPaused = false;
+  let tickerIdx    = 0;
+  let tickerCurrent = null; // { entry, nStr, sessionTokens }
+  let tickerInterval = null;
+
+  function tickerNiceFmt(n) {
+    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + ' million';
+    if (n >= 1e3) return (Math.round(n / 100) * 100).toLocaleString();
+    return Math.max(1, Math.round(n)).toLocaleString();
+  }
+
+  function updateTicker() {
+    if (tickerPaused) return;
+    const now = Date.now();
+    const elapsed = Math.max(1, (now - pageLoadTime) / 1000);
+    const rate = getRateAtDate(new Date(now));
+    const sessionTokens = elapsed * rate;
+    const entry = TICKER_ENTRIES[tickerIdx % TICKER_ENTRIES.length];
+    const count = Math.max(1, sessionTokens / entry.tokensEach);
+    const nStr  = tickerNiceFmt(count);
+    const el    = document.getElementById('ai-ticker-text');
+    if (el) el.textContent = nStr + ' ' + entry.label;
+    tickerCurrent = { entry, nStr, sessionTokens, rate };
+    tickerIdx++;
+  }
+
+  function expandTicker() {
+    if (!tickerCurrent) return;
+    tickerPaused = true;
+    const expanded = document.getElementById('ai-ticker-expanded');
+    if (expanded) expanded.hidden = false;
+    const toggleBtn = document.getElementById('ai-ticker-toggle');
+    if (toggleBtn) { toggleBtn.textContent = '▶ Resume'; toggleBtn.setAttribute('aria-pressed', 'true'); }
+    const math = document.getElementById('ai-ticker-math');
+    if (math && tickerCurrent) {
+      const { entry, nStr, sessionTokens, rate } = tickerCurrent;
+      const elapsed = Math.round(sessionTokens / rate);
+      math.textContent =
+        `${elapsed}s × ${formatTokenCount(rate)} tokens/sec\n` +
+        `= ${formatTokenCount(sessionTokens)} tokens consumed globally\n\n` +
+        `÷ ${entry.tokensEach.toLocaleString()} tokens per item\n` +
+        `≈ ${nStr} ${entry.label}\n\n` +
+        `(Just in the time you've been watching.)`;
+    }
+  }
+
+  function collapseTicker() {
+    const expanded = document.getElementById('ai-ticker-expanded');
+    if (expanded) expanded.hidden = true;
+    tickerPaused = false;
+    const toggleBtn = document.getElementById('ai-ticker-toggle');
+    if (toggleBtn) { toggleBtn.textContent = '⏸ Pause'; toggleBtn.setAttribute('aria-pressed', 'false'); }
+  }
+
+  function shareTickerFact() {
+    if (!tickerCurrent) return;
+    const { entry, nStr, sessionTokens } = tickerCurrent;
+    const elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+    const timeStr = elapsed >= 60
+      ? `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`
+      : `${elapsed}s`;
+    const text =
+      `🤖 Since I arrived (${timeStr} ago), AI has probably generated:\n\n` +
+      `${nStr} ${entry.label}\n\n` +
+      `That's what ${formatTokenCount(tickerCurrent.rate)} tokens/sec looks like in human terms.\n` +
+      `→ ${SITE_URL} #AIDeathClock #TokenDeathClock`;
+    openSharePopup(text);
+  }
+
+  function initTicker() {
+    const prefersReduced = typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    updateTicker();
+    if (!prefersReduced) {
+      tickerInterval = setInterval(updateTicker, 4000);
+    }
+
+    const textEl = document.getElementById('ai-ticker-text');
+    if (textEl) textEl.addEventListener('click', expandTicker);
+
+    const toggleBtn = document.getElementById('ai-ticker-toggle');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        if (tickerPaused) { collapseTicker(); } else { expandTicker(); }
+      });
+    }
+
+    const resumeBtn = document.getElementById('ai-ticker-resume');
+    if (resumeBtn) resumeBtn.addEventListener('click', collapseTicker);
+
+    const shareBtn = document.getElementById('ai-ticker-share');
+    if (shareBtn) shareBtn.addEventListener('click', shareTickerFact);
+  }
+
+  // ---- "What Could We Have Done Instead?" Equivalences -------
+
+  let snarkMode = false;
+  let equivIdx  = 0;
+
+  function updateEquivalences() {
+    const tokens  = getCurrentTokens();
+    const entries = generateEquivalences(tokens, snarkMode ? 'snarky' : 'hopeful');
+    if (!entries.length) return;
+    const entry   = entries[equivIdx % entries.length];
+    const iconEl  = document.getElementById('equivIcon');
+    const textEl  = document.getElementById('equivText');
+    if (iconEl) iconEl.textContent = entry.icon;
+    if (textEl) textEl.textContent = entry.text;
+    equivIdx++;
+  }
+
+  function initEquivalences() {
+    updateEquivalences();
+    setInterval(updateEquivalences, 5000);
+
+    const toggle = document.getElementById('snarkToggle');
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        snarkMode = !snarkMode;
+        toggle.textContent = snarkMode ? '🌱 Hopeful Mode' : '😤 Snarky Mode';
+        toggle.setAttribute('aria-pressed', snarkMode ? 'true' : 'false');
+        equivIdx = 0;
+        updateEquivalences();
+      });
+    }
+  }
+
+  // ---- Share Your Doom ----------------------------------------
+
+  function buildShareText() {
+    const now     = Date.now();
+    const elapsed = Math.floor((now - pageLoadTime) / 1000);
+    const rate    = getRateAtDate(new Date(now));
+    const sessionTokens = Math.max(1, elapsed * rate);
+    const phrases = sessionEquivalences(sessionTokens);
+    const equiv   = phrases.length
+      ? phrases[Math.floor(Math.random() * phrases.length)]
+      : null;
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
+    let text =
+      `💀 I just watched AI consume ${formatTokenCount(sessionTokens)} tokens ` +
+      `in the ${timeStr} I spent on this site.`;
+    if (equiv) text += `\nThat's ${equiv}.`;
+    text += `\nAnd it never stops.\n→ ${SITE_URL} #AIDeathClock #TokenDeathClock`;
+    return text;
+  }
+
+  function openSharePopup(text) {
+    const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+    window.open(url, '_blank', 'noopener,noreferrer,width=560,height=420');
+  }
+
+  function initSharePanel() {
+    const panel   = document.getElementById('share-doom-panel');
+    const options = document.getElementById('share-doom-options');
+    if (!panel) return;
+
+    // Show after 10 seconds
+    setTimeout(() => { if (panel) panel.hidden = false; }, 10000);
+
+    const mainBtn = document.getElementById('shareDoomBtn');
+    if (mainBtn) {
+      mainBtn.addEventListener('click', () => {
+        if (options) options.hidden = !options.hidden;
+      });
+    }
+
+    const twitterBtn = document.getElementById('shareTwitterBtn');
+    if (twitterBtn) {
+      twitterBtn.addEventListener('click', () => {
+        openSharePopup(buildShareText());
+        awardBadge('spreading_doom');
+        if (options) options.hidden = true;
+      });
+    }
+
+    const redditBtn = document.getElementById('shareRedditBtn');
+    if (redditBtn) {
+      redditBtn.addEventListener('click', () => {
+        const title = 'I watched AI consume millions of tokens in real time — the numbers are terrifying';
+        const url = 'https://www.reddit.com/submit?url=' +
+          encodeURIComponent(SITE_URL) + '&title=' + encodeURIComponent(title);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        awardBadge('spreading_doom');
+        if (options) options.hidden = true;
+      });
+    }
+
+    const copyBtn = document.getElementById('shareCopyBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(buildShareText()).then(() => {
+          copyBtn.textContent = '✅ Copied!';
+          setTimeout(() => { copyBtn.textContent = '📋 Copy text'; }, 2000);
+        }).catch(() => {
+          copyBtn.textContent = '❌ Failed';
+          setTimeout(() => { copyBtn.textContent = '📋 Copy text'; }, 2000);
+        });
+        awardBadge('spreading_doom');
+        if (options) options.hidden = true;
+      });
+    }
+
+    const closeBtn = document.getElementById('shareCloseBtn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => { if (options) options.hidden = true; });
+    }
+
+    // Close options when clicking outside
+    document.addEventListener('click', (e) => {
+      if (options && !options.hidden && panel && !panel.contains(e.target)) {
+        options.hidden = true;
+      }
+    });
+  }
+
+  // ---- Token Receipt Modal ------------------------------------
+
+  let receiptShown = false;
+
+  function generateReceiptText() {
+    const now     = new Date();
+    const elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+    const rate    = getRateAtDate(now);
+    const sessionTokens = Math.max(1, elapsed * rate);
+    const impact  = calculateEnvironmentalImpact(sessionTokens);
+
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    const durationStr = m > 0 ? `${m} min ${s} sec` : `${s} sec`;
+
+    const dateStr = now.toLocaleDateString('en-US', {
+      weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+    });
+    const timeStr = now.toUTCString().split(' ')[4] + ' UTC';
+
+    const co2g     = (impact.co2Kg * 1000).toFixed(1);
+    const waterMl  = Math.round(impact.waterL * 1000);
+    const kwhStr   = impact.kWh < 0.000001 ? '< 0.000001' : impact.kWh.toFixed(6);
+    const kmDriven = (impact.co2Kg / 0.171).toFixed(3);
+    const phoneMin = Math.max(1, Math.round(impact.kWh / 0.015 * 60));
+    const sips     = Math.max(1, Math.round(waterMl / 20));
+
+    const L32 = '─'.repeat(32);
+    const E32 = '═'.repeat(32);
+
+    function pl(str, w) { return String(str).padStart(w); }
+
+    return [
+      '╔' + '═'.repeat(30) + '╗',
+      '║  🧾  AI DEATH CLOCK          ║',
+      '║     SESSION RECEIPT          ║',
+      '╚' + '═'.repeat(30) + '╝',
+      '',
+      `  Date:     ${dateStr}`,
+      `  Time:     ${timeStr}`,
+      `  Duration: ${durationStr}`,
+      '',
+      L32,
+      'ITEM                       VALUE',
+      L32,
+      `AI tokens consumed ${pl(formatTokenCount(sessionTokens), 12)}`,
+      `Energy used (kWh)  ${pl(kwhStr, 12)}`,
+      `CO\u2082 emitted (g)   ${pl(co2g, 12)}`,
+      `Water used (mL)    ${pl(waterMl, 12)}`,
+      '',
+      `Global rate: ${formatTokenCount(rate)} tokens/sec`,
+      L32,
+      'ENVIRONMENTAL COST:',
+      '',
+      `  \uD83C\uDF21\uFE0F  ~${co2g} g CO\u2082`,
+      `     \u2248 driving ${kmDriven} km`,
+      '',
+      `  \uD83C\uDF0A  ~${waterMl} mL water`,
+      `     \u2248 ${sips} sip${sips !== 1 ? 's' : ''} of tea`,
+      '',
+      `  \u26A1  ~${kwhStr} kWh`,
+      `     \u2248 phone for ${phoneMin} min`,
+      L32,
+      '   * * * NO REFUNDS * * *',
+      '  THE PLANET CANNOT ISSUE',
+      '   CARBON CREDITS FOR AI',
+      L32,
+      '    Please come again.',
+      "    (We'll still be here.)",
+      '           \uD83D\uDC80',
+      E32,
+    ].join('\n');
+  }
+
+  function buildReceiptShareText() {
+    const elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+    const rate    = getRateAtDate(new Date());
+    const sessionTokens = Math.max(1, elapsed * rate);
+    const impact  = calculateEnvironmentalImpact(sessionTokens);
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
+    const co2g    = (impact.co2Kg * 1000).toFixed(1);
+    const waterMl = Math.round(impact.waterL * 1000);
+    return (
+      `\uD83E\uDDFE My AI Death Clock receipt: AI consumed ${formatTokenCount(sessionTokens)} tokens in ${timeStr}. ` +
+      `That's ${co2g}g CO\u2082, ${waterMl}mL water. ` +
+      `And I didn't even prompt anything.\n` +
+      `\u2192 ${SITE_URL} #TokenDeathClock #AIReceipt`
+    );
+  }
+
+  function trapFocus(e) {
+    if (e.key !== 'Tab') {
+      if (e.key === 'Escape') hideReceiptModal();
+      return;
+    }
+    const modal    = document.getElementById('receipt-modal');
+    if (!modal) return;
+    const focusable = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last  = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  }
+
+  function showReceiptModal() {
+    const modal = document.getElementById('receipt-modal');
+    if (!modal) return;
+    const body = document.getElementById('receipt-body');
+    if (body) body.textContent = generateReceiptText();
+    modal.hidden = false;
+    receiptShown = true;
+    modal.addEventListener('keydown', trapFocus);
+    const firstBtn = modal.querySelector('button');
+    if (firstBtn) firstBtn.focus();
+    awardBadge('receipt_collector');
+  }
+
+  function hideReceiptModal() {
+    const modal = document.getElementById('receipt-modal');
+    if (!modal) return;
+    modal.hidden = true;
+    modal.removeEventListener('keydown', trapFocus);
+  }
+
+  function initReceiptModal() {
+    const triggerBtn = document.getElementById('getReceiptBtn');
+    if (triggerBtn) triggerBtn.addEventListener('click', showReceiptModal);
+
+    const closeBtn = document.getElementById('receiptCloseBtn');
+    if (closeBtn)   closeBtn.addEventListener('click', hideReceiptModal);
+
+    const shareBtn = document.getElementById('receiptShareBtn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', () => {
+        openSharePopup(buildReceiptShareText());
+        awardBadge('spreading_doom');
+      });
+    }
+
+    const copyBtn = document.getElementById('receiptCopyBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const bodyEl = document.getElementById('receipt-body');
+        const text   = bodyEl ? bodyEl.textContent : generateReceiptText();
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.textContent = '✅ Copied!';
+          setTimeout(() => { copyBtn.textContent = '📋 Copy Text'; }, 2000);
+        }).catch(() => {
+          copyBtn.textContent = '❌ Failed';
+          setTimeout(() => { copyBtn.textContent = '📋 Copy Text'; }, 2000);
+        });
+      });
+    }
+
+    // Close on backdrop click
+    const modal = document.getElementById('receipt-modal');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) hideReceiptModal();
+      });
+    }
+
+    // Offer receipt on beforeunload if session was meaningful
+    window.addEventListener('beforeunload', (e) => {
+      const elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+      if (elapsed >= 15 && !receiptShown) {
+        showReceiptModal();
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  }
+
+  // ---- Personal Footprint Calculator --------------------------
+
+  function updateCalcResults() {
+    const promptsEl = document.getElementById('calcPrompts');
+    const lengthEl  = document.getElementById('calcLength');
+    const modelEl   = document.getElementById('calcModel');
+    if (!promptsEl || !lengthEl || !modelEl) return;
+
+    const prompts = parseInt(promptsEl.value,  10) || 20;
+    const tokens  = parseInt(lengthEl.value,   10) || 500;
+    const mult    = parseFloat(modelEl.value)      || 1;
+
+    const fp = calculatePersonalFootprint(prompts, tokens, mult);
+
+    const co2g       = (fp.weekly.co2Kg   * 1000).toFixed(1);
+    const waterMlW   = Math.round(fp.weekly.waterL * 1000);
+    const co2gA      = Math.round(fp.annual.co2Kg   * 1000);
+    const globalT    = (fp.globalWeeklyCo2Kg / 1000).toFixed(1);
+    const kmDriven   = (fp.annual.co2Kg / 0.171).toFixed(1);
+    const globalCars = formatTokenCount(fp.globalWeeklyCo2Kg / (0.171 * 1000 / 52));
+
+    const results = document.getElementById('calc-results');
+    if (!results) return;
+
+    results.innerHTML = `
+      <div class="calc-result-grid">
+        <div class="calc-result-box">
+          <div class="crb-label">Weekly Tokens</div>
+          <div class="crb-value">${escHtml(formatTokenCount(fp.weeklyTokens))}</div>
+        </div>
+        <div class="calc-result-box">
+          <div class="crb-label">Weekly CO\u2082</div>
+          <div class="crb-value">${escHtml(co2g)} g</div>
+        </div>
+        <div class="calc-result-box">
+          <div class="crb-label">Weekly Water</div>
+          <div class="crb-value">${escHtml(String(waterMlW))} mL</div>
+        </div>
+        <div class="calc-result-box">
+          <div class="crb-label">Annual CO\u2082</div>
+          <div class="crb-value">${escHtml(String(co2gA))} g</div>
+          <div class="crb-sub">\u2248 driving ${escHtml(kmDriven)} km</div>
+        </div>
+        <div class="calc-result-box global">
+          <div class="crb-label">Scale to 500M users \u2192 weekly</div>
+          <div class="crb-value">${escHtml(globalT)} tonnes CO\u2082</div>
+          <div class="crb-sub">\u2248 ${escHtml(globalCars)} cars driven for a week</div>
+        </div>
+      </div>`;
+  }
+
+  function buildCalcShareText() {
+    const promptsEl = document.getElementById('calcPrompts');
+    const lengthEl  = document.getElementById('calcLength');
+    const modelEl   = document.getElementById('calcModel');
+    const prompts   = promptsEl ? (parseInt(promptsEl.value, 10) || 20) : 20;
+    const tokens    = lengthEl  ? (parseInt(lengthEl.value,  10) || 500) : 500;
+    const mult      = modelEl   ? (parseFloat(modelEl.value) || 1) : 1;
+    const fp        = calculatePersonalFootprint(prompts, tokens, mult);
+    const co2g      = (fp.weekly.co2Kg * 1000).toFixed(1);
+    const globalT   = (fp.globalWeeklyCo2Kg / 1000).toFixed(0);
+    return (
+      `\uD83E\uDDEE I sent ${prompts} AI prompts this week. ` +
+      `That's ~${formatTokenCount(fp.weeklyTokens)} tokens, ~${co2g}g CO\u2082. ` +
+      `Multiply me by 500 million \u2192 ${globalT} tonnes of CO\u2082/week just from AI prompts.\n` +
+      `\u2192 ${SITE_URL} #AICarbonFootprint #TokenDeathClock`
+    );
+  }
+
+  function initCalculator() {
+    const toggleBtn = document.getElementById('calcToggleBtn');
+    const content   = document.getElementById('calc-content');
+    if (toggleBtn && content) {
+      toggleBtn.addEventListener('click', () => {
+        const opening = content.hidden;
+        content.hidden = !opening;
+        toggleBtn.textContent = opening
+          ? '\u25BC Close Calculator'
+          : '\u25BA Open Personal AI Carbon Footprint Calculator';
+        toggleBtn.setAttribute('aria-expanded', opening ? 'true' : 'false');
+        if (opening) {
+          updateCalcResults();
+          awardBadge('number_cruncher');
+        }
+      });
+    }
+
+    ['calcPrompts', 'calcLength', 'calcModel'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        if (id === 'calcPrompts') {
+          const val = document.getElementById('calcPromptsVal');
+          if (val) val.textContent = el.value;
+          el.setAttribute('aria-valuenow', el.value);
+        }
+        updateCalcResults();
+      });
+    });
+
+    const shareBtn = document.getElementById('calcShareBtn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', () => {
+        openSharePopup(buildCalcShareText());
+        awardBadge('spreading_doom');
+      });
+    }
+  }
+
+  // ---- Doom Achievements / Badge System -----------------------
+
+  const BADGE_DEFS = [
+    { id: 'morbid_curious',       icon: '\uD83D\uDC40', name: 'Morbid Curious',         desc: 'Spent 30 seconds watching the apocalypse.',          type: 'time',   threshold: 30   },
+    { id: 'doom_magnet',          icon: '\uD83E\uDDF2', name: 'Doom Magnet',             desc: 'Spent 3 minutes watching the apocalypse.',            type: 'time',   threshold: 180  },
+    { id: 'chronic_doomscroller', icon: '\uD83D\uDECB\uFE0F', name: 'Chronic Doomscroller', desc: '10 minutes of uninterrupted doom.',               type: 'time',   threshold: 600  },
+    { id: 'terminal_patient',     icon: '\uD83D\uDC80', name: 'Terminal Patient',         desc: 'Half an hour here. Are you okay?',                   type: 'time',   threshold: 1800 },
+    { id: 'one_of_us',            icon: '\uD83E\uDD16', name: 'One of Us Now',            desc: "One hour. You're part of the machine now.",          type: 'time',   threshold: 3600 },
+    { id: 'spreading_doom',       icon: '\uD83D\uDCE4', name: 'Spreading the Doom',       desc: 'Clicked Share. Sharing is caring.',                  type: 'manual' },
+    { id: 'number_cruncher',      icon: '\uD83E\uDDEE', name: 'Number Cruncher',          desc: 'Opened the Personal Footprint Calculator.',          type: 'manual' },
+    { id: 'receipt_collector',    icon: '\uD83E\uDDFE', name: 'Receipt Collector',        desc: 'Checked your session receipt.',                       type: 'manual' },
+    { id: 'optimist',             icon: '\uD83C\uDF1E', name: 'Optimist',                 desc: 'Switched to Light Mode. Your optimism is noted.',    type: 'manual' },
+    { id: 'nocturnal_doomer',     icon: '\uD83C\uDF13', name: 'Nocturnal Doomer',         desc: "Visiting between midnight and 4am. Can't sleep?",   type: 'easter' },
+    { id: 'return_visitor',       icon: '\uD83D\uDD01', name: 'Glutton for Punishment',   desc: 'You came back. You knew what would happen.',         type: 'easter' },
+  ];
+
+  const LS_BADGES_KEY = 'tokenDeathclockBadges';
+  const LS_VISITS_KEY = 'tokenDeathclockVisits';
+
+  let earnedBadges = new Set();
+  const toastQueue = [];
+  let   toastActive = false;
+
+  function loadBadges() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(LS_BADGES_KEY) || '[]');
+      if (Array.isArray(stored)) stored.forEach((id) => earnedBadges.add(id));
+    } catch (_) { /* ignore quota / parse errors */ }
+  }
+
+  function saveBadges() {
+    try {
+      localStorage.setItem(LS_BADGES_KEY, JSON.stringify([...earnedBadges]));
+    } catch (_) { /* ignore */ }
+  }
+
+  function awardBadge(id) {
+    if (earnedBadges.has(id)) return;
+    const def = BADGE_DEFS.find((b) => b.id === id);
+    if (!def) return;
+    earnedBadges.add(id);
+    saveBadges();
+    queueToast(def);
+    updateBadgesGrid();
+  }
+
+  function checkTimeBadges() {
+    const elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+    BADGE_DEFS.filter((b) => b.type === 'time').forEach((b) => {
+      if (elapsed >= b.threshold) awardBadge(b.id);
+    });
+  }
+
+  function checkEasterEggs() {
+    const hour = new Date().getHours();
+    if (hour >= 0 && hour < 4) awardBadge('nocturnal_doomer');
+  }
+
+  function renderBadgesGrid() {
+    const grid = document.getElementById('badges-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    BADGE_DEFS.forEach((def) => {
+      const earned = earnedBadges.has(def.id);
+      const hint   = def.type === 'time'
+        ? `Spend ${def.threshold < 60 ? def.threshold + 's' : Math.round(def.threshold / 60) + 'min'} on the page`
+        : def.type === 'easter' ? 'A secret badge\u2026' : 'Complete a specific action';
+      const div = document.createElement('div');
+      div.className   = 'badge-item ' + (earned ? 'earned' : 'locked');
+      div.id          = 'badge-' + def.id;
+      div.title       = earned ? def.desc : hint;
+      div.setAttribute('aria-label', earned ? `${def.name}: ${def.desc}` : `Locked: ${hint}`);
+      div.innerHTML   = `
+        <span class="badge-icon" aria-hidden="true">${earned ? escHtml(def.icon) : '\uD83D\uDD12'}</span>
+        <span class="badge-name">${escHtml(def.name)}</span>`;
+      grid.appendChild(div);
+    });
+  }
+
+  function updateBadgesGrid() {
+    BADGE_DEFS.forEach((def) => {
+      const el = document.getElementById('badge-' + def.id);
+      if (!el) return;
+      const earned = earnedBadges.has(def.id);
+      el.className   = 'badge-item ' + (earned ? 'earned' : 'locked');
+      const iconEl   = el.querySelector('.badge-icon');
+      if (iconEl) iconEl.textContent = earned ? def.icon : '\uD83D\uDD12';
+      el.title       = earned ? def.desc : el.title;
+      if (earned) el.setAttribute('aria-label', `${def.name}: ${def.desc}`);
+    });
+  }
+
+  function queueToast(def) {
+    toastQueue.push(def);
+    if (!toastActive) showNextToast();
+  }
+
+  function showNextToast() {
+    if (!toastQueue.length) { toastActive = false; return; }
+    toastActive = true;
+    const def     = toastQueue.shift();
+    const toast   = document.getElementById('toast');
+    const iconEl  = document.getElementById('toast-icon');
+    const titleEl = document.getElementById('toast-title');
+    const descEl  = document.getElementById('toast-desc');
+    if (!toast) return;
+    if (iconEl)  iconEl.textContent  = def.icon;
+    if (titleEl) titleEl.textContent = '\uD83C\uDFC6 ' + def.name;
+    if (descEl)  descEl.textContent  = def.desc;
+    toast.hidden = false;
+    toast.classList.remove('toast-out');
+    toast.classList.add('toast-in');
+    clearTimeout(toast._dismissTimer);
+    toast._dismissTimer = setTimeout(dismissToast, 5000);
+  }
+
+  function dismissToast() {
+    const toast = document.getElementById('toast');
+    if (!toast || toast.hidden) return;
+    toast.classList.remove('toast-in');
+    toast.classList.add('toast-out');
+    setTimeout(() => {
+      toast.hidden = true;
+      toast.classList.remove('toast-out');
+      toastActive = false;
+      if (toastQueue.length) showNextToast();
+    }, 320);
+  }
+
+  function initBadges() {
+    loadBadges();
+
+    // Track visit count and award return visitor badge
+    try {
+      const visits = (parseInt(localStorage.getItem(LS_VISITS_KEY) || '0', 10) || 0) + 1;
+      localStorage.setItem(LS_VISITS_KEY, visits);
+      if (visits > 1) setTimeout(() => awardBadge('return_visitor'), 600);
+    } catch (_) { /* ignore */ }
+
+    checkEasterEggs();
+    renderBadgesGrid();
+
+    const closeBtn = document.getElementById('toast-close');
+    if (closeBtn) closeBtn.addEventListener('click', dismissToast);
+  }
+
   // ---- Bootstrap ------------------------------------------
   function init() {
     // Theme toggle
@@ -1060,6 +1786,7 @@
     // Render static sections once
     renderMilestones();
     renderPredictionsTable();
+    renderTips();
 
     // Chart init is isolated so a missing date-adapter or other chart error
     // cannot prevent the counters and life-blocks from running.
@@ -1071,8 +1798,19 @@
 
     initLifeBlocks();
 
+    // Fun features
+    initBadges();
+    initTicker();
+    initEquivalences();
+    initSharePanel();
+    initReceiptModal();
+    initCalculator();
+
     // Kick off the live counter RAF loop
     requestAnimationFrame(updateCounters);
+
+    // Check time-based badges every second
+    setInterval(checkTimeBadges, 1000);
   }
 
   if (document.readyState === 'loading') {
