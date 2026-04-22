@@ -987,6 +987,17 @@ footer strong { color: var(--accent-2); }
   color: var(--text-muted);
 }
 
+.footer-meta-irony {
+  margin-top: 0.75rem;
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.footer-meta-irony strong {
+  color: var(--accent);
+  font-style: normal;
+}
+
 /* ---- Section Labels ---- */
 .section-label {
   font-size: 0.7rem;
