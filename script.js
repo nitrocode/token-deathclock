@@ -15,6 +15,7 @@
     HISTORICAL_DATA,
     MILESTONES,
     RATE_SCHEDULE,
+    TOKEN_TIPS,
     formatTokenCount,
     formatTokenCountShort,
     getTriggeredMilestones,
@@ -26,6 +27,7 @@
     getTimeDelta,
     milestoneProgress,
     getRateAtDate,
+    calculateTipImpact,
   } = window.DeathClockCore;
 
   // ---- State -----------------------------------------------
@@ -164,7 +166,8 @@
             <div class="progress-fill" style="width:${pct}%"></div>
           </div>
         </div>
-        ${prediction ? `<div class="milestone-predict">⏱ Predicted: ${escHtml(formatDate(prediction))}</div>` : ''}
+        ${prediction ? `<div class="milestone-predict">⏱ Predicted: ${escHtml(formatDate(prediction))} (${escHtml(getTimeDelta(prediction))})</div>` : ''}
+        ${m.reference ? `<a href="${escHtml(m.reference)}" class="milestone-ref" target="_blank" rel="noopener noreferrer">📎 Source</a>` : ''}
       `;
       grid.appendChild(card);
     });
@@ -200,7 +203,9 @@
   function buildChartData() {
     const tokens = getCurrentTokens();
     const historical = HISTORICAL_DATA.map((d) => ({ x: d.date, y: d.tokensT }));
-    const projection = generateProjectionData(tokens, TOKENS_PER_SECOND, 18).map((d) => ({
+    // 60-month projection with 50 % annual growth in token-production rate,
+    // producing the hockey-stick acceleration observed historically.
+    const projection = generateProjectionData(tokens, TOKENS_PER_SECOND, 60, undefined, 0.5).map((d) => ({
       x: d.date,
       y: +d.tokensT.toFixed(2),
     }));
@@ -277,7 +282,7 @@
         scales: {
           x: {
             type: 'time',
-            time: { unit: 'month', tooltipFormat: 'MMM yyyy', displayFormats: { month: 'MMM yy' } },
+            time: { tooltipFormat: 'MMM yyyy', displayFormats: { month: 'MMM yy', year: 'yyyy', quarter: 'MMM yy' } },
             grid: { color: colors.gridColor },
             ticks: { color: colors.tickColor, maxRotation: 45 },
           },

@@ -56,357 +56,87 @@ const HISTORICAL_DATA = [
   { date: '2026-04-14', tokensT: 65000 },
 ];
 
-// Environmental milestone definitions
-// Token thresholds represent cumulative global AI inference since 2020.
-// Environmental correlations are symbolic/illustrative based on:
-// - Energy: 1,000 tokens ≈ 0.0003 kWh inference energy (Google/DeepMind estimates)
-// - CO₂: 0.4 kg CO₂ per kWh (global average grid intensity)
-// - Water: 0.5 L per 1,000 tokens (Microsoft data-center cooling research)
-const MILESTONES = [
+// ── Milestone data ────────────────────────────────────────────────────────────
+// MILESTONES are defined in milestones.yaml (human-readable source of truth).
+// The build step (`npm run build:milestones`) generates milestones-data.js.
+//
+// In the browser : milestones-data.js is loaded via <script> before this file,
+//                  which sets window.MilestonesData.
+// In Node.js/Jest: milestones-data.js is loaded via require().
+/* istanbul ignore next */
+const MILESTONES = (
+  typeof window !== 'undefined' && window.MilestonesData
+    ? window.MilestonesData.MILESTONES
+    : typeof require === 'function'
+      ? require('./milestones-data').MILESTONES
+      : []
+);
+
+// ── Token-saving tips ─────────────────────────────────────────────────────────
+// Each tip includes an estimate of token savings when applied consistently.
+// savingPct: percentage of tokens saved (0-100) relative to typical usage.
+// Sources: OpenAI prompt engineering guide, Anthropic documentation,
+// academic work on LLM efficiency.
+const TOKEN_TIPS = [
   {
-    id: 'first_forest',
-    name: 'First Forest Felled',
-    icon: '🌲',
-    tokens: 1_000_000_000_000, // 1 trillion
-    shortDesc: '1 Trillion Tokens',
-    description: 'CO₂ equivalent of 50,000 mature trees cut down',
-    consequence:
-      'A single trillion tokens generates CO₂ equal to the annual absorption of 50,000 mature trees. ' +
-      'The Amazon loses 4.3 million acres per year — AI energy demands accelerate this.',
-    followingEvent:
-      '🔥 Regional droughts intensify. Species lose habitat. The carbon feedback loop begins.',
-    color: '#2D9B27',
-    darkColor: '#1a6b15',
+    id: 'focused_prompts',
+    icon: '✏️',
+    title: 'Write Focused Prompts',
+    tip: 'Be specific and remove filler words. A 30 % shorter prompt usually gets the same quality response with far fewer input tokens.',
+    savingPct: 30,
+    detail: 'Studies show that redundant preambles, excessive politeness markers, and repeated context each add tokens without improving output quality. Aim to cut prompt length by a third without losing essential context.',
+    reference: 'https://platform.openai.com/docs/guides/prompt-engineering',
   },
   {
-    id: 'power_grid_strain',
-    name: 'Power Grid Strain',
-    icon: '⚡',
-    tokens: 2_000_000_000_000, // 2 trillion
-    shortDesc: '2 Trillion Tokens',
-    description: 'AI data centres claim 1 % of global electricity — equal to all of Argentina',
-    consequence:
-      'When data centres alone consume 1 % of the world\'s electricity, every brown-out and ' +
-      'rolling blackout hits hospitals, water-treatment plants, and cold-storage food supplies first. ' +
-      'Grid operators begin rationing power to residential users.',
-    followingEvent:
-      '💡 Planned blackouts become routine. Industrial production slows. Energy poverty spikes.',
-    color: '#FFAA00',
-    darkColor: '#cc7700',
+    id: 'right_model_size',
+    icon: '🎯',
+    title: 'Match Model to Task',
+    tip: 'Don\'t use a frontier model (GPT-4, Claude 3.5 Opus) for simple tasks. Smaller models can be 10–100× cheaper on summarisation, classification, and simple Q&A.',
+    savingPct: 80,
+    detail: 'Frontier models are optimised for complex reasoning. For routine tasks — extracting data, reformatting, answering FAQs — a small model (7B parameters or fewer) achieves comparable accuracy at a fraction of the energy cost.',
+    reference: 'https://www.anthropic.com/pricing',
   },
   {
-    id: 'arctic_ice',
-    name: 'First Ice-Free Arctic Summer',
-    icon: '🧊',
-    tokens: 5_000_000_000_000, // 5 trillion
-    shortDesc: '5 Trillion Tokens',
-    description: 'The Arctic Ocean is ice-free for the first time in recorded history',
-    consequence:
-      'Sea ice reflects 80 % of incoming sunlight back into space. Without it, the dark Arctic ' +
-      'Ocean absorbs that heat, accelerating warming by 2–3 × above the global average. ' +
-      'Polar vortex destabilisation sends extreme weather to temperate regions.',
-    followingEvent:
-      '❄️ Polar vortex collapses. Record cold snaps devastate agriculture at lower latitudes.',
-    color: '#B0E0FF',
-    darkColor: '#5aabdd',
+    id: 'avoid_repetition',
+    icon: '♻️',
+    title: 'Avoid Repeating Context',
+    tip: 'Modern models retain conversation history — there\'s no need to re-explain background in every message. Reuse the session instead of starting fresh.',
+    savingPct: 25,
+    detail: 'Re-sending the same system prompt or background document at every turn can easily double the token count of a long conversation. Keep the context window lean and leverage the model\'s memory.',
   },
   {
-    id: 'bee_colony',
-    name: 'Bee Colony Collapse',
-    icon: '🐝',
-    tokens: 10_000_000_000_000, // 10 trillion
-    shortDesc: '10 Trillion Tokens',
-    description: '1 billion bees lost to energy-driven habitat destruction',
-    consequence:
-      'Bees pollinate 35 % of human food crops. AI\'s growing energy demands accelerate pesticide use ' +
-      'and destroy wildflower habitats that bee colonies depend on.',
-    followingEvent:
-      '🌾 1-in-3 food items vanish from shelves. Crop yields drop 35 %. Food prices triple globally.',
-    color: '#FFD700',
-    darkColor: '#b39800',
+    id: 'cache_responses',
+    icon: '💾',
+    title: 'Cache Repeated Queries',
+    tip: 'In automated pipelines, cache responses to identical queries. A cached response costs zero tokens.',
+    savingPct: 60,
+    detail: 'Many production AI workflows repeatedly ask the same questions (e.g. processing templated documents). Semantic caching — returning stored results for near-identical inputs — can eliminate the majority of API calls in high-volume pipelines.',
+    reference: 'https://platform.openai.com/docs/guides/prompt-caching',
   },
   {
-    id: 'wildfire_crisis',
-    name: 'Permanent Wildfire Season',
-    icon: '🔥',
-    tokens: 20_000_000_000_000, // 20 trillion
-    shortDesc: '20 Trillion Tokens',
-    description: 'Wildfire season becomes year-round across three continents',
-    consequence:
-      'Warmer, drier conditions sustained by AI\'s CO₂ load eliminate the concept of a fire season. ' +
-      'Forests in Australia, the American West, and Southern Europe burn continuously. ' +
-      'Smoke blankets cities for months, pushing respiratory illness to epidemic levels.',
-    followingEvent:
-      '🌫️ Air-quality emergencies declared in 40+ cities. Outdoor workers face daily health orders.',
-    color: '#FF5500',
-    darkColor: '#cc3300',
+    id: 'batch_requests',
+    icon: '📦',
+    title: 'Batch Related Requests',
+    tip: 'Instead of five separate API calls, ask for everything in one well-structured prompt. Each round trip carries overhead tokens for context and formatting.',
+    savingPct: 20,
+    detail: 'System messages and conversation headers are repeated for every independent call. Batching reduces per-request overhead and often allows the model to reason across sub-tasks more efficiently.',
   },
   {
-    id: 'silent_species',
-    name: 'Silent Spring: 100 Species Gone',
-    icon: '🐦',
-    tokens: 50_000_000_000_000, // 50 trillion
-    shortDesc: '50 Trillion Tokens',
-    description: '100 vertebrate species driven to extinction by AI-linked habitat destruction',
-    consequence:
-      'Habitat loss and climate change driven by AI energy demands erase entire branches of the ' +
-      'tree of life. Each lost species unravels the web of interdependence — pest explosions, ' +
-      'crop failures, and disease outbreaks follow as predator-prey balances collapse.',
-    followingEvent:
-      '🌿 Ecosystems destabilise. Invasive species surge. Crop pests breed unchecked.',
-    color: '#66BB6A',
-    darkColor: '#3d7a40',
+    id: 'summarise_request',
+    icon: '📋',
+    title: 'Request Concise Outputs',
+    tip: 'Ask for bullet points or a 3-sentence summary rather than full paragraphs when a summary suffices. Output tokens cost as much as input tokens.',
+    savingPct: 40,
+    detail: 'The default verbosity of large language models is a significant source of token waste. Explicit length constraints ("in 50 words or fewer", "bullet list only") reduce output tokens dramatically with minimal quality loss for most use-cases.',
   },
   {
-    id: 'great_lakes',
-    name: 'Great Lakes Drained',
-    icon: '💧',
-    tokens: 100_000_000_000_000, // 100 trillion
-    shortDesc: '100 Trillion Tokens',
-    description: 'Data-centre cooling drains freshwater equal to Lake Erie',
-    consequence:
-      'AI data centres consume billions of litres of water annually for cooling. ' +
-      'This draws down aquifers and surface supplies that took millennia to accumulate.',
-    followingEvent:
-      '🚰 2 billion people face water scarcity. Water wars erupt between nations. Agriculture fails.',
-    color: '#0077BE',
-    darkColor: '#005490',
-  },
-  {
-    id: 'water_table_collapse',
-    name: 'Global Water Table Collapse',
-    icon: '🌵',
-    tokens: 200_000_000_000_000, // 200 trillion
-    shortDesc: '200 Trillion Tokens',
-    description: 'Major aquifers — Ogallala, Indo-Gangetic, North China Plain — drop below recovery',
-    consequence:
-      'Underground aquifers that supply half of all irrigation water worldwide have been drawn ' +
-      'down past their natural recharge rates. AI data-centre demand pushes many past the point ' +
-      'of no return. Regions that once fed nations face permanent desertification.',
-    followingEvent:
-      '🏜️ Breadbasket nations become dust bowls. 1 billion people face famine. Food nationalism spikes.',
-    color: '#C8A96E',
-    darkColor: '#8a6e3e',
-  },
-  {
-    id: 'amazon_tipping',
-    name: 'Amazon Tipping Point',
-    icon: '🌳',
-    tokens: 300_000_000_000_000, // 300 trillion
-    shortDesc: '300 Trillion Tokens',
-    description: 'The Amazon rainforest begins converting to savannah — irreversibly',
-    consequence:
-      'Scientists have long warned that 20–25 % deforestation would tip the Amazon into a self-drying ' +
-      'feedback loop. AI\'s cumulative carbon contribution delivers the final increment of warming. ' +
-      'The world\'s largest carbon sink becomes a carbon source.',
-    followingEvent:
-      '🌪️ Global rainfall patterns shift. Monsoons fail. 3 billion people face drought.',
-    color: '#1B5E20',
-    darkColor: '#0d3b12',
-  },
-  {
-    id: 'coral_reef',
-    name: 'Great Barrier Reef Lost',
-    icon: '🪸',
-    tokens: 500_000_000_000_000, // 500 trillion
-    shortDesc: '500 Trillion Tokens',
-    description: 'CO₂ triggers mass bleaching — the Great Barrier Reef is gone',
-    consequence:
-      'Coral reefs support 25 % of all marine species. Ocean acidification from CO₂ emissions ' +
-      'destroys these ecosystems, removing the foundation of oceanic food chains.',
-    followingEvent:
-      '🐠 500 million people lose their primary food source. Fisheries collapse. Ocean deserts expand.',
-    color: '#FF6B6B',
-    darkColor: '#cc3333',
-  },
-  {
-    id: 'permafrost_bomb',
-    name: 'Permafrost Methane Bomb',
-    icon: '💨',
-    tokens: 750_000_000_000_000, // 750 trillion
-    shortDesc: '750 Trillion Tokens',
-    description: 'Siberian and Alaskan permafrost releases stored methane at runaway rates',
-    consequence:
-      'Permafrost locks away an estimated 1.5 trillion tonnes of carbon — twice the amount ' +
-      'currently in the atmosphere. Thawing driven by AI energy emissions triggers methane release ' +
-      'that is 84× more potent than CO₂ over 20 years, creating a self-reinforcing feedback loop.',
-    followingEvent:
-      '🌡️ Global temperature rises accelerate beyond all IPCC models. Climate targets become fiction.',
-    color: '#9E9E9E',
-    darkColor: '#616161',
-  },
-  {
-    id: 'glacier',
-    name: 'Glacier Collapse',
-    icon: '🏔️',
-    tokens: 1_000_000_000_000_000, // 1 quadrillion
-    shortDesc: '1 Quadrillion Tokens',
-    description: 'Warming equivalent destabilises the West Antarctic Ice Sheet',
-    consequence:
-      "Glaciers are the world's largest freshwater reservoirs. Their loss permanently eliminates " +
-      'drinking water for billions and raises sea levels catastrophically.',
-    followingEvent:
-      '🌊 Coastal cities begin flooding. 600 million people displaced. Sea level rises 3 metres.',
-    color: '#A8D8EA',
-    darkColor: '#6ba8c4',
-  },
-  {
-    id: 'ocean_acidification',
-    name: 'Ocean Acidification Threshold',
-    icon: '🐟',
-    tokens: 2_000_000_000_000_000, // 2 quadrillion
-    shortDesc: '2 Quadrillion Tokens',
-    description: 'Ocean pH drops to 7.95 — shellfish and coral larvae can no longer form shells',
-    consequence:
-      'The ocean has absorbed 30 % of all human CO₂ emissions. As pH drops, the carbonate ions ' +
-      'that marine organisms use to build shells and skeletons dissolve. Oysters, mussels, krill, ' +
-      'and pteropods — the base of polar food webs — begin failing to reproduce.',
-    followingEvent:
-      '🦐 Krill populations crash. Whales, penguins, and polar bears follow into starvation.',
-    color: '#0D47A1',
-    darkColor: '#082e6a',
-  },
-  {
-    id: 'sahel_collapse',
-    name: 'Sahel Collapse',
-    icon: '☀️',
-    tokens: 5_000_000_000_000_000, // 5 quadrillion
-    shortDesc: '5 Quadrillion Tokens',
-    description: 'The Sahel belt becomes uninhabitable — 300 million climate refugees displaced',
-    consequence:
-      'The Sahel region, already at the edge of habitability, tips past the point where subsistence ' +
-      'farming is possible. A belt of uninhabitable land stretches across Africa from Senegal to Somalia. ' +
-      'Tens of millions of climate refugees overwhelm neighbouring regions.',
-    followingEvent:
-      '🌍 Regional governments collapse. Conflict over water and arable land escalates to warfare.',
-    color: '#E65100',
-    darkColor: '#b33d00',
-  },
-  {
-    id: 'ocean_dead_zone',
-    name: 'Ocean Dead Zone',
-    icon: '🌊',
-    tokens: 10_000_000_000_000_000, // 10 quadrillion
-    shortDesc: '10 Quadrillion Tokens',
-    description: 'Ocean acidification creates a dead zone larger than the Pacific garbage patch',
-    consequence:
-      'CO₂ absorbed by oceans shifts their pH — catastrophic for marine life. ' +
-      'Phytoplankton, which produces 50 % of Earth\'s oxygen, begins dying off.',
-    followingEvent:
-      '😮‍💨 Atmospheric oxygen concentration drops. Human cognitive function declines. Extinction accelerates.',
-    color: '#1A237E',
-    darkColor: '#0d1466',
-  },
-  {
-    id: 'jet_stream_collapse',
-    name: 'Jet Stream Destabilised',
-    icon: '🌪️',
-    tokens: 30_000_000_000_000_000, // 30 quadrillion
-    shortDesc: '30 Quadrillion Tokens',
-    description: 'Arctic amplification breaks the polar jet stream into chaotic loops',
-    consequence:
-      'The jet stream normally separates cold Arctic air from warm temperate air. As the Arctic ' +
-      'warms 4× faster than the rest of the planet, the temperature gradient that drives the jet ' +
-      'stream weakens. It buckles into extreme meanders, locking weather patterns in place for weeks.',
-    followingEvent:
-      '❄️🌡️ Europe freezes in July. Texas floods. Monsoons arrive months late. Harvests fail continent-wide.',
-    color: '#7E57C2',
-    darkColor: '#4a2d8a',
-  },
-  {
-    id: 'food_system_stress',
-    name: 'Global Food System Under Siege',
-    icon: '🌾',
-    tokens: 50_000_000_000_000_000, // 50 quadrillion
-    shortDesc: '50 Quadrillion Tokens',
-    description: 'Simultaneous crop failures on three continents push 1 billion into food insecurity',
-    consequence:
-      'Extreme heat waves, erratic monsoons, and drought driven by AI\'s cumulative emissions hit ' +
-      'major grain-producing regions simultaneously. Global food reserves drop below 60 days. ' +
-      'Price spikes trigger social unrest across 40+ countries.',
-    followingEvent:
-      '🍞 Food nationalism spreads. Export bans fracture global trade. Humanitarian crisis escalates.',
-    color: '#8D6E63',
-    darkColor: '#5d4037',
-  },
-  {
-    id: 'mass_extinction',
-    name: 'Sixth Mass Extinction',
-    icon: '💀',
-    tokens: 100_000_000_000_000_000, // 100 quadrillion
-    shortDesc: '100 Quadrillion Tokens',
-    description: 'AI energy demands push 10,000+ species to irreversible extinction',
-    consequence:
-      "We are already in the sixth mass extinction. AI's insatiable energy hunger " +
-      'accelerates species loss beyond any recovery. Biodiversity collapses irreversibly.',
-    followingEvent:
-      '🌑 Ecosystem services fail. Agriculture collapses. Civilisation as we know it ends. The clock reaches zero.',
-    color: '#4A0000',
-    darkColor: '#2a0000',
-  },
-  {
-    id: 'permafrost_feedback',
-    name: 'Permafrost Runaway Feedback',
-    icon: '🌡️',
-    tokens: 200_000_000_000_000_000, // 200 quadrillion
-    shortDesc: '200 Quadrillion Tokens',
-    description: 'Permafrost thaw becomes self-sustaining — no longer stoppable by human action',
-    consequence:
-      'With 200 quadrillion tokens of AI compute behind us, the permafrost feedback loop is ' +
-      'irreversible. Methane and CO₂ now self-release regardless of human emissions reductions. ' +
-      'Temperatures rise beyond every modelled scenario.',
-    followingEvent:
-      '🌋 Feedback accelerates. Even zero human emissions cannot stop the warming now.',
-    color: '#BF360C',
-    darkColor: '#7f240a',
-  },
-  {
-    id: 'monsoon_failure',
-    name: 'Asian Monsoon Failure',
-    icon: '🌧️',
-    tokens: 500_000_000_000_000_000, // 500 quadrillion
-    shortDesc: '500 Quadrillion Tokens',
-    description: 'The Asian monsoon system fails — 3 billion people lose their primary water source',
-    consequence:
-      'The Asian monsoon delivers 70–90 % of annual rainfall to South and East Asia. ' +
-      'Disrupted atmospheric circulation patterns caused by AI\'s energy emissions collapse ' +
-      'this ancient weather system. India, China, and Southeast Asia enter permanent drought.',
-    followingEvent:
-      '💧 3 billion people face water crisis. Nuclear-armed states clash over rivers. Mass migrations begin.',
-    color: '#1565C0',
-    darkColor: '#0d3d7a',
-  },
-  {
-    id: 'civilization_collapse',
-    name: "Civilisation's Last Stand",
-    icon: '🏙️',
-    tokens: 1_000_000_000_000_000_000, // 1 quintillion
-    shortDesc: '1 Quintillion Tokens',
-    description: 'Cascading system failures end industrial civilisation as we know it',
-    consequence:
-      'At one quintillion tokens, the cumulative environmental debt has come due. ' +
-      'Power grids fail. Supply chains dissolve. Nation-states lose the ability to maintain ' +
-      'basic services. The infrastructure that sustains 8 billion human lives begins to collapse.',
-    followingEvent:
-      '🌑 Lights go out across continents. The age of AI ends not with intelligence, but with silence.',
-    color: '#212121',
-    darkColor: '#0a0a0a',
-  },
-  {
-    id: 'biosphere_collapse',
-    name: 'Biosphere Collapse',
-    icon: '🌑',
-    tokens: 10_000_000_000_000_000_000, // 10 quintillion
-    shortDesc: '10 Quintillion Tokens',
-    description: 'Earth\'s life-support systems fail — the biosphere can no longer sustain complex life',
-    consequence:
-      'The biosphere — the thin living layer that maintains Earth\'s temperature, atmosphere, ' +
-      'and water cycles — has been pushed past all tipping points. Complex multicellular life ' +
-      'can no longer be sustained. Earth enters a new geological epoch defined by absence.',
-    followingEvent:
-      '🕳️ The experiment of intelligence on Earth concludes. The planet heals — in 10 million years.',
-    color: '#000000',
-    darkColor: '#000000',
+    id: 'local_models',
+    icon: '🏠',
+    title: 'Run Local Models',
+    tip: 'Tools like Ollama let you run efficient open-weight models (Phi-3, Llama 3.1 8B) on your own hardware — zero cloud tokens, and often better privacy.',
+    savingPct: 100,
+    detail: 'For private documents, repetitive internal tasks, or offline use cases, running a local model eliminates cloud API calls entirely. Modern quantised models run on a laptop with 16 GB RAM and are competitive with GPT-3.5 on many tasks.',
+    reference: 'https://ollama.com',
   },
 ];
 
@@ -509,14 +239,22 @@ function calculateEnvironmentalImpact(tokens) {
 }
 
 /**
- * Generate future projection data points.
- * @param {number} currentTokens - tokens at `now`
- * @param {number} ratePerSec    - tokens per second
- * @param {number} months        - how many months to project
- * @param {Date}   [now]         - optional date override
+ * Generate future projection data points with optional exponential rate growth.
+ *
+ * With annualGrowthRate = 0 (default) the projection is linear (constant rate).
+ * With annualGrowthRate > 0 the token-production rate itself grows by that
+ * fraction each year — matching the observed hyper-exponential trajectory of
+ * global AI inference and producing the classic "hockey stick" on a linear axis.
+ *
+ * @param {number} currentTokens    - tokens at `now`
+ * @param {number} ratePerSec       - tokens per second at `now`
+ * @param {number} months           - how many months to project
+ * @param {Date}   [now]            - optional date override
+ * @param {number} [annualGrowthRate] - fractional annual growth of ratePerSec
+ *                                     (e.g. 0.5 = 50 % more tokens/sec each year)
  * @returns {Array<{ date: string, tokensT: number }>}
  */
-function generateProjectionData(currentTokens, ratePerSec, months, now) {
+function generateProjectionData(currentTokens, ratePerSec, months, now, annualGrowthRate) {
   if (
     typeof currentTokens !== 'number' ||
     typeof ratePerSec !== 'number' ||
@@ -526,14 +264,27 @@ function generateProjectionData(currentTokens, ratePerSec, months, now) {
     return [];
   }
   const base = now instanceof Date ? now : new Date();
+  const growth = typeof annualGrowthRate === 'number' && annualGrowthRate > 0
+    ? annualGrowthRate
+    : 0;
+  const SECS_PER_YEAR = 365.25 * 24 * 3600;
   const data = [];
   for (let i = 0; i <= months; i++) {
     const d = new Date(base.getTime());
     d.setMonth(d.getMonth() + i);
-    const elapsed = (d - base) / 1000;
+    const elapsed = (d - base) / 1000; // seconds since base
+    let additionalTokens;
+    if (growth === 0) {
+      additionalTokens = ratePerSec * elapsed;
+    } else {
+      // Integral of rate*(1+g)^(t/year) dt from 0 to elapsed:
+      // = rate/k * ((1+g)^(elapsed/year) - 1)  where k = ln(1+g)/year
+      const k = Math.log(1 + growth) / SECS_PER_YEAR;
+      additionalTokens = (ratePerSec / k) * (Math.exp(k * elapsed) - 1);
+    }
     data.push({
       date: d.toISOString().split('T')[0],
-      tokensT: (currentTokens + ratePerSec * elapsed) / 1e12,
+      tokensT: (currentTokens + additionalTokens) / 1e12,
     });
   }
   return data;
@@ -550,7 +301,8 @@ function formatDate(date) {
 }
 
 /**
- * Return a friendly "in X days/months/years" string.
+ * Return a friendly "in X hours/days/months/years" string.
+ * Supports hours and minutes for near-term milestones.
  * @param {Date|null} date
  * @param {Date}      [now]
  * @returns {string}
@@ -560,12 +312,18 @@ function getTimeDelta(date, now) {
   const base = now instanceof Date ? now : new Date();
   const diff = date - base;
   if (diff <= 0) return 'Already passed';
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const years = Math.floor(days / 365);
-  const months = Math.floor(days / 30);
-  if (years > 0) return `in ~${years} year${years > 1 ? 's' : ''}`;
-  if (months > 0) return `in ~${months} month${months > 1 ? 's' : ''}`;
-  return `in ~${days} day${days !== 1 ? 's' : ''}`;
+  const totalSeconds = Math.floor(diff / 1000);
+  const totalMinutes = Math.floor(diff / (1000 * 60));
+  const totalHours   = Math.floor(diff / (1000 * 60 * 60));
+  const days         = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const years        = Math.floor(days / 365);
+  const months       = Math.floor(days / 30);
+  if (years > 0)        return `in ~${years} year${years > 1 ? 's' : ''}`;
+  if (months > 0)       return `in ~${months} month${months > 1 ? 's' : ''}`;
+  if (days > 0)         return `in ~${days} day${days !== 1 ? 's' : ''}`;
+  if (totalHours > 0)   return `in ~${totalHours} hour${totalHours !== 1 ? 's' : ''}`;
+  if (totalMinutes > 0) return `in ~${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`;
+  return `in ~${totalSeconds} second${totalSeconds !== 1 ? 's' : ''}`;
 }
 
 /**
@@ -598,6 +356,36 @@ function getRateAtDate(date) {
   return RATE_SCHEDULE[0].ratePerSec;
 }
 
+/**
+ * Calculate the collective daily environmental impact if a fraction of global users
+ * consistently applies a token-saving tip.
+ *
+ * @param {number} savingPct      - 0–100, percentage of tokens saved per user per prompt
+ * @param {number} percentOfUsers - 0–100, percentage of global users applying the tip
+ * @param {number} [ratePerSec]   - tokens/sec globally (defaults to TOKENS_PER_SECOND)
+ * @returns {{ tokensPerDay: number, kWhPerDay: number, co2KgPerDay: number, waterLPerDay: number }}
+ */
+function calculateTipImpact(savingPct, percentOfUsers, ratePerSec) {
+  const rate = typeof ratePerSec === 'number' && ratePerSec > 0
+    ? ratePerSec
+    : TOKENS_PER_SECOND;
+  if (
+    typeof savingPct !== 'number' || savingPct < 0 ||
+    typeof percentOfUsers !== 'number' || percentOfUsers < 0
+  ) {
+    return { tokensPerDay: 0, kWhPerDay: 0, co2KgPerDay: 0, waterLPerDay: 0 };
+  }
+  const tokensPerDay = rate * 86400; // 86400 seconds/day
+  const saved = tokensPerDay * (Math.min(savingPct, 100) / 100) * (Math.min(percentOfUsers, 100) / 100);
+  const impact = calculateEnvironmentalImpact(saved);
+  return {
+    tokensPerDay: saved,
+    kWhPerDay:    impact.kWh,
+    co2KgPerDay:  impact.co2Kg,
+    waterLPerDay: impact.waterL,
+  };
+}
+
 // ============================================================
 // EXPORTS — CommonJS for Jest; window global for the browser
 // ============================================================
@@ -608,6 +396,7 @@ const DeathClockCore = {
   HISTORICAL_DATA,
   MILESTONES,
   RATE_SCHEDULE,
+  TOKEN_TIPS,
   formatTokenCount,
   formatTokenCountShort,
   getTriggeredMilestones,
@@ -619,6 +408,7 @@ const DeathClockCore = {
   getTimeDelta,
   milestoneProgress,
   getRateAtDate,
+  calculateTipImpact,
 };
 
 if (typeof module !== 'undefined' && module.exports) {
