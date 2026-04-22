@@ -22,6 +22,8 @@ const MIN_HTML = `
   <span id="totalCounter"></span>
   <span id="sessionCounter"></span>
   <span id="sessionTime"></span>
+  <span id="rateCounter"></span>
+  <span id="rateEvent"></span>
   <span id="statKwh"></span>
   <span id="statCo2"></span>
   <span id="statWater"></span>
@@ -29,6 +31,9 @@ const MIN_HTML = `
   <div id="milestonesGrid"></div>
   <table><tbody id="predictionsBody"></tbody></table>
   <canvas id="tokenChart"></canvas>
+  <nav id="lb-breadcrumb"></nav>
+  <div id="lb-info"></div>
+  <div id="lb-container"></div>
 `;
 
 function makeChartMock() {

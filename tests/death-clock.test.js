@@ -19,8 +19,10 @@ const {
   formatDate,
   getTimeDelta,
   milestoneProgress,
+  getRateAtDate,
   MILESTONES,
   HISTORICAL_DATA,
+  RATE_SCHEDULE,
   BASE_TOKENS,
   TOKENS_PER_SECOND,
 } = core;
@@ -471,5 +473,135 @@ describe('Browser window export', () => {
     vm.runInNewContext(code, { window: sandboxWindow });
     expect(typeof sandboxWindow.DeathClockCore).toBe('object');
     expect(typeof sandboxWindow.DeathClockCore.formatTokenCount).toBe('function');
+  });
+});
+
+// ============================================================
+// getRateAtDate
+// ============================================================
+describe('getRateAtDate', () => {
+  test('returns a positive number for any date', () => {
+    expect(getRateAtDate(new Date('2023-01-01'))).toBeGreaterThan(0);
+  });
+
+  test('returns a higher rate after ChatGPT launch than before', () => {
+    const before = getRateAtDate(new Date('2022-01-01'));
+    const after  = getRateAtDate(new Date('2023-01-01'));
+    expect(after).toBeGreaterThan(before);
+  });
+
+  test('returns a higher rate for Claude Code era than GPT-3 era', () => {
+    const gpt3Era       = getRateAtDate(new Date('2020-07-01'));
+    const claudeCodeEra = getRateAtDate(new Date('2025-06-01'));
+    expect(claudeCodeEra).toBeGreaterThan(gpt3Era);
+  });
+
+  test('matches TOKENS_PER_SECOND at BASE_DATE_ISO', () => {
+    const rate = getRateAtDate(new Date(core.BASE_DATE_ISO));
+    expect(rate).toBe(TOKENS_PER_SECOND);
+  });
+
+  test('returns the earliest rate for dates before the schedule starts', () => {
+    const veryEarly = getRateAtDate(new Date('2010-01-01'));
+    expect(veryEarly).toBe(RATE_SCHEDULE[0].ratePerSec);
+  });
+
+  test('falls back to current time when no date is provided', () => {
+    const rate = getRateAtDate();
+    expect(typeof rate).toBe('number');
+    expect(rate).toBeGreaterThan(0);
+  });
+
+  test('falls back gracefully for an invalid date', () => {
+    const rate = getRateAtDate(new Date('not-a-date'));
+    expect(typeof rate).toBe('number');
+    expect(rate).toBeGreaterThan(0);
+  });
+
+  test('falls back gracefully for a non-Date argument', () => {
+    const rate = getRateAtDate('2025-01-01');
+    expect(typeof rate).toBe('number');
+    expect(rate).toBeGreaterThan(0);
+  });
+
+  test('rate is monotonically non-decreasing across schedule dates', () => {
+    let prevRate = 0;
+    for (const entry of RATE_SCHEDULE) {
+      const rate = getRateAtDate(new Date(entry.date));
+      expect(rate).toBeGreaterThanOrEqual(prevRate);
+      prevRate = rate;
+    }
+  });
+});
+
+// ============================================================
+// RATE_SCHEDULE sanity checks
+// ============================================================
+describe('RATE_SCHEDULE', () => {
+  test('is a non-empty array', () => {
+    expect(Array.isArray(RATE_SCHEDULE)).toBe(true);
+    expect(RATE_SCHEDULE.length).toBeGreaterThan(0);
+  });
+
+  test('each entry has date, ratePerSec, and event fields', () => {
+    RATE_SCHEDULE.forEach((r) => {
+      expect(typeof r.date).toBe('string');
+      expect(typeof r.ratePerSec).toBe('number');
+      expect(typeof r.event).toBe('string');
+      expect(r.ratePerSec).toBeGreaterThan(0);
+    });
+  });
+
+  test('dates are in ascending order', () => {
+    for (let i = 1; i < RATE_SCHEDULE.length; i++) {
+      expect(new Date(RATE_SCHEDULE[i].date).getTime())
+        .toBeGreaterThanOrEqual(new Date(RATE_SCHEDULE[i - 1].date).getTime());
+    }
+  });
+
+  test('rates are non-decreasing (AI consumption only grows)', () => {
+    for (let i = 1; i < RATE_SCHEDULE.length; i++) {
+      expect(RATE_SCHEDULE[i].ratePerSec).toBeGreaterThanOrEqual(RATE_SCHEDULE[i - 1].ratePerSec);
+    }
+  });
+
+  test('contains the ChatGPT launch event', () => {
+    const chatGPT = RATE_SCHEDULE.find((r) => r.event.toLowerCase().includes('chatgpt'));
+    expect(chatGPT).toBeDefined();
+  });
+
+  test('contains the Claude Code event', () => {
+    const claudeCode = RATE_SCHEDULE.find((r) => r.event.toLowerCase().includes('claude code'));
+    expect(claudeCode).toBeDefined();
+  });
+});
+
+// ============================================================
+// Extended milestone checks
+// ============================================================
+describe('Extended MILESTONES', () => {
+  test('has more than 15 milestones', () => {
+    expect(MILESTONES.length).toBeGreaterThan(15);
+  });
+
+  test('each new milestone has required fields including icon and color', () => {
+    MILESTONES.forEach((m) => {
+      expect(typeof m.icon).toBe('string');
+      expect(m.icon.length).toBeGreaterThan(0);
+      expect(typeof m.color).toBe('string');
+      expect(typeof m.darkColor).toBe('string');
+    });
+  });
+
+  test('milestones span at least 6 orders of magnitude', () => {
+    const min = Math.min(...MILESTONES.map((m) => m.tokens));
+    const max = Math.max(...MILESTONES.map((m) => m.tokens));
+    expect(max / min).toBeGreaterThan(1e6);
+  });
+
+  test('all milestone ids are unique', () => {
+    const ids = MILESTONES.map((m) => m.id);
+    const unique = new Set(ids);
+    expect(unique.size).toBe(ids.length);
   });
 });
