@@ -3,7 +3,13 @@
 // ============================================================
 // AI DEATH CLOCK — Core Logic
 // Pure functions with no DOM dependencies — safe for unit testing
+//
+// Wrapped in an IIFE so that top-level `const` declarations (e.g. MILESTONES)
+// do not collide with the identically-named global declared by milestones-data.js
+// when both scripts are loaded as classic (non-module) <script> tags.
 // ============================================================
+
+(function () {
 
 // Estimated cumulative global AI tokens consumed since Jan 1, 2020
 // Based on: OpenAI usage reports, scaling to all major model providers,
@@ -626,3 +632,5 @@ if (typeof module !== 'undefined' && module.exports) {
 } else if (typeof window !== 'undefined') {
   window.DeathClockCore = DeathClockCore;
 }
+
+})();
