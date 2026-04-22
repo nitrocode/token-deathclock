@@ -264,6 +264,23 @@ test.describe('AI Death Clock — end-to-end', () => {
     expect(errors).toHaveLength(0);
   });
 
+  test('page loads without console errors or warnings', async ({ page }) => {
+    const messages = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error' || msg.type() === 'warning') {
+        const text = msg.text();
+        // Ignore network-level resource-load failures from external origins
+        // (fonts, CDN) — these are infrastructure noise, not JS errors.
+        if (!text.includes('Failed to load resource')) {
+          messages.push(`[${msg.type()}] ${text}`);
+        }
+      }
+    });
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    expect(messages).toHaveLength(0);
+  });
+
   // ── Security: no XSS via milestone content ────────────────────────────────
 
   test('milestone grid HTML does not contain unescaped script tags', async ({ page }) => {
