@@ -794,6 +794,81 @@ tr:hover td { background: var(--surface-2); }
   .lb-grid { --lb-block-size: 8px; --lb-gap: 1px; }
   .lb-grid.lb-zoom { --lb-cols: 10; --lb-block-size: 28px; --lb-gap: 3px; }
 }
+
+/* ---- Always-On Stack Panel ---- */
+.lb-stack-panel {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  margin-bottom: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  padding: .9rem 1.1rem;
+}
+
+.lb-stack-row {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+}
+
+.lb-stack-label {
+  font-family: 'Orbitron', monospace;
+  font-size: .58rem;
+  color: var(--text-muted);
+  letter-spacing: .07em;
+  width: 3.6rem;
+  flex-shrink: 0;
+  padding-top: 1px;
+  text-transform: uppercase;
+}
+
+.lb-stack-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  align-content: flex-start;
+}
+
+/* Compact block size for the stack */
+.lb-stack-grid .lb-block {
+  --lb-block-size: 9px;
+  width: var(--lb-block-size);
+  height: var(--lb-block-size);
+  cursor: default;
+}
+
+/* Future + dying blocks in the stack are interactive */
+.lb-stack-grid .lb-block.lb-future,
+.lb-stack-grid .lb-block.lb-dying {
+  cursor: pointer;
+}
+
+/* Overflow badge is informational only */
+.lb-stack-grid .lb-block.lb-overflow {
+  cursor: default;
+  font-size: .5rem;
+  color: var(--text-dim);
+}
+
+.lb-stack-grid .lb-block.lb-future:hover {
+  transform: scale(1.6);
+  box-shadow: 0 0 6px rgba(0,200,80,.4);
+  z-index: 10;
+}
+
+/* Mobile: slightly smaller blocks (flex-wrap already set on .lb-stack-grid) */
+@media (max-width: 600px) {
+  .lb-stack-grid .lb-block {
+    --lb-block-size: 8px;
+  }
+  .lb-stack-label {
+    width: 3rem;
+    font-size: .53rem;
+  }
+}
+
 /* ---- Token-Saving Tips Section ---- */
 #tips-section { background: var(--bg-alt); }
 
@@ -888,7 +963,6 @@ tr:hover td { background: var(--surface-2); }
 }
 
 .milestone-ref:hover { text-decoration: underline; }
-
 footer {
   text-align: center;
   padding: 2rem 1rem;
