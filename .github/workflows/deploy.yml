@@ -23,6 +23,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Regenerate milestones-data.js from YAML
+        run: npm run build:milestones
+
       - name: Deploy to GitHub Pages (gh-pages branch)
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -31,4 +43,4 @@ jobs:
           # Preserve any existing PR preview directories across production deploys
           keep_files: true
           # Exclude non-site files from the deployment
-          exclude_assets: '.github,node_modules,tests,package-lock.json,package.json'
+          exclude_assets: '.github,node_modules,tests,scripts,package-lock.json,package.json,milestones.yaml'
