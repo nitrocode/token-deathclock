@@ -2947,7 +2947,7 @@
       });
     });
 
-    function switchTab(targetTab, updateHash) {
+    function switchTab(targetTab, updateHash = true) {
       if (!VALID_TABS.has(targetTab)) return;
       tabBtns.forEach((btn) => {
         const isActive = btn.dataset.tab === targetTab;
@@ -2957,7 +2957,7 @@
       document.querySelectorAll('[role="tabpanel"]').forEach((panel) => {
         panel.hidden = panel.id !== 'tab-' + targetTab;
       });
-      if (updateHash !== false) {
+      if (updateHash) {
         history.pushState(null, '', '#' + targetTab);
       }
     }
