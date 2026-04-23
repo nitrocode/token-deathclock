@@ -381,7 +381,7 @@
   }
 
   // ---- Life Blocks ----------------------------------------
-  const LB_LAST_MILESTONE = MILESTONES[MILESTONES.length - 1];
+  const LB_LAST_MILESTONE = MILESTONES.find(m => m.extinctionMarker) || MILESTONES[MILESTONES.length - 1];
 
   // Drill-down state
   const lb = {

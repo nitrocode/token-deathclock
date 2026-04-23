@@ -434,6 +434,26 @@ milestones:
     darkColor: '#33691e'
     reference: 'https://www.ipcc.ch/report/ar6/syr/'
 
+  - id: human_extinction
+    name: Human Extinction Horizon
+    icon: "\U0001F480"
+    tokens: 77000000000000000
+    shortDesc: 77 Quadrillion Tokens
+    extinctionMarker: true
+    description: "Climate tipping points cascade simultaneously — the window for human survival closes"
+    consequence: >-
+      By 77 quadrillion tokens, multiple simultaneous tipping points have
+      been crossed: the West Antarctic Ice Sheet enters irreversible collapse,
+      the Amazon transitions to savanna, and Arctic summer sea ice disappears
+      permanently. These feedbacks amplify each other. Global temperature is
+      locked in at +3°C — a level incompatible with large-scale organised
+      human society. Food systems fail. Mass displacement begins. Modern
+      civilisation loses its ability to function.
+    followingEvent: "\U0001F321️ The last generation to know a stable climate is alive today. Their children inherit a planet in permanent crisis."
+    color: '#1a0000'
+    darkColor: '#0d0000'
+    reference: 'https://www.science.org/doi/10.1126/science.abn7950'
+
   - id: grid_breaking_point
     name: Grid Infrastructure Breaking Point
     icon: "\U0001F50B"
