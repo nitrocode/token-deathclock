@@ -244,6 +244,104 @@ header::after {
   border-bottom-color: var(--accent);
 }
 
+/* ---- News & References Tab ---- */
+.news-section {
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.news-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.news-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.news-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.news-card-category {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2em 0.55em;
+  border-radius: 4px;
+}
+
+.news-cat-jobs     { background: rgba(255,136,0,0.18); color: var(--accent-2); border: 1px solid rgba(255,136,0,0.35); }
+.news-cat-energy   { background: rgba(255,51,51,0.15);  color: var(--accent);   border: 1px solid rgba(255,51,51,0.3); }
+.news-cat-water    { background: rgba(68,170,255,0.15); color: var(--accent-4); border: 1px solid rgba(68,170,255,0.3); }
+.news-cat-carbon   { background: rgba(0,204,119,0.15);  color: var(--accent-3); border: 1px solid rgba(0,204,119,0.3); }
+.news-cat-research { background: rgba(160,120,255,0.15); color: #b98aff;        border: 1px solid rgba(160,120,255,0.3); }
+
+.news-card-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.news-card-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.news-card-title a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.news-card-title a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.news-card-desc {
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+  flex: 1;
+}
+
+.news-card-source {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-family: 'Orbitron', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-top: 0.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.news-disclaimer {
+  font-style: italic;
+  border-left: 3px solid var(--accent-2);
+  padding-left: 1rem;
+}
+
 /* ---- About Page ---- */
 .about-section {
   padding: 3rem 0;
