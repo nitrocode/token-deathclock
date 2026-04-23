@@ -49,6 +49,22 @@
   let currentTheme = 'dark';
   let chartInstance = null;
 
+  // ---- Persistence keys -----------------------------------
+  const LS_FIRST_ARRIVAL_KEY = 'tokenDeathclockFirstArrival';
+  const LS_THEME_KEY         = 'tokenDeathclockTheme';
+
+  // Cumulative first-arrival timestamp — loaded from localStorage so the
+  // "Tokens Since You Arrived" counter continues across return visits.
+  let firstArrivalTime = pageLoadTime;
+  try {
+    const stored = parseInt(localStorage.getItem(LS_FIRST_ARRIVAL_KEY) || '0', 10);
+    if (stored > 0 && stored <= pageLoadTime) {
+      firstArrivalTime = stored;
+    } else {
+      localStorage.setItem(LS_FIRST_ARRIVAL_KEY, String(pageLoadTime));
+    }
+  } catch (_) { /* ignore quota / access errors */ }
+
   // ---- Helpers ---------------------------------------------
   function getCurrentTokens() {
     const elapsed = (Date.now() - BASE_DATE_MS) / 1000;
@@ -74,6 +90,7 @@
   function toggleTheme() {
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     applyTheme(newTheme);
+    try { localStorage.setItem(LS_THEME_KEY, newTheme); } catch (_) { /* ignore */ }
     if (newTheme === 'light') awardBadge('optimist');
   }
 
@@ -82,8 +99,9 @@
     const now = Date.now();
     const tokens = getCurrentTokens();
     const currentRate = getRateAtDate(new Date(now));
-    const sessionTokens = Math.round((now - pageLoadTime) / 1000 * currentRate);
-    const elapsed = Math.floor((now - pageLoadTime) / 1000);
+    // Use firstArrivalTime so the counter accumulates across return visits
+    const sessionTokens = Math.round((now - firstArrivalTime) / 1000 * currentRate);
+    const elapsed = Math.floor((now - firstArrivalTime) / 1000);
 
     const totalEl = document.getElementById('totalCounter');
     const sessionEl = document.getElementById('sessionCounter');
@@ -96,7 +114,8 @@
     if (sessionTimeEl) {
       const m = Math.floor(elapsed / 60);
       const s = elapsed % 60;
-      sessionTimeEl.textContent = m > 0 ? `${m}m ${s}s on page` : `${s}s on page`;
+      const suffix = firstArrivalTime < pageLoadTime ? 'since first visit' : 'on page';
+      sessionTimeEl.textContent = m > 0 ? `${m}m ${s}s ${suffix}` : `${s}s ${suffix}`;
     }
     if (rateEl) rateEl.textContent = formatTokenCount(currentRate);
     if (rateEventEl) {
@@ -1925,6 +1944,7 @@
   const LS_UPGRADES_KEY   = 'tokenDeathclockUpgrades';
   const LS_BESTSCORE_KEY  = 'tokenDeathclockBestScore';
   const LS_COMPANY_KEY    = 'tokenDeathclockCompany';
+  const LS_GAME_STATE_KEY = 'tokenDeathclockGameState';
 
   // ---- State -----------------------------------------------
 
@@ -1981,6 +2001,31 @@
         }
       }
     } catch (_) { /* ignore */ }
+    try {
+      const raw = localStorage.getItem(LS_GAME_STATE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          if (typeof parsed.personalTokens === 'number' && isFinite(parsed.personalTokens) && parsed.personalTokens >= 0) {
+            acc.personalTokens = parsed.personalTokens;
+          }
+          if (typeof parsed.doomPoints === 'number' && isFinite(parsed.doomPoints) && parsed.doomPoints >= 0) {
+            acc.doomPoints = parsed.doomPoints;
+          }
+          if (typeof parsed.totalTaps === 'number' && isFinite(parsed.totalTaps) && parsed.totalTaps >= 0) {
+            acc.totalTaps = Math.floor(parsed.totalTaps);
+          }
+          if (typeof parsed.milestonesTriggered === 'number' && isFinite(parsed.milestonesTriggered) && parsed.milestonesTriggered >= 0) {
+            acc.milestonesTriggered = Math.floor(parsed.milestonesTriggered);
+          }
+          if (Array.isArray(parsed.personalMilestoneSet)) {
+            acc.personalMilestoneSet = new Set(
+              parsed.personalMilestoneSet.filter((id) => typeof id === 'string')
+            );
+          }
+        }
+      }
+    } catch (_) { /* ignore */ }
     // Recompute tap multiplier and passive rate from persisted state
     acc.tapMultiplier = currentTapMultiplier();
     acc.passiveRate   = computePassiveRate(acc.ownedAgents, acc.replacedWorkers);
@@ -1993,6 +2038,15 @@
       localStorage.setItem(LS_COMPANY_KEY, JSON.stringify({
         replacedWorkers: acc.replacedWorkers,
         ownedAgents:     acc.ownedAgents,
+      }));
+    } catch (_) { /* ignore */ }
+    try {
+      localStorage.setItem(LS_GAME_STATE_KEY, JSON.stringify({
+        personalTokens:      acc.personalTokens,
+        doomPoints:          acc.doomPoints,
+        totalTaps:           acc.totalTaps,
+        milestonesTriggered: acc.milestonesTriggered,
+        personalMilestoneSet: [...acc.personalMilestoneSet],
       }));
     } catch (_) { /* ignore */ }
   }
@@ -2589,6 +2643,11 @@
     startComboResetLoop();
     // Passive token generation loop
     startPassiveLoop();
+    // Persist game state every 30 seconds and immediately when the page is hidden
+    setInterval(saveAcceleratorState, 30000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') saveAcceleratorState();
+    });
   }
 
   // ============================================================
@@ -2848,6 +2907,12 @@
 
   // ---- Bootstrap ------------------------------------------
   function init() {
+    // Restore persisted theme preference before rendering anything
+    try {
+      const savedTheme = localStorage.getItem(LS_THEME_KEY);
+      if (savedTheme === 'dark' || savedTheme === 'light') applyTheme(savedTheme);
+    } catch (_) { /* ignore */ }
+
     // Theme toggle
     const toggleBtn = document.getElementById('themeToggle');
     if (toggleBtn) toggleBtn.addEventListener('click', toggleTheme);
