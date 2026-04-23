@@ -960,8 +960,65 @@ describe('sessionEquivalences', () => {
 });
 
 // ============================================================
-// SESSION_CHALLENGE_DEFS
+// getTimeDelta — singular year and day coverage
 // ============================================================
+describe('getTimeDelta singular forms', () => {
+  const now = new Date('2026-01-01T00:00:00Z');
+
+  test('returns singular "year" for exactly 1 year', () => {
+    const future = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+    expect(getTimeDelta(future, now)).toBe('in ~1 year');
+  });
+
+  test('returns singular "day" for exactly 1 day', () => {
+    const future = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    expect(getTimeDelta(future, now)).toBe('in ~1 day');
+  });
+});
+
+// ============================================================
+// sessionEquivalences — threshold false-branch and _niceFmt v<1
+// ============================================================
+describe('sessionEquivalences threshold branches', () => {
+  test('returns empty array for a very tiny positive token count (all thresholds fail)', () => {
+    // tokens=0.001 → km≈7e-10, coffees≈2.5e-6, charges≈2e-8, novels≈1.1e-11 — all below thresholds
+    const result = sessionEquivalences(0.001);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result).toEqual([]);
+  });
+
+  test('includes novels string when tokens are in the sub-1 range (exercises _niceFmt v<1 branch)', () => {
+    // tokens=1000 → novels≈0.011 (0.001 ≤ v < 1) — exercises the v<1 branch in _niceFmt
+    const result = sessionEquivalences(1000);
+    expect(Array.isArray(result)).toBe(true);
+    const novelsEntry = result.find((s) => s.includes('novel'));
+    expect(novelsEntry).toBeDefined();
+  });
+});
+
+// ============================================================
+// generateEquivalences — _niceFmt NaN and Infinity branches
+// ============================================================
+describe('generateEquivalences with NaN and Infinity tokens', () => {
+  test('handles NaN tokens gracefully (exercises isNaN branch in _niceFmt)', () => {
+    // NaN passes the "typeof tokens !== 'number'" guard, so _niceFmt receives NaN values
+    const result = generateEquivalences(NaN);
+    expect(Array.isArray(result)).toBe(true);
+    result.forEach((e) => {
+      expect(typeof e.icon).toBe('string');
+      expect(typeof e.text).toBe('string');
+    });
+  });
+
+  test('handles Infinity tokens gracefully (exercises !isFinite branch in _niceFmt)', () => {
+    const result = generateEquivalences(Infinity);
+    expect(Array.isArray(result)).toBe(true);
+    result.forEach((e) => {
+      expect(typeof e.icon).toBe('string');
+      expect(typeof e.text).toBe('string');
+    });
+  });
+});
 describe('SESSION_CHALLENGE_DEFS', () => {
   test('is a non-empty array', () => {
     expect(Array.isArray(SESSION_CHALLENGE_DEFS)).toBe(true);
