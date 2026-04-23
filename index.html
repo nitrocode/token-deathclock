@@ -60,6 +60,46 @@
   </div>
 </header>
 
+<!-- ── Doomsday Clock Strip (PRD 1) ──────────────────────── -->
+<div id="doomsday-strip" class="doomsday-strip" aria-label="Doomsday Clock — proximity to final AI threshold">
+  <div class="doomsday-clock-wrap" aria-hidden="true">
+    <svg id="doomClockSvg" class="doom-clock-svg" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="46" class="doom-clock-face"/>
+      <!-- Hour ticks -->
+      <line x1="50" y1="6"  x2="50" y2="13" class="doom-tick doom-tick-major"/>
+      <line x1="50" y1="87" x2="50" y2="94" class="doom-tick"/>
+      <line x1="6"  y1="50" x2="13" y2="50" class="doom-tick"/>
+      <line x1="87" y1="50" x2="94" y2="50" class="doom-tick"/>
+      <line x1="18.2" y1="18.2" x2="23.2" y2="23.2" class="doom-tick"/>
+      <line x1="76.8" y1="18.2" x2="71.8" y2="23.2" class="doom-tick"/>
+      <line x1="18.2" y1="81.8" x2="23.2" y2="76.8" class="doom-tick"/>
+      <line x1="81.8" y1="81.8" x2="76.8" y2="76.8" class="doom-tick"/>
+      <line x1="27"   y1="11.5" x2="29.5" y2="16"   class="doom-tick doom-tick-sm"/>
+      <line x1="11.5" y1="27"   x2="16"   y2="29.5" class="doom-tick doom-tick-sm"/>
+      <line x1="73"   y1="11.5" x2="70.5" y2="16"   class="doom-tick doom-tick-sm doom-tick-warn"/>
+      <line x1="88.5" y1="27"   x2="84"   y2="29.5" class="doom-tick doom-tick-sm"/>
+      <!-- Minute hand — rotated by JS -->
+      <line id="doomMinHand" x1="50" y1="50" x2="50" y2="14" class="doom-clock-hand" transform="rotate(330, 50, 50)"/>
+      <!-- Center dot -->
+      <circle cx="50" cy="50" r="3.5" class="doom-clock-dot"/>
+    </svg>
+  </div>
+  <div class="doomsday-text-wrap">
+    <div class="doomsday-time" id="doomTimeText">5 MIN TO MIDNIGHT</div>
+    <div class="doomsday-sub">
+      <span id="doomTokenPct">0.0%</span> of the way to the final threshold
+    </div>
+  </div>
+  <div class="doomsday-bar-wrap" aria-hidden="true">
+    <div class="doomsday-bar-track">
+      <div class="doomsday-bar-fill" id="doomBarFill" style="width:0%"></div>
+    </div>
+    <div class="doomsday-bar-labels">
+      <span>SAFE</span><span>MIDNIGHT</span>
+    </div>
+  </div>
+</div>
+
 <!-- ── Tab Navigation ────────────────────────────────────── -->
 <nav class="tab-bar" role="tablist" aria-label="Page sections">
   <button class="tab-btn tab-btn--active" role="tab" id="tab-btn-dashboard"
@@ -127,6 +167,20 @@
       </div>
     </div>
 
+    <!-- Your Tab (Running) — PRD 4 -->
+    <div class="session-tab-strip" id="sessionTabStrip" aria-live="polite" aria-atomic="true">
+      <div class="session-tab-header">
+        <span class="session-tab-title">🍺 Your Tab (Running)</span>
+        <span class="session-tab-sub">What this visit is costing the planet</span>
+      </div>
+      <div class="session-tab-items" id="sessionTabItems">
+        <div class="session-tab-item"><span class="sti-icon">💧</span><span id="stiWater" class="sti-val">—</span><span class="sti-label">cups of coffee worth of water</span></div>
+        <div class="session-tab-item"><span class="sti-icon">🌳</span><span id="stiTrees" class="sti-val">—</span><span class="sti-label">trees needed a full year to offset</span></div>
+        <div class="session-tab-item"><span class="sti-icon">⚡</span><span id="stiCharges" class="sti-val">—</span><span class="sti-label">smartphone charges of energy</span></div>
+        <div class="session-tab-item"><span class="sti-icon">🚗</span><span id="stiMetres" class="sti-val">—</span><span class="sti-label">metres driven in a car</span></div>
+      </div>
+    </div>
+
     <!-- What could we have done instead -->
     <div class="equiv-wrap">
       <div class="equiv-header">
@@ -170,6 +224,45 @@
           <button id="ai-ticker-share" class="btn-sm">📤 Share this fact</button>
           <button id="ai-ticker-resume" class="btn-sm">▶ Resume</button>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Apology Generator (PRD 2) ─────────────────────────── -->
+<section id="apology-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Corporate Accountability</p>
+    <h2>🙇 AI Writes Its Own Apology</h2>
+    <p class="lb-desc">Rotating corporate press-release apologies, generated entirely without AI. (Probably.)</p>
+    <div class="apology-card" id="apologyCard" aria-live="polite" aria-atomic="true">
+      <div class="apology-quote" id="apologyQuote"></div>
+      <div class="apology-footer">
+        <span class="apology-signoff">— The AI Industry, collectively</span>
+        <span class="apology-note">(AI did not write this)</span>
+      </div>
+    </div>
+    <div class="apology-actions">
+      <button id="apologyCopyBtn" class="btn-secondary">📋 Copy &amp; Send to Your AI Vendor</button>
+      <button id="apologyNextBtn" class="btn-ghost">↻ Next Apology</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── Prompt Hall of Shame (PRD 5) ──────────────────────── -->
+<section id="shame-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Leaked Intelligence</p>
+    <h2>🗂️ The Prompt Hall of Shame</h2>
+    <p class="lb-desc">A live-scrolling feed of prompts being processed right now, globally. (Dramatised. Probably.)</p>
+    <div class="shame-feed" id="shameFeed" aria-live="polite" aria-relevant="additions" aria-label="Live prompt feed"></div>
+    <div class="shame-submit-wrap">
+      <label class="shame-submit-label" for="shameInput">😤 Submit Your Worst Prompt:</label>
+      <div class="shame-input-row">
+        <input type="text" id="shameInput" class="shame-input" maxlength="200"
+               placeholder="e.g. &quot;Write me a haiku about synergy&quot;"
+               aria-label="Your worst AI prompt" autocomplete="off" spellcheck="false"/>
+        <button id="shameSubmitBtn" class="btn-primary">Submit</button>
       </div>
     </div>
   </div>
@@ -465,6 +558,29 @@
         <button id="shareAccelerationBtn" class="btn-secondary" hidden>📤 Share My Destruction</button>
       </div>
 
+      <!-- Villain Leaderboard (PRD 6) -->
+      <div class="villain-leaderboard-wrap" id="villainLeaderboardWrap">
+        <div class="accel-section-title">🏆 Global Doom Leaderboard</div>
+        <p class="lb-desc" style="margin-bottom:0.75rem;">
+          You're doing great. Relatively speaking. <em>Very</em> relatively speaking.
+        </p>
+        <div class="villain-rank-banner" id="villainRankBanner" aria-live="polite">
+          <span class="villain-rank-title" id="villainRankTitle">Innocent Bystander</span>
+          <span class="villain-rank-score" id="villainRankScore">0 DP</span>
+        </div>
+        <table class="villain-table" aria-label="Global Doom Leaderboard">
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Doom Points</th><th>Rank</th></tr>
+          </thead>
+          <tbody id="villainTableBody">
+            <!-- populated by script.js -->
+          </tbody>
+        </table>
+        <div class="villain-congratulations" id="villainCongrats" hidden aria-live="assertive">
+          🏆 You are now the most prolific destroyer in this session. Congratulations.
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -735,6 +851,36 @@
     <div id="milestone-flash-name" class="milestone-flash-name"></div>
     <div id="milestone-flash-desc" class="milestone-flash-desc"></div>
     <button id="milestone-flash-close" class="milestone-flash-close">✕ Dismiss</button>
+  </div>
+</div>
+
+<!-- ── Emergency Broadcast Overlay (PRD 1) ───────────────── -->
+<div id="emergency-broadcast" class="emergency-broadcast" hidden role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="eb-inner">
+    <span class="eb-icon" aria-hidden="true">📡</span>
+    <span class="eb-label">EMERGENCY BULLETIN</span>
+    <span id="ebMsg" class="eb-msg"></span>
+    <span class="eb-sign-off">We now return you to your regularly scheduled doom.</span>
+  </div>
+</div>
+
+<!-- ── The Intervention Modal (PRD 7) ────────────────────── -->
+<div id="intervention-modal" class="intervention-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="intervention-heading">
+  <div class="intervention-card">
+    <div class="intervention-header">
+      <span class="intervention-avatar" aria-hidden="true">😟</span>
+      <span class="intervention-sender">Earth</span>
+      <span class="intervention-time">just now</span>
+    </div>
+    <div class="intervention-bubble">
+      <p class="intervention-greeting">Hey… are you sure you want to leave?</p>
+      <p id="intervention-msg" class="intervention-msg"></p>
+      <p class="intervention-coda">We're not saying don't go. We're just saying… tell a friend.</p>
+    </div>
+    <div class="intervention-actions">
+      <button id="intervention-stay" class="intervention-btn-stay">🌱 I'll Stay (For the Planet)</button>
+      <button id="intervention-leave" class="intervention-btn-leave">💀 Leave (Monster)</button>
+    </div>
   </div>
 </div>
 

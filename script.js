@@ -114,6 +114,9 @@
     setStatText('statWater', formatTokenCountShort(impact.waterL));
     setStatText('statTrees', formatTokenCountShort(impact.treesEquivalent));
 
+    // Update doomsday clock (PRD 1)
+    updateDoomsdayClock(tokens);
+
     // Update milestone progress bars
     const triggered = getTriggeredMilestones(tokens, MILESTONES);
     MILESTONES.forEach((m, idx) => {
@@ -124,6 +127,10 @@
 
       if (isTriggered && !wasTriggered) {
         card.classList.add('triggered');
+        if (!shownEmergencyBroadcasts.has(m.id)) {
+          shownEmergencyBroadcasts.add(m.id);
+          showEmergencyBroadcast(m);
+        }
       }
 
       const fill = card.querySelector('.progress-fill');
@@ -1650,34 +1657,26 @@
     const globalT    = (fp.globalWeeklyCo2Kg / 1000).toFixed(1);
     const kmDriven   = (fp.annual.co2Kg / 0.171).toFixed(1);
     const globalCars = formatTokenCount(fp.globalWeeklyCo2Kg / (0.171 * 1000 / 52));
+    const treeBail   = Math.max(1, Math.round(fp.annual.co2Kg / 21));
+    const phoneCharges = Math.round(fp.weekly.kWh / 0.015);
 
     const results = document.getElementById('calc-results');
     if (!results) return;
 
     results.innerHTML = `
-      <div class="calc-result-grid">
-        <div class="calc-result-box">
-          <div class="crb-label">Weekly Tokens</div>
-          <div class="crb-value">${escHtml(formatTokenCount(fp.weeklyTokens))}</div>
+      <div class="wanted-poster">
+        <div class="wanted-title">WANTED</div>
+        <div class="wanted-subtitle">For Environmental Crimes Against the Atmosphere</div>
+        <div class="wanted-divider"></div>
+        <div class="wanted-charges">
+          <div class="wanted-charge"><strong>COUNT I:</strong> Consuming ${escHtml(formatTokenCount(fp.weeklyTokens))} tokens per week — enough to power ${escHtml(phoneCharges.toLocaleString())} smartphone charges.</div>
+          <div class="wanted-charge"><strong>COUNT II:</strong> Emitting ${escHtml(co2g)} g CO\u2082 weekly — equivalent to driving ${escHtml(kmDriven)} km a year.</div>
+          <div class="wanted-charge"><strong>COUNT III:</strong> Evaporating ${escHtml(String(waterMlW))} mL of cooling water per week without remorse.</div>
+          <div class="wanted-charge"><strong>COUNT IV:</strong> Projecting annual emissions of ${escHtml(String(co2gA))} g CO\u2082 — sustained and premeditated.</div>
         </div>
-        <div class="calc-result-box">
-          <div class="crb-label">Weekly CO\u2082</div>
-          <div class="crb-value">${escHtml(co2g)} g</div>
-        </div>
-        <div class="calc-result-box">
-          <div class="crb-label">Weekly Water</div>
-          <div class="crb-value">${escHtml(String(waterMlW))} mL</div>
-        </div>
-        <div class="calc-result-box">
-          <div class="crb-label">Annual CO\u2082</div>
-          <div class="crb-value">${escHtml(String(co2gA))} g</div>
-          <div class="crb-sub">\u2248 driving ${escHtml(kmDriven)} km</div>
-        </div>
-        <div class="calc-result-box global">
-          <div class="crb-label">Scale to 500M users \u2192 weekly</div>
-          <div class="crb-value">${escHtml(globalT)} tonnes CO\u2082</div>
-          <div class="crb-sub">\u2248 ${escHtml(globalCars)} cars driven for a week</div>
-        </div>
+        <div class="wanted-divider"></div>
+        <div class="wanted-bail">⚖️ BAIL: Plant ${escHtml(String(treeBail))} tree${treeBail !== 1 ? 's' : ''} or delete your ChatGPT account.</div>
+        <div class="wanted-global">If all 500M AI users matched this profile: ${escHtml(globalT)} tonnes CO\u2082/week — equiv. ${escHtml(globalCars)} cars driven.</div>
       </div>`;
   }
 
@@ -2056,6 +2055,7 @@
     updateAcceleratorUI();
     checkAcceleratorAchievements();
     updateChallengeProgress();
+    updateVillainLeaderboard();
   }
 
   // ---- Challenge progress ----------------------------------
@@ -2299,6 +2299,7 @@
         valueEl.className = 'new-record';
         setTimeout(() => { valueEl.className = ''; }, 2000);
       }
+      updateVillainLeaderboard();
     } else {
       const valueEl = document.getElementById('bestScoreValue');
       if (valueEl && valueEl.textContent === '\u2014') {
@@ -2558,6 +2559,7 @@
           renderAgentShop();
           updateCompanyStage();
           updateAcceleratorUI();
+          updateVillainLeaderboard();
           // Show best score from storage
           const valueEl = document.getElementById('bestScoreValue');
           if (valueEl) {
@@ -2738,6 +2740,423 @@
   }
 
   // ============================================================
+  // SCARY & SATIRICAL FEATURES — PRDs 1–7
+  // ============================================================
+
+  // ── PRD 1: Doomsday Clock ────────────────────────────────────
+
+  const shownEmergencyBroadcasts = new Set();
+
+  function updateDoomsdayClock(tokens) {
+    const firstThreshold = MILESTONES.length ? MILESTONES[0].tokens : 1e15;
+    const lastThreshold  = MILESTONES.length ? MILESTONES[MILESTONES.length - 1].tokens : 1e18;
+    const doomPercent = Math.min(1, Math.max(0,
+      (tokens - firstThreshold) / (lastThreshold - firstThreshold)
+    ));
+
+    // Rotate minute hand from 330° (11 o'clock, 5 min before midnight) to 360°/0° (midnight)
+    const angle = 330 + doomPercent * 30;
+    const hand = document.getElementById('doomMinHand');
+    if (hand) hand.setAttribute('transform', `rotate(${angle}, 50, 50)`);
+
+    // Text display
+    const minsLeft = Math.max(0, (1 - doomPercent) * 5);
+    const timeEl = document.getElementById('doomTimeText');
+    if (timeEl) {
+      if (minsLeft < 0.05) {
+        timeEl.textContent = '☠️ MIDNIGHT';
+      } else {
+        timeEl.textContent = minsLeft.toFixed(1) + ' MIN TO MIDNIGHT';
+      }
+    }
+
+    // Percentage text
+    const pctEl = document.getElementById('doomTokenPct');
+    if (pctEl) pctEl.textContent = (doomPercent * 100).toFixed(1) + '%';
+
+    // Progress bar
+    const barFill = document.getElementById('doomBarFill');
+    if (barFill) barFill.style.width = (doomPercent * 100).toFixed(2) + '%';
+  }
+
+  function showEmergencyBroadcast(milestone) {
+    const el = document.getElementById('emergency-broadcast');
+    const msgEl = document.getElementById('ebMsg');
+    if (!el || !msgEl) return;
+
+    msgEl.textContent =
+      '\u26A0\uFE0F AI just crossed the \u201C' + milestone.name + '\u201D threshold \u2014 ' +
+      milestone.shortDesc + '.';
+
+    el.hidden = false;
+    // Auto-dismiss after 4 seconds
+    setTimeout(() => { el.hidden = true; }, 4000);
+  }
+
+  function initDoomsdayClock() {
+    // Called once; updateDoomsdayClock() is called from updateCounters() each RAF frame
+    updateDoomsdayClock(getCurrentTokens());
+  }
+
+  // ── PRD 2: Apology Generator ─────────────────────────────────
+
+  const APOLOGY_STATEMENTS = [
+    'We deeply regret that in the time it took you to read this sentence, AI emitted 47 kg of CO\u2082. We remain committed to sustainability. Here is our 200-slide deck.',
+    'We have engaged a third-party auditor to assess the environmental impact of generating the report about our environmental impact.',
+    'Reducing our carbon footprint is a core strategic priority. We are on track to be net-zero by 2050, pending board approval and the invention of cold fusion.',
+    'We acknowledge that AI training requires significant computational resources. We are actively exploring the use of AI to identify ways to use less AI.',
+    'Following careful review, we have determined that the environmental cost of our sustainability report exceeded the impact of the initiatives it described. We are preparing a report on this finding.',
+    'Our models are trained on green energy\u2014 sourced from the grid, which is mostly green, in the regions where it isn\u2019t mostly coal.',
+    'We are proud to announce our \u201CTokens for Trees\u201D programme, in which we plant one sapling for every 10 billion tokens generated. The trees will mature by 2091.',
+    'We take the climate crisis extremely seriously. That is why we have hired an AI to draft our climate commitments.',
+    'In response to concerns about data centre water usage, we have begun cooling servers with water sourced from drought-resistant regions. These regions have since requested that we stop.',
+    'We have reduced our per-token carbon footprint by 0.0003% year-on-year, which the UN has described as \u201Ctechnically measurable.\u201D',
+    'Our latest sustainability framework represents a 47-page commitment to a future in which AI and the planet coexist. It was generated by an AI in 11 seconds.',
+    'We appreciate your concern about AI\u2019s environmental impact. Please refer to our FAQ, which was produced using GPT-4 and is 14,000 words long.',
+    'Rest assured: for every GPU we add, we plant a potted succulent in our San Francisco headquarters. The lobby is thriving.',
+    'We are proud to say that our data centres run 24 hours a day, 7 days a week, 365 days a year, regardless of whether there is renewable energy available.',
+    'We have commissioned independent research into the environmental cost of commissioning independent research into our environmental cost. Results pending.',
+    'Our carbon offset programme involves investing in future carbon capture technology that does not yet exist, at a date to be determined.',
+    'We remain committed to reducing emissions intensity per unit of compute, which is a different metric from total emissions, and the one we choose to report.',
+    'We are thrilled to share that this apology consumed approximately 800 tokens to generate. We regret nothing.',
+    'After extensive consultation, we have concluded that the most sustainable action is to continue exactly as we are while commissioning further consultations.',
+    'Thank you for your feedback. It has been logged, summarised by an AI, and forwarded to a committee that meets quarterly.',
+  ];
+
+  let apologyIdx  = 0;
+  let apologyText = '';
+
+  function updateApology() {
+    apologyIdx = (apologyIdx + 1) % APOLOGY_STATEMENTS.length;
+    apologyText = APOLOGY_STATEMENTS[apologyIdx];
+    const el = document.getElementById('apologyQuote');
+    if (el) {
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.textContent = apologyText;
+        el.style.opacity = '1';
+      }, 300);
+    }
+  }
+
+  function initApologies() {
+    apologyIdx = Math.floor(Math.random() * APOLOGY_STATEMENTS.length);
+    apologyText = APOLOGY_STATEMENTS[apologyIdx];
+    const el = document.getElementById('apologyQuote');
+    if (el) el.textContent = apologyText;
+
+    setInterval(updateApology, 30000);
+
+    const copyBtn = document.getElementById('apologyCopyBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const text = apologyText + '\n— The AI Industry, collectively\n\n\u2192 ' + SITE_URL;
+        copyToClipboard(copyBtn, text, '\uD83D\uDCCB Copy &amp; Send to Your AI Vendor');
+      });
+    }
+
+    const nextBtn = document.getElementById('apologyNextBtn');
+    if (nextBtn) nextBtn.addEventListener('click', updateApology);
+  }
+
+  // ── PRD 3: Wanted Poster (modifies updateCalcResults) ────────
+  // Overrides the output of the calculator section — handled in-place below.
+
+  // ── PRD 4: Your Tab (Running) strip ──────────────────────────
+
+  function updateSessionTabStrip() {
+    const now     = Date.now();
+    const elapsed = Math.max(1, (now - pageLoadTime) / 1000);
+    const rate    = getRateAtDate(new Date(now));
+    const tokens  = elapsed * rate;
+    const impact  = calculateEnvironmentalImpact(tokens);
+
+    // Cups of coffee (200 mL per cup, water use)
+    const coffees = Math.max(0, impact.waterL / 0.2);
+    // Trees needed for a year
+    const trees = Math.max(0, impact.treesEquivalent);
+    // Smartphone charges (0.015 kWh per charge)
+    const charges = Math.max(0, impact.kWh / 0.015);
+    // Metres driven (171 g CO2/km = 0.000171 kg/m)
+    const metres = Math.max(0, impact.co2Kg / 0.000171);
+
+    function fmtSmall(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      if (n >= 10)  return Math.round(n).toLocaleString();
+      if (n >= 1)   return n.toFixed(1);
+      if (n >= 0.01) return n.toFixed(3);
+      return '< 0.01';
+    }
+
+    const waterEl   = document.getElementById('stiWater');
+    const treesEl   = document.getElementById('stiTrees');
+    const chargeEl  = document.getElementById('stiCharges');
+    const metresEl  = document.getElementById('stiMetres');
+
+    if (waterEl)  waterEl.textContent  = fmtSmall(coffees);
+    if (treesEl)  treesEl.textContent  = fmtSmall(trees);
+    if (chargeEl) chargeEl.textContent = fmtSmall(charges);
+    if (metresEl) metresEl.textContent = fmtSmall(metres);
+  }
+
+  function initSessionTabStrip() {
+    updateSessionTabStrip();
+    setInterval(updateSessionTabStrip, 1000);
+  }
+
+  // ── PRD 5: Prompt Hall of Shame ──────────────────────────────
+
+  const SHAME_PROMPTS = [
+    { tokens: 3500, icon: '🌍', text: 'Write me a 5,000-word essay about why AI is bad for the environment' },
+    { tokens: 200,  icon: '✉️', text: 'Rewrite this 3-word email in a professional tone' },
+    { tokens: 1500, icon: '📊', text: 'Generate 40 variations of the word "synergy" for my deck' },
+    { tokens: 800,  icon: '🔗', text: 'Explain blockchain to my mum (14th attempt)' },
+    { tokens: 2500, icon: '♻️', text: 'Help me write a sustainability report for our AI company' },
+    { tokens: 300,  icon: '💼', text: 'Make this 4-word subject line more "impactful"' },
+    { tokens: 1200, icon: '📱', text: 'Turn my grocery list into a LinkedIn thought leadership post' },
+    { tokens: 600,  icon: '😤', text: 'Write a passive-aggressive "thanks for your feedback" reply' },
+    { tokens: 3000, icon: '📄', text: 'Summarise this 2-page document I have not read' },
+    { tokens: 400,  icon: '🐔', text: 'Explain the philosophical implications of a chicken crossing a road' },
+    { tokens: 250,  icon: '🌮', text: 'Is a hot dog a sandwich? 2,000 words. Both sides.' },
+    { tokens: 100,  icon: '🦀', text: 'Hello world in Rust (variation #47)' },
+    { tokens: 700,  icon: '😺', text: 'Describe this cat picture in 600 words' },
+    { tokens: 900,  icon: '🧘', text: 'Motivational speech about the importance of not using AI so much' },
+    { tokens: 1800, icon: '📜', text: 'Generate terms of service for my AI startup (that no one will read)' },
+    { tokens: 450,  icon: '🌅', text: 'Write a haiku about productivity, but make it really long' },
+    { tokens: 1100, icon: '🤖', text: 'Ask the AI if it is conscious (session 1 of 200)' },
+    { tokens: 650,  icon: '🍕', text: 'Add cheese to this recipe that should not have cheese' },
+    { tokens: 2200, icon: '💰', text: 'Explain why my AI startup is worth $2 billion' },
+    { tokens: 380,  icon: '📣', text: 'Rewrite this tweet so it sounds spontaneous' },
+  ];
+
+  let shameAutoIdx = 0;
+
+  function shameEnergyCost(tokens) {
+    const kWh  = (tokens / 1000) * 0.0003;
+    const co2g = (kWh * 0.4 * 1000).toFixed(1);
+    return '~' + (kWh < 0.001 ? kWh.toFixed(5) : kWh.toFixed(4)) + ' kWh \u2022 ' + co2g + ' g CO\u2082';
+  }
+
+  function appendShameEntry(promptObj, isUserSubmitted) {
+    const feed = document.getElementById('shameFeed');
+    if (!feed) return;
+
+    const entry = document.createElement('div');
+    entry.className = 'shame-entry' + (isUserSubmitted ? ' user-submitted' : '');
+
+    const icon = document.createElement('span');
+    icon.className = 'shame-entry-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = isUserSubmitted ? '👤' : promptObj.icon;
+
+    const content = document.createElement('div');
+    content.className = 'shame-entry-content';
+
+    const textSpan = document.createElement('div');
+    textSpan.className = 'shame-entry-text';
+    textSpan.textContent = '\u201C' + promptObj.text + '\u201D';
+
+    const costSpan = document.createElement('div');
+    costSpan.className = 'shame-entry-cost';
+    costSpan.textContent = shameEnergyCost(promptObj.tokens);
+
+    content.appendChild(textSpan);
+    content.appendChild(costSpan);
+
+    if (isUserSubmitted) {
+      const tag = document.createElement('div');
+      tag.className = 'shame-entry-user-tag';
+      tag.textContent = '\u2B06 Submitted by you';
+      content.appendChild(tag);
+    }
+
+    entry.appendChild(icon);
+    entry.appendChild(content);
+
+    // Prepend (newest at top)
+    feed.insertBefore(entry, feed.firstChild);
+
+    // Cap at 15 entries
+    while (feed.children.length > 15) {
+      feed.removeChild(feed.lastChild);
+    }
+  }
+
+  function initShame() {
+    // Seed with 5 initial entries
+    const seed = [...SHAME_PROMPTS].sort(() => 0.5 - Math.random()).slice(0, 5);
+    seed.forEach((p) => appendShameEntry(p, false));
+
+    // Auto-add a new one every 7 seconds
+    setInterval(() => {
+      shameAutoIdx = (shameAutoIdx + 1) % SHAME_PROMPTS.length;
+      appendShameEntry(SHAME_PROMPTS[shameAutoIdx], false);
+    }, 7000);
+
+    // Submit button
+    const submitBtn = document.getElementById('shameSubmitBtn');
+    const input     = document.getElementById('shameInput');
+    if (submitBtn && input) {
+      function doSubmit() {
+        const raw = input.value.trim();
+        if (!raw) return;
+        // Sanitise user input and map to a fake-prompt object using a random canned cost
+        const randomTokens = 200 + Math.floor(Math.random() * 3000);
+        const userPrompt = { tokens: randomTokens, icon: '👤', text: escHtml(raw) };
+        // Use the sanitised text directly (no innerHTML)
+        userPrompt.text = raw; // textContent assignment handles escaping
+        appendShameEntry(userPrompt, true);
+        input.value = '';
+        awardBadge('spreading_doom');
+      }
+      submitBtn.addEventListener('click', doSubmit);
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSubmit(); });
+    }
+  }
+
+  // ── PRD 6: Villain Arc Leaderboard ───────────────────────────
+
+  const VILLAIN_FAKE_LEADERBOARD = [
+    { name: 'Elon M.',   dp: 847_293_847, note: 'Inference is just efficiency' },
+    { name: 'Sam A.',    dp: 294_847_203, note: 'Negligible at scale' },
+    { name: 'Jensen H.', dp: 184_293_840, note: 'GPU go brrr' },
+    { name: 'Marc B.',   dp:  93_847_203, note: 'The metaverse needed training data' },
+    { name: 'Sundar P.', dp:  48_293_040, note: 'AI for good (primarily)' },
+  ];
+
+  const VILLAIN_RANK_TITLES = [
+    { min: 0,         title: 'Innocent Bystander' },
+    { min: 10,        title: 'Accidental Accomplice' },
+    { min: 100,       title: 'Carbon Enabler' },
+    { min: 1_000,     title: 'Climate Criminal' },
+    { min: 10_000,    title: 'Carbon Baron' },
+    { min: 100_000,   title: 'The Accelerationist' },
+    { min: 1_000_000, title: 'Extinction Level Event' },
+  ];
+
+  let villainCongratsShown = false;
+
+  function getVillainRankTitle(dp) {
+    let title = VILLAIN_RANK_TITLES[0].title;
+    for (const tier of VILLAIN_RANK_TITLES) {
+      if (dp >= tier.min) title = tier.title;
+    }
+    return title;
+  }
+
+  function updateVillainLeaderboard() {
+    const userDp    = acc.doomPoints;
+    const userBest  = acc.bestScore > 0 ? acc.bestScore * (1 / 1_000_000) : 0;
+    const userTitle = getVillainRankTitle(userDp);
+
+    // Update rank banner
+    const rankTitleEl = document.getElementById('villainRankTitle');
+    const rankScoreEl = document.getElementById('villainRankScore');
+    if (rankTitleEl) rankTitleEl.textContent = userTitle;
+    if (rankScoreEl) rankScoreEl.textContent = formatDoomPoints(userDp) + ' this session';
+
+    // Build leaderboard rows (insert user at correct position)
+    const tbody = document.getElementById('villainTableBody');
+    if (!tbody) return;
+
+    const entries = [
+      ...VILLAIN_FAKE_LEADERBOARD.map((e) => ({ ...e, isUser: false })),
+      { name: 'You', dp: userDp, note: userTitle, isUser: true },
+    ].sort((a, b) => b.dp - a.dp);
+
+    tbody.innerHTML = '';
+    entries.forEach((entry, idx) => {
+      const tr = document.createElement('tr');
+      if (entry.isUser) tr.className = 'villain-row-you';
+      tr.innerHTML =
+        '<td class="villain-pos">' + (idx + 1) + '</td>' +
+        '<td class="villain-name">' + escHtml(entry.name) + (entry.isUser ? ' 👈' : '') + '</td>' +
+        '<td class="villain-score">' + (entry.dp >= 1_000_000
+          ? (entry.dp / 1_000_000).toFixed(1) + 'M DP'
+          : entry.dp >= 1000
+          ? (entry.dp / 1000).toFixed(1) + 'K DP'
+          : Math.round(entry.dp) + ' DP') + '</td>' +
+        '<td class="villain-rank-cell">' + escHtml(entry.note) + '</td>';
+      tbody.appendChild(tr);
+    });
+
+    // Congratulations if user has broken into the top position ahead of a fake entry
+    if (!villainCongratsShown && userDp > VILLAIN_FAKE_LEADERBOARD[4].dp) {
+      villainCongratsShown = true;
+      const congrats = document.getElementById('villainCongrats');
+      if (congrats) {
+        congrats.hidden = false;
+        setTimeout(() => { congrats.hidden = true; }, 5000);
+      }
+    }
+  }
+
+  function initVillainLeaderboard() {
+    updateVillainLeaderboard();
+  }
+
+  // ── PRD 7: The Intervention ───────────────────────────────────
+
+  let interventionFired = false;
+
+  function showIntervention() {
+    if (interventionFired) return;
+    if (sessionStorage.getItem('interventionSeen')) return;
+    interventionFired = true;
+
+    const modal = document.getElementById('intervention-modal');
+    if (!modal) return;
+
+    const elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+    const rate    = getRateAtDate(new Date());
+    const sessionTokens = Math.max(1, elapsed * rate);
+    const impact  = calculateEnvironmentalImpact(sessionTokens);
+    const co2g    = (impact.co2Kg * 1000).toFixed(1);
+
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    const timeStr = m > 0 ? `${m} min ${s} sec` : `${s} seconds`;
+
+    const msgEl = document.getElementById('intervention-msg');
+    if (msgEl) {
+      msgEl.textContent =
+        `You\u2019ve been here for ${timeStr}. In that time, AI emitted ` +
+        `${co2g}\u202Fg of CO\u2082 globally. Just so you know.`;
+    }
+
+    modal.hidden = false;
+    const stayBtn = document.getElementById('intervention-stay');
+    if (stayBtn) stayBtn.focus();
+
+    stayBtn && stayBtn.addEventListener('click', () => { modal.hidden = true; });
+
+    const leaveBtn = document.getElementById('intervention-leave');
+    if (leaveBtn) {
+      leaveBtn.addEventListener('click', () => {
+        sessionStorage.setItem('interventionSeen', '1');
+        modal.hidden = true;
+      });
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        sessionStorage.setItem('interventionSeen', '1');
+        modal.hidden = true;
+      }
+    });
+  }
+
+  function initIntervention() {
+    if (sessionStorage.getItem('interventionSeen')) return;
+    document.addEventListener('mouseleave', (e) => {
+      if (e.clientY <= 0 && !interventionFired) {
+        showIntervention();
+      }
+    });
+  }
+
+  // ============================================================
   // FEATURE: "Wait for It" — Milestone Countdown Alert
   // ============================================================
 
@@ -2890,6 +3309,13 @@
     // Engagement features
     initPresenceStrip();
     initEventLog();
+    // Scary & satirical features (PRDs 1–7)
+    initDoomsdayClock();
+    initSessionTabStrip();
+    initApologies();
+    initShame();
+    initVillainLeaderboard();
+    initIntervention();
 
     // Kick off the live counter RAF loop
     requestAnimationFrame(updateCounters);
