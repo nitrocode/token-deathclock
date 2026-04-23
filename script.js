@@ -1106,6 +1106,7 @@
   // ============================================================
 
   const SITE_URL = 'https://nitrocode.github.io/token-deathclock/';
+  const SHARE_PANEL_DELAY_MS = 10_000; // Show floating share panel after 10 s of page time
 
   // ---- "AI Is Currently Generating…" Ticker ------------------
 
@@ -1307,8 +1308,10 @@
   }
 
   function openLinkedInShare(text) {
-    const url = 'https://www.linkedin.com/sharing/share-offsite/?url=' +
-      encodeURIComponent(SITE_URL) + '&summary=' + encodeURIComponent(text);
+    const url = 'https://www.linkedin.com/shareArticle?mini=true&url=' +
+      encodeURIComponent(SITE_URL) + '&title=' +
+      encodeURIComponent('Token Deathclock — AI\'s Environmental Cost, Live') +
+      '&summary=' + encodeURIComponent(text);
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
@@ -1328,7 +1331,7 @@
     if (!panel) return;
 
     // Show floating panel after 10 s of page time
-    setTimeout(() => { panel.hidden = false; }, 10_000);
+    setTimeout(() => { panel.hidden = false; }, SHARE_PANEL_DELAY_MS);
 
     // Support ?share=true URL param — auto-open options immediately
     if (new URLSearchParams(window.location.search).get('share') === 'true') {
@@ -1393,6 +1396,12 @@
     const copyBtn = document.getElementById('shareCopyBtn');
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
+        if (!navigator.clipboard) {
+          copyBtn.textContent = '❌ Not supported';
+          setTimeout(() => { copyBtn.textContent = '📋 Copy text'; }, 2000);
+          if (options) options.hidden = true;
+          return;
+        }
         navigator.clipboard.writeText(buildShareText()).then(() => {
           copyBtn.textContent = '✅ Copied!';
           setTimeout(() => { copyBtn.textContent = '📋 Copy text'; }, 2000);
@@ -1431,6 +1440,11 @@
       { id: 'footerShareWhatsApp', fn: () => openWhatsAppShare(shareText()) },
       { id: 'footerShareBluesky',  fn: () => openBlueskyShare(shareText()) },
       { id: 'footerShareCopy',     fn: (btn) => {
+        if (!navigator.clipboard) {
+          btn.textContent = '❌ Not supported';
+          setTimeout(() => { btn.textContent = '📋 Copy link'; }, 2000);
+          return;
+        }
         navigator.clipboard.writeText(SITE_URL).then(() => {
           btn.textContent = '✅ Copied!';
           setTimeout(() => { btn.textContent = '📋 Copy link'; }, 2000);
