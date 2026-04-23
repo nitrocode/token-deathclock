@@ -6,8 +6,8 @@
   <title>Token Deathclock — Live AI Token Counter</title>
   <meta name="robots" content="noindex" />
 
-  <!-- Chart.js required by death-clock-core.js runtime (unused here, but harmless) -->
-  <!-- We don't need Chart.js for the widget — just the core counter logic -->
+  <!-- death-clock-core.js relies on DeathClockCore being exposed globally;
+       it has no dependency on Chart.js. The widget does not load Chart.js. -->
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />

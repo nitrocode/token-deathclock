@@ -1106,7 +1106,7 @@
   // ============================================================
 
   const SITE_URL = 'https://nitrocode.github.io/token-deathclock/';
-  const SHARE_PANEL_DELAY_MS = 10_000; // Show floating share panel after 10 s of page time
+  const SHARE_PANEL_DELAY_MS = 10_000; // 10 000 ms — delay before showing floating share panel
 
   // ---- "AI Is Currently Generating…" Ticker ------------------
 
@@ -1325,6 +1325,22 @@
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
+  // Copies `value` to clipboard; updates `btn` text to give feedback.
+  function copyToClipboard(btn, value, resetLabel) {
+    if (!navigator.clipboard) {
+      btn.textContent = '❌ Not supported';
+      setTimeout(() => { btn.textContent = resetLabel; }, 2000);
+      return;
+    }
+    navigator.clipboard.writeText(value).then(() => {
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => { btn.textContent = resetLabel; }, 2000);
+    }).catch(() => {
+      btn.textContent = '❌ Failed';
+      setTimeout(() => { btn.textContent = resetLabel; }, 2000);
+    });
+  }
+
   function initSharePanel() {
     const panel   = document.getElementById('share-doom-panel');
     const options = document.getElementById('share-doom-options');
@@ -1396,19 +1412,7 @@
     const copyBtn = document.getElementById('shareCopyBtn');
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
-        if (!navigator.clipboard) {
-          copyBtn.textContent = '❌ Not supported';
-          setTimeout(() => { copyBtn.textContent = '📋 Copy text'; }, 2000);
-          if (options) options.hidden = true;
-          return;
-        }
-        navigator.clipboard.writeText(buildShareText()).then(() => {
-          copyBtn.textContent = '✅ Copied!';
-          setTimeout(() => { copyBtn.textContent = '📋 Copy text'; }, 2000);
-        }).catch(() => {
-          copyBtn.textContent = '❌ Failed';
-          setTimeout(() => { copyBtn.textContent = '📋 Copy text'; }, 2000);
-        });
+        copyToClipboard(copyBtn, buildShareText(), '📋 Copy text');
         awardBadge('spreading_doom');
         if (options) options.hidden = true;
       });
@@ -1439,20 +1443,7 @@
       { id: 'footerShareLinkedIn', fn: () => openLinkedInShare(shareText()) },
       { id: 'footerShareWhatsApp', fn: () => openWhatsAppShare(shareText()) },
       { id: 'footerShareBluesky',  fn: () => openBlueskyShare(shareText()) },
-      { id: 'footerShareCopy',     fn: (btn) => {
-        if (!navigator.clipboard) {
-          btn.textContent = '❌ Not supported';
-          setTimeout(() => { btn.textContent = '📋 Copy link'; }, 2000);
-          return;
-        }
-        navigator.clipboard.writeText(SITE_URL).then(() => {
-          btn.textContent = '✅ Copied!';
-          setTimeout(() => { btn.textContent = '📋 Copy link'; }, 2000);
-        }).catch(() => {
-          btn.textContent = '❌ Failed';
-          setTimeout(() => { btn.textContent = '📋 Copy link'; }, 2000);
-        });
-      }},
+      { id: 'footerShareCopy',     fn: (btn) => copyToClipboard(btn, SITE_URL, '📋 Copy link') },
     ];
 
     map.forEach(({ id, fn }) => {
