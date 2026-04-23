@@ -394,7 +394,9 @@
   }
 
   // ---- Life Blocks ----------------------------------------
-  const LB_LAST_MILESTONE = MILESTONES[MILESTONES.length - 1];
+  // Use the milestone tagged extinctionMarker:true as the life-blocks countdown target.
+  // Falls back to the last milestone only if no marker is found (defensive guard).
+  const LB_LAST_MILESTONE = MILESTONES.find(m => m.extinctionMarker) || MILESTONES[MILESTONES.length - 1];
 
   // Drill-down state
   const lb = {

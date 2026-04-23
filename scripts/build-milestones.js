@@ -89,6 +89,9 @@ function renderMilestone(m) {
   if (m.reference) {
     lines.push(`    reference: ${jsString(m.reference)},`);
   }
+  if (m.extinctionMarker) {
+    lines.push(`    extinctionMarker: true,`);
+  }
   lines.push('  }');
   return lines.join('\n');
 }
