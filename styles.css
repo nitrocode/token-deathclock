@@ -2491,3 +2491,279 @@ footer strong { color: var(--accent-2); }
   .worker-card,
   .agent-card { transition: none; animation: none; }
 }
+
+/* =============================================================
+   ENGAGEMENT FEATURES — Phase 2
+   Social Ripple · Witness History Log · Milestone Alert
+   ============================================================= */
+
+/* ---- Social Ripple / Presence Strip ---- */
+
+.presence-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.6rem 1rem;
+  margin-top: 1.25rem;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.presence-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-3);
+  flex-shrink: 0;
+  animation: presence-pulse 2s ease-in-out infinite;
+}
+
+@keyframes presence-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1);   }
+  50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+.presence-count {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--accent-3);
+}
+
+.presence-label {
+  color: var(--text-dim);
+}
+
+.presence-reaction {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  transition: opacity 0.5s ease;
+  flex-basis: 100%;
+  padding-left: 1.1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .presence-dot { animation: none; }
+  .presence-reaction { transition: none; }
+}
+
+/* ---- Witness History Log ---- */
+
+#event-log-section { background: var(--bg-alt); }
+
+.event-log {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  max-height: 280px;
+  overflow-y: auto;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-size: 0.75rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+  scroll-behavior: smooth;
+}
+
+.event-log:empty::before {
+  content: 'Waiting for first entry…';
+  display: block;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.event-log-entry {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.18rem 0;
+  border-bottom: 1px solid var(--border);
+  animation: log-entry-in 0.3s ease-out;
+}
+
+.event-log-entry:last-child { border-bottom: none; }
+
+@keyframes log-entry-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.log-time {
+  color: var(--accent-3);
+  flex-shrink: 0;
+  min-width: 5.5rem;
+}
+
+.log-icon {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.log-text { color: var(--text); flex: 1; min-width: 0; }
+
+.event-log-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .event-log-entry { animation: none; }
+  .event-log { scroll-behavior: auto; }
+}
+
+/* ---- Milestone Countdown Alert Banner ---- */
+
+.milestone-alert-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1800;
+  background: linear-gradient(135deg, #2a0505, #1a0000);
+  border-bottom: 2px solid var(--accent);
+  padding: 0.55rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+  color: var(--text);
+  box-shadow: 0 2px 24px rgba(255, 51, 51, 0.4);
+  animation: alert-slide-down 0.35s ease-out;
+}
+
+:root[data-theme="light"] .milestone-alert-banner {
+  background: linear-gradient(135deg, #5a0000, #3a0000);
+}
+
+@keyframes alert-slide-down {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+
+.milestone-alert-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.milestone-alert-msg {
+  font-size: 0.85rem;
+  color: #ffcccc;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.milestone-alert-countdown {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--accent);
+  min-width: 3.5rem;
+  text-align: right;
+  animation: countdown-tick 1s ease-in-out infinite alternate;
+}
+
+@keyframes countdown-tick {
+  from { text-shadow: 0 0 8px  var(--accent-glow); }
+  to   { text-shadow: 0 0 22px var(--accent-glow); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .milestone-alert-banner { animation: none; }
+  .milestone-alert-countdown { animation: none; }
+}
+
+/* ---- Milestone Crossing Flash Overlay ---- */
+
+.milestone-flash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(255, 20, 20, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: milestone-bg-flash 1.4s ease-out forwards;
+}
+
+@keyframes milestone-bg-flash {
+  0%   { background: rgba(255, 51, 51, 0.32); }
+  35%  { background: rgba(255, 51, 51, 0.18); }
+  100% { background: rgba(255, 51, 51, 0.08); }
+}
+
+.milestone-flash-content {
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 1rem;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+  box-shadow:
+    0 0 60px var(--accent-glow),
+    0 20px 60px rgba(0, 0, 0, 0.65);
+  animation: flash-card-in 0.3s ease-out;
+}
+
+@keyframes flash-card-in {
+  from { transform: scale(0.82); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.milestone-flash-icon {
+  font-size: 4rem;
+  line-height: 1;
+  margin-bottom: 0.6rem;
+}
+
+.milestone-flash-name {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1rem, 3vw, 1.55rem);
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.6rem;
+}
+
+.milestone-flash-desc {
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+}
+
+.milestone-flash-close {
+  background: var(--accent);
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.55rem 1.5rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+
+.milestone-flash-close:hover { background: #cc0000; }
+
+@media (max-width: 600px) {
+  .milestone-flash-content { padding: 1.5rem 1.25rem; }
+  .milestone-alert-msg { font-size: 0.78rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .milestone-flash-overlay { animation: none; background: rgba(255, 51, 51, 0.1); }
+  .milestone-flash-content { animation: none; }
+}
