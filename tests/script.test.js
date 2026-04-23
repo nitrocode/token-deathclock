@@ -35,6 +35,8 @@ const MIN_HTML = `
   <div id="lb-info"></div>
   <div id="lb-container"></div>
   <div id="tipsGrid"></div>
+  <div id="changelogList"></div>
+  <span id="siteVersion"></span>
 `;
 
 function makeChartMock() {
@@ -56,6 +58,29 @@ let updateCountersFn = null;
 
 function loadScript() {
   global.DeathClockCore = coreModule;
+  global.ChangelogData = {
+    SITE_VERSION: '1.2.3',
+    CHANGELOG_RELEASES: [
+      {
+        version: 'Unreleased',
+        date: null,
+        sections: [{ heading: 'Added', items: ['New unreleased feature'] }],
+      },
+      {
+        version: '1.2.3',
+        date: '2025-06-01',
+        sections: [
+          { heading: 'Added',   items: ['Cool new thing'] },
+          { heading: 'Fixed',   items: ['Broken thing fixed'] },
+        ],
+      },
+      {
+        version: '1.0.0',
+        date: '2025-04-14',
+        sections: [{ heading: 'Added', items: ['Initial release'] }],
+      },
+    ],
+  };
   global.Chart = makeChartMock();
   global.requestAnimationFrame = jest.fn();
   // eval() is intentional here: script.js is a browser IIFE that references `window`
@@ -87,6 +112,7 @@ function runUpdateCounters() {
 
 beforeEach(() => {
   updateCountersFn = null;
+  localStorage.clear();
   document.body.innerHTML = MIN_HTML;
   jest.clearAllMocks();
   loadScript();
@@ -280,5 +306,78 @@ describe('renderTips (DOM)', () => {
     coreModule.TOKEN_TIPS.forEach((tip) => {
       expect(grid.innerHTML).toContain(tip.title);
     });
+  });
+});
+
+// ============================================================
+// renderChangelog (DOM)
+// ============================================================
+describe('renderChangelog (DOM)', () => {
+  test('changelogList is populated after init', () => {
+    const list = document.getElementById('changelogList');
+    expect(list).not.toBeNull();
+    expect(list.innerHTML.trim()).not.toBe('');
+  });
+
+  test('creates one release block per entry in CHANGELOG_RELEASES', () => {
+    const list = document.getElementById('changelogList');
+    const releases = list.querySelectorAll('.changelog-release');
+    expect(releases.length).toBe(global.ChangelogData.CHANGELOG_RELEASES.length);
+  });
+
+  test('unreleased block has the --unreleased modifier class', () => {
+    const list = document.getElementById('changelogList');
+    const unreleased = list.querySelector('.changelog-release--unreleased');
+    expect(unreleased).not.toBeNull();
+  });
+
+  test('release versions appear in the rendered output', () => {
+    const html = document.getElementById('changelogList').innerHTML;
+    expect(html).toContain('v1.2.3');
+    expect(html).toContain('v1.0.0');
+  });
+
+  test('section headings are rendered', () => {
+    const html = document.getElementById('changelogList').innerHTML;
+    expect(html).toContain('Added');
+    expect(html).toContain('Fixed');
+  });
+
+  test('changelog items are rendered', () => {
+    const html = document.getElementById('changelogList').innerHTML;
+    expect(html).toContain('Cool new thing');
+    expect(html).toContain('Broken thing fixed');
+    expect(html).toContain('Initial release');
+  });
+
+  test('release date is shown for versioned releases', () => {
+    const html = document.getElementById('changelogList').innerHTML;
+    expect(html).toContain('2025-06-01');
+    expect(html).toContain('2025-04-14');
+  });
+
+  test('version badge in footer is updated from SITE_VERSION', () => {
+    const el = document.getElementById('siteVersion');
+    expect(el).not.toBeNull();
+    expect(el.textContent).toBe('v1.2.3');
+  });
+
+  test('changelog HTML does not contain unescaped script tags', () => {
+    expect(document.getElementById('changelogList').innerHTML).not.toContain('<script>');
+  });
+
+  test('renders gracefully when ChangelogData is absent', () => {
+    document.body.innerHTML = MIN_HTML;
+    delete global.ChangelogData;
+    global.requestAnimationFrame = jest.fn();
+    // eslint-disable-next-line no-eval
+    expect(() => eval(scriptCode)).not.toThrow();
+    const list = document.getElementById('changelogList');
+    expect(list.innerHTML).toContain('No changelog entries found');
+    // Restore for subsequent tests
+    global.ChangelogData = {
+      SITE_VERSION: '1.2.3',
+      CHANGELOG_RELEASES: [],
+    };
   });
 });
