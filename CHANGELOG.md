@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.2.0...ai-death-clock-v1.3.0) (2026-04-23)
+
+
+### Added
+
+* add extinctionMarker uniqueness validation in build-milestones.js and unit test ([#50](https://github.com/nitrocode/token-deathclock/issues/50)) ([ffdd684](https://github.com/nitrocode/token-deathclock/commit/ffdd68407739b052e09630030278dfbbe24d8d3f))
+
 ## [1.2.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.1.0...ai-death-clock-v1.2.0) (2026-04-23)
 
 
