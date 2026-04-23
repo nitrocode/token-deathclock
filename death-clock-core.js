@@ -746,6 +746,7 @@ const DeathClockCore = {
   getSimulatedViewerCount,
 };
 
+/* istanbul ignore else */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = DeathClockCore;
 } else if (typeof window !== 'undefined') {
