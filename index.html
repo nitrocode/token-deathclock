@@ -618,6 +618,293 @@
     </div>
   </section>
 
+  <!-- ── FAQ ────────────────────────────────────────────── -->
+  <section class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Plain-Language Guide</p>
+      <h2>Frequently Asked Questions</h2>
+      <p class="about-lead">
+        Not a tech expert? No problem. Here are plain-language answers to the
+        most common questions about AI, tokens, and why any of this matters.
+      </p>
+
+      <div class="faq-list">
+
+        <!-- Q1 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🤖</span>
+            What is AI?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <strong>AI (Artificial Intelligence)</strong> is software that can do tasks we used
+              to think only humans could do — like writing text, answering questions, translating
+              languages, recognising photos, or generating images.
+            </p>
+            <p>
+              Modern AI systems (such as ChatGPT, Google Gemini, or Claude) are powered by
+              <em>large language models</em> (LLMs) — giant programs trained on billions of web
+              pages, books, and articles so they can predict what words should come next in a
+              sentence.
+            </p>
+            <div class="faq-example">
+              💡 Think of it like autocomplete on your phone — except it's been trained on almost
+              everything ever written, so it can complete entire essays, code files, or conversations.
+            </div>
+          </div>
+        </details>
+
+        <!-- Q2 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🔤</span>
+            What is a "token"?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              AI models don't read words — they read <strong>tokens</strong>. A token is a small
+              chunk of text, roughly 3–4 characters on average. Common short words like
+              "the" or "is" are a single token each. Longer words get split into several tokens.
+            </p>
+            <!-- Token count examples based on GPT-4 / cl100k_base tokenizer -->
+            <div class="faq-example">
+              💡 The sentence <em>"Hello, world!"</em> is about 4 tokens.
+              A typical email (~250 words) is roughly 330 tokens.
+              A full novel (~90,000 words) is around 120,000 tokens.
+            </div>
+            <p>
+              Every time you send a message to an AI chatbot, it reads your message (input tokens)
+              and writes a reply (output tokens). <strong>Both cost energy.</strong>
+            </p>
+          </div>
+        </details>
+
+        <!-- Q3 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">⚙️</span>
+            What is AI "inference"?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <strong>Inference</strong> is the moment an AI actually generates a response — when
+              it takes your question and produces an answer, word by word (or token by token).
+            </p>
+            <p>
+              It's different from <em>training</em> (which is the one-time process of teaching the
+              AI using vast amounts of data). Inference happens billions of times every day, around
+              the clock, every time anyone uses an AI tool anywhere in the world.
+            </p>
+            <div class="faq-example">
+              💡 Analogy: training is like sending an employee through a three-year university
+              programme. Inference is like that employee answering customer calls — it happens
+              constantly, and each call consumes electricity.
+            </div>
+          </div>
+        </details>
+
+        <!-- Q4 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">📚</span>
+            What's the difference between AI training and AI inference?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <strong>Training</strong> is the expensive, one-time (or infrequent) process of
+              building an AI model. It requires running data through billions of mathematical
+              operations on specialised hardware for weeks or months. A single training run can
+              use as much electricity as hundreds of homes use in a year.
+            </p>
+            <p>
+              <strong>Inference</strong> is the ongoing, every-second process of using that
+              already-trained model to answer questions. Each individual inference is cheap, but
+              with hundreds of millions of queries per day across every AI product on Earth, the
+              cumulative energy use is enormous — and <em>this is what this site tracks</em>.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q5 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">⚡</span>
+            Why does AI use so much energy?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Generating each token requires running your input through a neural network with
+              <em>billions of mathematical multiplications</em> on specialised chips called GPUs
+              or TPUs. These chips are extremely powerful — and extremely power-hungry.
+            </p>
+            <p>
+              A single AI server rack can draw as much electricity as 20–30 family homes. Data
+              centres housing thousands of those racks run 24 hours a day, 365 days a year.
+              The chips also generate a lot of heat, requiring large cooling systems that consume
+              even more electricity and water.
+            </p>
+            <div class="faq-example">
+              💡 One short ChatGPT conversation uses roughly the same energy as charging your
+              phone from 0% to 1% — but multiply that by billions of conversations every day.
+            </div>
+          </div>
+        </details>
+
+        <!-- Q6 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">💧</span>
+            How does AI use water?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              AI data centres use enormous amounts of water to cool their servers. When chips run
+              at full power, they generate heat. That heat is carried away using chillers and
+              cooling towers that evaporate large quantities of water into the air.
+            </p>
+            <p>
+              Microsoft's own sustainability report estimated that training a single large AI model
+              can consume hundreds of thousands of litres of fresh water. Inference — happening
+              continuously — adds billions more litres every year across the industry.
+            </p>
+            <!-- Source: Microsoft Sustainability Report 2023 (~0.5 L per 1K tokens) — matches Data Sources table -->
+            <div class="faq-example">
+              💡 Estimates suggest around 0.5 litres of water are consumed per 1,000 tokens
+              generated — or roughly half a small water bottle per short AI conversation.
+              (Source: Microsoft Sustainability Report 2023.)
+            </div>
+          </div>
+        </details>
+
+        <!-- Q7 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">💨</span>
+            What is CO₂ and why does it matter?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <strong>CO₂ (carbon dioxide)</strong> is a greenhouse gas. When power stations burn
+              coal, oil, or natural gas to generate electricity, CO₂ is released into the
+              atmosphere. This extra CO₂ traps heat from the sun, gradually warming the planet —
+              a process known as <strong>climate change</strong>.
+            </p>
+            <p>
+              Because AI data centres consume huge amounts of electricity, and much of the world's
+              electricity grid still relies on fossil fuels, running AI produces a significant
+              amount of CO₂. Even data centres that use renewable energy have an indirect carbon
+              footprint through manufacturing, water use, and grid draw during low-renewable
+              periods.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q8 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🌍</span>
+            Is AI bad for the environment?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              It's complicated. AI <em>can</em> be a powerful tool for environmental good —
+              helping model climate systems, optimise energy grids, or accelerate scientific
+              research. But the <em>current rapid growth</em> of AI token consumption is also
+              a significant and fast-growing source of energy and water use.
+            </p>
+            <p>
+              The goal of this site is not to say "AI is evil" — it's to make the hidden cost
+              <strong>visible</strong>, so individuals and organisations can make more informed
+              decisions about when and how to use AI, and so that pressure builds on AI companies
+              to invest in efficiency and clean energy.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q9 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">📊</span>
+            How accurate are the numbers on this site?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              The numbers are <strong>estimates</strong>, not official measurements. No public
+              real-time feed of global AI token consumption exists. We derive our figures from:
+            </p>
+            <p>
+              Published AI usage disclosures (OpenAI, etc.) · Epoch AI compute trend research ·
+              Academic papers on AI energy use · IEA electricity data ·
+              Microsoft sustainability reports.
+            </p>
+            <p>
+              The real-world figure could be higher or lower — the point is to communicate
+              <em>order of magnitude</em>. The counter is live in the sense that it extrapolates
+              forward in real time from a fixed anchor point at the current estimated global rate.
+              See the <strong>Data Sources</strong> section above for the exact figures used.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q10 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🚀</span>
+            Why does the counter go up so fast?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <!-- Keep this rate in sync with TOKENS_PER_SECOND in death-clock-core.js -->
+              The current estimated global AI inference rate is around
+              <strong>100 million tokens per second</strong> — generated by all the AI services
+              (chatbots, search assistants, coding tools, image generators, API calls, etc.) running
+              simultaneously across every country, every company, and every individual user on the
+              planet.
+            </p>
+            <p>
+              That rate has grown by orders of magnitude since 2020, and is projected to keep
+              growing as more AI products launch and more people adopt them. Even if one company's
+              service is efficient, the sheer scale of global AI usage means the total climbs
+              relentlessly.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q11 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🌱</span>
+            What can I actually do about this?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Quite a lot, actually. Individual habits scale up when millions of people share them:
+            </p>
+            <p>
+              <strong>Write shorter, clearer prompts</strong> — the more specific you are, the
+              fewer tokens the AI needs to generate a good answer.<br />
+              <strong>Use smaller models</strong> — for simple tasks (summarising a paragraph,
+              checking grammar), a lightweight model uses a fraction of the energy of a frontier
+              model.<br />
+              <strong>Don't regenerate unnecessarily</strong> — if an answer is good enough, use
+              it. Every regeneration is another burst of tokens.<br />
+              <strong>Tell organisations you care</strong> — write to your AI providers asking
+              about their energy roadmap. Consumer pressure works.<br />
+              <strong>Share this page</strong> — the more people understand the cost, the more
+              pressure there is to improve efficiency.
+            </p>
+            <div class="faq-example">
+              💡 Visit the <strong>Dashboard</strong> tab for the full
+              <em>Tips</em> section and <em>Personal Footprint Calculator</em>.
+            </div>
+          </div>
+        </details>
+
+      </div><!-- /.faq-list -->
+    </div>
+  </section>
+
   <!-- ── What You Can Do ─────────────────────────────────── -->
   <section class="about-section">
     <div class="container">
