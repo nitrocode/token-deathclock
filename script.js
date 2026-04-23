@@ -114,7 +114,7 @@
     if (sessionTimeEl) {
       const m = Math.floor(elapsed / 60);
       const s = elapsed % 60;
-      const suffix = firstArrivalTime < pageLoadTime ? 'since first visit' : 'on page';
+      const suffix = firstArrivalTime !== pageLoadTime ? 'since first visit' : 'on page';
       sessionTimeEl.textContent = m > 0 ? `${m}m ${s}s ${suffix}` : `${s}s ${suffix}`;
     }
     if (rateEl) rateEl.textContent = formatTokenCount(currentRate);
@@ -2643,11 +2643,6 @@
     startComboResetLoop();
     // Passive token generation loop
     startPassiveLoop();
-    // Persist game state every 30 seconds and immediately when the page is hidden
-    setInterval(saveAcceleratorState, 30000);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') saveAcceleratorState();
-    });
   }
 
   // ============================================================
@@ -2955,6 +2950,12 @@
     // Engagement features
     initPresenceStrip();
     initEventLog();
+
+    // Persist accelerator game state every 30 seconds and on page hide
+    setInterval(saveAcceleratorState, 30000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') saveAcceleratorState();
+    });
 
     // Kick off the live counter RAF loop
     requestAnimationFrame(updateCounters);
