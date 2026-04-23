@@ -64,9 +64,10 @@ When updating data, change **all three** together so they stay consistent.
 ## Running Tests
 
 ```bash
-npm ci            # install devDependencies
-npm test          # jest --coverage (interactive)
-npm run test:ci   # jest --ci --coverage (CI mode; fails on coverage drop)
+npm ci                # install devDependencies
+npm test              # jest --coverage (interactive)
+npm run test:ci       # jest --ci --coverage (CI mode; fails on coverage drop)
+npm run test:e2e      # Playwright E2E tests (requires a local static server — auto-started by config)
 ```
 
 **Coverage thresholds** (enforced in CI):
@@ -78,6 +79,20 @@ npm run test:ci   # jest --ci --coverage (CI mode; fails on coverage drop)
 | Branches | 70 % |
 
 The current measured coverage is ≈ 96 % statements / 88 % branches — do not let it drop below the thresholds.
+
+### Agent testing requirements
+
+Every time an agent makes changes to this repository it **must**:
+
+1. Run `npm run test:ci` and confirm all unit tests pass before finishing.
+2. Run `npm run test:e2e` and confirm all E2E tests pass before finishing.
+3. Ensure coverage does **not** decrease — the Codecov status check enforces this on PRs (any negative delta fails the check).
+
+When adding or modifying code, agents **must** write matching tests:
+
+- **Pure functions in `death-clock-core.js`** → add/update unit tests in `tests/death-clock.test.js`. Aim to keep coverage at or above current levels; do not let it drop.
+- **DOM behaviour or visual flows in `script.js` / `index.html`** → add/update E2E assertions in `tests/e2e/death-clock.spec.js` where practical.
+- Do not write tests purely for the sake of coverage numbers. Every test must assert real, meaningful behaviour that would catch a regression if the code broke.
 
 ---
 
@@ -143,3 +158,5 @@ uses: actions/checkout@v6
 - Do **not** skip tests when adding new pure functions to the core module.
 - Do **not** change `BASE_TOKENS` / `TOKENS_PER_SECOND` / `BASE_DATE_ISO` independently — update all three as a set with a comment explaining the source.
 - Do **not** use mutable tags (e.g. `@v6`) in `uses:` — always pin to a commit SHA with a full semver comment (e.g. `@abc1234... # v6.0.2`).
+- Do **not** finish a session without running `npm run test:ci` and `npm run test:e2e` to confirm both suites pass.
+- Do **not** let coverage decrease — a negative coverage delta on any PR fails the Codecov status check.
