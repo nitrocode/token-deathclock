@@ -63,7 +63,19 @@ milestones.forEach((m, i) => {
     console.error(`ERROR: milestone[${i}] (id="${m.id}") reference must be a string URL.`);
     process.exit(1);
   }
+
+  if (m.extinctionMarker !== undefined && m.extinctionMarker !== true) {
+    console.error(`ERROR: milestone[${i}] (id="${m.id}") extinctionMarker must be true if set.`);
+    process.exit(1);
+  }
 });
+
+const extinctionMarkers = milestones.filter((m) => m.extinctionMarker === true);
+if (extinctionMarkers.length > 1) {
+  const ids = extinctionMarkers.map((m) => `"${m.id}"`).join(', ');
+  console.error(`ERROR: exactly one milestone may have extinctionMarker: true, but found ${extinctionMarkers.length}: ${ids}`);
+  process.exit(1);
+}
 
 // ── Generate JS ───────────────────────────────────────────────────────────────
 function jsString(s) {
