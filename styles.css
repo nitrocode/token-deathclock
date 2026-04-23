@@ -1232,7 +1232,45 @@ footer strong { color: var(--accent-2); }
   font-style: normal;
 }
 
-/* ---- Section Labels ---- */
+.footer-share-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.footer-share-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-right: 0.25rem;
+}
+
+.footer-share-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  padding: 0.35rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.footer-share-btn:hover {
+  background: var(--surface-3);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+
 .section-label {
   font-size: 0.7rem;
   letter-spacing: 0.15em;

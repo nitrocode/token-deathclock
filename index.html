@@ -3,8 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Death Clock 💀</title>
-  <meta name="description" content="Visualise the environmental cost of global AI token consumption — live counters, milestone tracker, and projections." />
+  <title>Token Deathclock — AI Energy Cost Live Counter 💀</title>
+  <meta name="description" content="100 million tokens per second. Watch AI consume the planet in real time — live counters, environmental milestones, and growth projections." />
+  <link rel="canonical" href="https://nitrocode.github.io/token-deathclock/" />
+
+  <!-- Open Graph (Facebook, LinkedIn, Discord, Slack, iMessage…) -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://nitrocode.github.io/token-deathclock/" />
+  <meta property="og:title"       content="Token Deathclock — AI's Environmental Cost, Live" />
+  <meta property="og:description" content="100 million tokens per second. Watch AI consume the planet in real time. Live counters, environmental milestones, and growth projections." />
+  <meta property="og:image"       content="https://nitrocode.github.io/token-deathclock/og-image.png" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Token Deathclock — AI's Environmental Cost, Live" />
+  <meta name="twitter:description" content="100 million tokens per second. Watch AI consume the planet in real time." />
+  <meta name="twitter:image"       content="https://nitrocode.github.io/token-deathclock/og-image.png" />
 
   <!-- Content-Security-Policy: restrict scripts to self + jsDelivr CDN, styles to self + Google Fonts -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
@@ -635,16 +651,28 @@
       consuming an estimated <strong>~4,000,000 tokens</strong> in the process —
       adding to the very problem it tracks.
     </p>
+    <div class="footer-share-row" aria-label="Share this page">
+      <span class="footer-share-label">📣 Spread the Doom</span>
+      <button class="footer-share-btn" id="footerShareTwitter"   aria-label="Share on Twitter / X">🐦 Twitter</button>
+      <button class="footer-share-btn" id="footerShareReddit"    aria-label="Share on Reddit">🤖 Reddit</button>
+      <button class="footer-share-btn" id="footerShareLinkedIn"  aria-label="Share on LinkedIn">💼 LinkedIn</button>
+      <button class="footer-share-btn" id="footerShareWhatsApp"  aria-label="Share on WhatsApp">💬 WhatsApp</button>
+      <button class="footer-share-btn" id="footerShareBluesky"   aria-label="Share on Bluesky">🦋 Bluesky</button>
+      <button class="footer-share-btn" id="footerShareCopy"      aria-label="Copy link">📋 Copy link</button>
+    </div>
   </div>
 </footer>
 
 <!-- ── Share Your Doom (floating) ────────────────────────── -->
 <div id="share-doom-panel" class="share-doom-panel" hidden>
   <div id="share-doom-options" class="share-doom-options" hidden>
-    <button id="shareTwitterBtn" class="share-opt-btn">🐦 Twitter / X</button>
-    <button id="shareRedditBtn"  class="share-opt-btn">🤖 Reddit</button>
-    <button id="shareCopyBtn"    class="share-opt-btn">📋 Copy text</button>
-    <button id="shareCloseBtn"   class="share-opt-close" aria-label="Close share options">✕</button>
+    <button id="shareTwitterBtn"  class="share-opt-btn">🐦 Twitter / X</button>
+    <button id="shareRedditBtn"   class="share-opt-btn">🤖 Reddit</button>
+    <button id="shareLinkedInBtn" class="share-opt-btn">💼 LinkedIn</button>
+    <button id="shareWhatsAppBtn" class="share-opt-btn">💬 WhatsApp</button>
+    <button id="shareBlueskyBtn"  class="share-opt-btn">🦋 Bluesky</button>
+    <button id="shareCopyBtn"     class="share-opt-btn">📋 Copy text</button>
+    <button id="shareCloseBtn"    class="share-opt-close" aria-label="Close share options">✕</button>
   </div>
   <button id="shareDoomBtn" class="share-doom-btn">📤 Share Your Doom</button>
 </div>
