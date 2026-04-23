@@ -1,4 +1,4 @@
-/* global Chart, DeathClockCore */
+/* global Chart, DeathClockCore, ChangelogData */
 'use strict';
 
 // ============================================================
@@ -42,6 +42,12 @@
     getCompanyStage,
     getSimulatedViewerCount,
   } = window.DeathClockCore;
+
+  // ---- Unpack changelog data ----------------------------------
+  const {
+    SITE_VERSION      = '',
+    CHANGELOG_RELEASES = [],
+  } = (typeof window !== 'undefined' && window.ChangelogData) || {};
 
   // ---- State -----------------------------------------------
   const BASE_DATE_MS = new Date(BASE_DATE_ISO).getTime();
@@ -1100,6 +1106,56 @@
       `;
       grid.appendChild(card);
     });
+  }
+
+  // ---- Render changelog tab -----------------------------------
+  function renderChangelog() {
+    const list = document.getElementById('changelogList');
+    if (!list) return;
+
+    const versionEl = document.getElementById('siteVersion');
+    if (versionEl && SITE_VERSION) {
+      versionEl.textContent = 'v' + SITE_VERSION;
+    }
+
+    if (!CHANGELOG_RELEASES || CHANGELOG_RELEASES.length === 0) {
+      list.innerHTML = '<p class="about-body">No changelog entries found.</p>';
+      return;
+    }
+
+    let html = '';
+    CHANGELOG_RELEASES.forEach((release) => {
+      const isUnreleased = release.version === 'Unreleased';
+      const dateStr = release.date
+        ? `<span class="changelog-date">${escHtml(release.date)}</span>`
+        : '';
+      const ghUrl = isUnreleased
+        ? 'https://github.com/nitrocode/token-deathclock/compare/v' +
+          escHtml(SITE_VERSION) + '...HEAD'
+        : 'https://github.com/nitrocode/token-deathclock/releases/tag/v' +
+          escHtml(release.version);
+      html += `<div class="changelog-release${isUnreleased ? ' changelog-release--unreleased' : ''}">`;
+      html += `<div class="changelog-release-header">`;
+      html += `<a class="changelog-version" href="${ghUrl}" target="_blank" rel="noopener noreferrer">`;
+      html += isUnreleased ? '🔧 Unreleased' : escHtml('v' + release.version);
+      html += `</a>${dateStr}`;
+      html += `</div>`;
+      if (release.sections.length === 0) {
+        html += `<p class="changelog-empty">No entries yet.</p>`;
+      }
+      release.sections.forEach((sec) => {
+        html += `<div class="changelog-section">`;
+        html += `<h4 class="changelog-section-heading">${escHtml(sec.heading)}</h4>`;
+        html += `<ul class="changelog-items">`;
+        sec.items.forEach((item) => {
+          html += `<li class="changelog-item">${escHtml(item)}</li>`;
+        });
+        html += `</ul></div>`;
+      });
+      html += `</div>`;
+    });
+
+    list.innerHTML = html;
   }
 
   // ============================================================
@@ -2867,6 +2923,7 @@
     renderMilestones();
     renderPredictionsTable();
     renderTips();
+    renderChangelog();
 
     // Chart init is isolated so a missing date-adapter or other chart error
     // cannot prevent the counters and life-blocks from running.

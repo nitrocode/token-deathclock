@@ -23,12 +23,17 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 ├── styles.css              ← Dark/light theme, animations, responsive layout
 ├── death-clock-core.js     ← Pure functions only — no DOM, safe to unit-test
 ├── script.js               ← All DOM manipulation, Chart.js wiring, RAF loop
-├── package.json            ← Jest config & devDependencies (no runtime deps)
+├── changelog-data.js       ← AUTO-GENERATED from CHANGELOG.md — do not edit
+├── milestones-data.js      ← AUTO-GENERATED from milestones.yaml — do not edit
+├── package.json            ← version, Jest config & devDependencies (no runtime deps)
+├── release-please-config.json      ← release-please release automation config
+├── .release-please-manifest.json  ← release-please version manifest
 ├── tests/
 │   └── death-clock.test.js ← 75 Jest unit tests for death-clock-core.js
 └── .github/
     └── workflows/
         ├── deploy.yml          ← Deploys site to gh-pages branch (production) on push to main
+        ├── release-please.yml  ← Creates release PRs + GitHub Releases via release-please
         ├── preview.yml         ← Deploys PR preview to previews/pr-N/ and posts URL comment
         ├── preview-cleanup.yml ← Removes preview directory when a PR is closed
         ├── unit-tests.yml      ← Runs `npm run test:ci` + uploads coverage to Codecov
@@ -103,6 +108,25 @@ Merging to `main` triggers the `deploy.yml` workflow automatically. It pushes th
 **One-time repo setup required** (only needs to be done once by a maintainer):
 > Settings → Pages → Source → **Deploy from a branch** → Branch: `gh-pages` / `(root)` → Save.
 
+### Releasing a new version
+
+This repo uses [release-please](https://github.com/googleapis/release-please) for automated semantic versioning and GitHub Releases.
+
+**How it works:**
+1. Merge PRs to `main` using [Conventional Commits](https://www.conventionalcommits.org/) in the commit/PR title:
+   - `feat: …` → bumps **minor** version (e.g. `1.0.0` → `1.1.0`)
+   - `fix: …` → bumps **patch** version (e.g. `1.0.0` → `1.0.1`)
+   - `feat!: …` or `BREAKING CHANGE:` footer → bumps **major** version
+2. `release-please.yml` automatically creates or updates a **Release PR** that:
+   - bumps `"version"` in `package.json`
+   - updates `CHANGELOG.md` with the new release section
+3. When the Release PR is merged, release-please creates a **GitHub Release** + git tag (e.g. `v1.1.0`).
+4. The `deploy.yml` workflow then re-deploys, regenerating `changelog-data.js` from the updated `CHANGELOG.md` so the site's **Changelog tab** reflects the new release.
+
+**Key files:**
+- `release-please-config.json` — maps commit types to CHANGELOG sections, sets `release-type: node`
+- `.release-please-manifest.json` — tracks the current released version; updated automatically by release-please
+
 ### PR Preview URLs
 Every pull request automatically gets a live preview URL:
 - Triggered by `preview.yml` on `pull_request` (opened / synchronize / reopened)
@@ -143,3 +167,5 @@ uses: actions/checkout@v6
 - Do **not** skip tests when adding new pure functions to the core module.
 - Do **not** change `BASE_TOKENS` / `TOKENS_PER_SECOND` / `BASE_DATE_ISO` independently — update all three as a set with a comment explaining the source.
 - Do **not** use mutable tags (e.g. `@v6`) in `uses:` — always pin to a commit SHA with a full semver comment (e.g. `@abc1234... # v6.0.2`).
+- Do **not** edit `changelog-data.js` or `milestones-data.js` directly — they are auto-generated; edit `CHANGELOG.md` / `milestones.yaml` and run the corresponding build script.
+- Do **not** bump the version in `package.json` manually — let release-please handle it via Conventional Commits.
