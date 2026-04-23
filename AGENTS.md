@@ -31,7 +31,8 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
         ├── deploy.yml          ← Deploys site to gh-pages branch (production) on push to main
         ├── preview.yml         ← Deploys PR preview to previews/pr-N/ and posts URL comment
         ├── preview-cleanup.yml ← Removes preview directory when a PR is closed
-        └── test.yml            ← Runs `npm run test:ci` on every push / PR
+        ├── unit-tests.yml      ← Runs `npm run test:ci` + uploads coverage to Codecov
+        └── e2e-tests.yml       ← Runs Playwright E2E tests
 ```
 
 ---
