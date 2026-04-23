@@ -2747,11 +2747,14 @@
 
   const shownEmergencyBroadcasts = new Set();
 
+  // Cache milestone doom thresholds (static — computed once at init)
+  const DOOM_FIRST_THRESHOLD = MILESTONES.length ? MILESTONES[0].tokens : 1e15;
+  const DOOM_LAST_THRESHOLD  = MILESTONES.length ? MILESTONES[MILESTONES.length - 1].tokens : 1e18;
+  const DOOM_RANGE = DOOM_LAST_THRESHOLD - DOOM_FIRST_THRESHOLD;
+
   function updateDoomsdayClock(tokens) {
-    const firstThreshold = MILESTONES.length ? MILESTONES[0].tokens : 1e15;
-    const lastThreshold  = MILESTONES.length ? MILESTONES[MILESTONES.length - 1].tokens : 1e18;
     const doomPercent = Math.min(1, Math.max(0,
-      (tokens - firstThreshold) / (lastThreshold - firstThreshold)
+      (tokens - DOOM_FIRST_THRESHOLD) / DOOM_RANGE
     ));
 
     // Rotate minute hand from 330° (11 o'clock, 5 min before midnight) to 360°/0° (midnight)
@@ -2789,13 +2792,20 @@
       milestone.shortDesc + '.';
 
     el.hidden = false;
-    // Auto-dismiss after 4 seconds
-    setTimeout(() => { el.hidden = true; }, 4000);
+    // Auto-dismiss after 6 seconds
+    clearTimeout(el._dismissTimer);
+    el._dismissTimer = setTimeout(() => { el.hidden = true; }, 6000);
   }
 
   function initDoomsdayClock() {
-    // Called once; updateDoomsdayClock() is called from updateCounters() each RAF frame
     updateDoomsdayClock(getCurrentTokens());
+    const dismissBtn = document.getElementById('ebDismissBtn');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        const el = document.getElementById('emergency-broadcast');
+        if (el) { clearTimeout(el._dismissTimer); el.hidden = true; }
+      });
+    }
   }
 
   // ── PRD 2: Apology Generator ─────────────────────────────────
@@ -3001,11 +3011,9 @@
       function doSubmit() {
         const raw = input.value.trim();
         if (!raw) return;
-        // Sanitise user input and map to a fake-prompt object using a random canned cost
+        // Sanitise user input — textContent assignment handles escaping below
         const randomTokens = 200 + Math.floor(Math.random() * 3000);
-        const userPrompt = { tokens: randomTokens, icon: '👤', text: escHtml(raw) };
-        // Use the sanitised text directly (no innerHTML)
-        userPrompt.text = raw; // textContent assignment handles escaping
+        const userPrompt = { tokens: randomTokens, icon: '👤', text: raw };
         appendShameEntry(userPrompt, true);
         input.value = '';
         awardBadge('spreading_doom');
@@ -3128,8 +3136,24 @@
     modal.hidden = false;
     const stayBtn = document.getElementById('intervention-stay');
     if (stayBtn) stayBtn.focus();
+  }
 
-    stayBtn && stayBtn.addEventListener('click', () => { modal.hidden = true; });
+  function initIntervention() {
+    if (sessionStorage.getItem('interventionSeen')) return;
+
+    document.addEventListener('mouseleave', (e) => {
+      if (e.clientY <= 0 && !interventionFired) {
+        showIntervention();
+      }
+    });
+
+    const modal = document.getElementById('intervention-modal');
+    if (!modal) return;
+
+    const stayBtn = document.getElementById('intervention-stay');
+    if (stayBtn) {
+      stayBtn.addEventListener('click', () => { modal.hidden = true; });
+    }
 
     const leaveBtn = document.getElementById('intervention-leave');
     if (leaveBtn) {
@@ -3143,15 +3167,6 @@
       if (e.target === modal) {
         sessionStorage.setItem('interventionSeen', '1');
         modal.hidden = true;
-      }
-    });
-  }
-
-  function initIntervention() {
-    if (sessionStorage.getItem('interventionSeen')) return;
-    document.addEventListener('mouseleave', (e) => {
-      if (e.clientY <= 0 && !interventionFired) {
-        showIntervention();
       }
     });
   }

@@ -3611,3 +3611,23 @@ footer strong { color: var(--accent-2); }
   .doom-clock-hand { transition: none; }
   .intervention-overlay, .intervention-card { animation: none; }
 }
+
+.eb-dismiss {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: rgba(255,255,255,0.8);
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: auto;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eb-dismiss:hover { background: rgba(255,255,255,0.15); }
