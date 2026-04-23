@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.1.0...ai-death-clock-v1.2.0) (2026-04-23)
+
+
+### Added
+
+* bring predicted extinction date from year 5174 to ~2030 ([#48](https://github.com/nitrocode/token-deathclock/issues/48)) ([f24e0b5](https://github.com/nitrocode/token-deathclock/commit/f24e0b578eb7f09dfb4b36929a5bd1194809f6d7))
+
+
+### Fixed
+
+* update footer PR count to 47 and token estimate to ~7M ([#47](https://github.com/nitrocode/token-deathclock/issues/47)) ([6b532b5](https://github.com/nitrocode/token-deathclock/commit/6b532b5facd3cfbeb4cf277a8a3ef4a8873f79cb))
+
 ## [1.1.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.0.0...ai-death-clock-v1.1.0) (2026-04-23)
 
 
