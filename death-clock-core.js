@@ -689,16 +689,17 @@ function getSimulatedViewerCount(dateMs) {
   const hr  = d.getUTCHours();
   const dow = d.getUTCDay(); // 0 = Sun, 6 = Sat
 
-  // Hour multiplier: sinusoidal with peak at 14:00 UTC, trough at 03:00 UTC
-  // Maps the 24-hour clock to [0, 2π] with peak at hr=14 → angle=π
+  // Hour multiplier: sinusoidal with peak at 14:00 UTC, trough at 03:00 UTC.
+  // Phase shift: hr=3 → angle=0 (trough), hr=14 → angle=π (peak of sin).
   const hourAngle = ((hr - 3 + 24) % 24) * (Math.PI / 12);
   const hourMult  = 0.25 + 0.75 * Math.max(0, Math.sin(hourAngle));
 
   // Weekday / weekend multiplier
   const dayMult = (dow === 0 || dow === 6) ? 0.65 : 1.0;
 
-  // Low-frequency organic jitter: ~1.8-hour period (6480000 ms)
-  const organic = 1 + 0.12 * Math.sin(ms / 6480000);
+  // Low-frequency organic jitter: ~1.8-hour period (6,480,000 ms = 108 min)
+  const JITTER_PERIOD_MS = 6_480_000;
+  const organic = 1 + 0.12 * Math.sin(ms / JITTER_PERIOD_MS);
 
   const raw = Math.round(165 * hourMult * dayMult * organic);
 

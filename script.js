@@ -2519,8 +2519,9 @@
     if (reactionEl) {
       reactionEl.style.opacity = '0';
       setTimeout(() => {
-        reactionEl.textContent =
-          PRESENCE_REACTIONS[presenceReactionIdx % PRESENCE_REACTIONS.length];
+        // Wrap index to keep it bounded
+        presenceReactionIdx = presenceReactionIdx % PRESENCE_REACTIONS.length;
+        reactionEl.textContent = PRESENCE_REACTIONS[presenceReactionIdx];
         reactionEl.style.opacity = '1';
         presenceReactionIdx++;
       }, 500);
@@ -2537,7 +2538,8 @@
   // ============================================================
 
   let logEntryCount = 0;
-  const LOG_INTERVAL_MS = 15000;
+  const LOG_INTERVAL_MS  = 15000;
+  const MAX_LOG_ENTRIES  = 50;
 
   function appendLogEntry() {
     const logEl = document.getElementById('event-log');
@@ -2586,8 +2588,8 @@
 
     logEl.appendChild(entry);
 
-    // Cap at 50 visible entries to avoid unbounded DOM growth
-    while (logEl.children.length > 50) {
+    // Cap at MAX_LOG_ENTRIES visible entries to avoid unbounded DOM growth
+    while (logEl.children.length > MAX_LOG_ENTRIES) {
       logEl.removeChild(logEl.firstChild);
     }
 
@@ -2639,7 +2641,7 @@
   // FEATURE: "Wait for It" — Milestone Countdown Alert
   // ============================================================
 
-  const MILESTONE_ALERT_THRESHOLD_SEC = 120;
+  const MILESTONE_ALERT_THRESHOLD_SECS = 120;
   const milestoneAlertShown = new Set(); // ids of milestones already flashed this session
 
   function checkMilestoneAlert() {
@@ -2659,7 +2661,7 @@
 
     const secsToNext = (next.tokens - tokens) / TOKENS_PER_SECOND;
 
-    if (secsToNext > MILESTONE_ALERT_THRESHOLD_SEC) {
+    if (secsToNext > MILESTONE_ALERT_THRESHOLD_SECS) {
       if (!bannerEl.hidden) bannerEl.hidden = true;
       return;
     }
@@ -2684,9 +2686,13 @@
     }
     if (countEl) {
       const s = Math.ceil(secsToNext);
-      countEl.textContent = s < 60
-        ? s + 's'
-        : Math.floor(s / 60) + 'm\u00A0' + (s % 60) + 's';
+      if (s < 60) {
+        countEl.textContent = s + 's';
+      } else {
+        const mins = Math.floor(s / 60);
+        const secs = String(s % 60).padStart(2, '0');
+        countEl.textContent = `${mins}m\u00A0${secs}s`;
+      }
     }
   }
 
@@ -2700,7 +2706,7 @@
 
     if (nameEl) nameEl.textContent = milestone.name;
     if (iconEl) iconEl.textContent = milestone.icon;
-    if (descEl) descEl.textContent = milestone.shortDesc + ' \u2014 ' + milestone.description;
+    if (descEl) descEl.textContent = `${milestone.shortDesc} \u2014 ${milestone.description}`;
 
     overlay.hidden = false;
     if (closeBtn) {
