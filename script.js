@@ -1193,7 +1193,7 @@
   // ---- Render footer meta-irony stats -------------------------
   function renderFooterStats() {
     const el = document.getElementById('footerMetaIrony');
-    if (!el || !PROJECT_PR_COUNT || !PROJECT_TOTAL_TOKENS) return;
+    if (!el || PROJECT_PR_COUNT == null || PROJECT_TOTAL_TOKENS == null) return;
     const formattedTokens = '~' + PROJECT_TOTAL_TOKENS.toLocaleString('en-US');
     el.innerHTML =
       '🔥 This site was built using AI coding agents across ' +

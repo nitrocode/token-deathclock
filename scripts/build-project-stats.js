@@ -38,8 +38,8 @@ if (typeof prCount !== 'number' || !Number.isInteger(prCount) || prCount < 0) {
   process.exit(1);
 }
 
-if (typeof totalTokens !== 'number' || totalTokens < 0) {
-  console.error(`ERROR: project-stats.yaml — total_tokens must be a non-negative number, got: ${totalTokens}`);
+if (typeof totalTokens !== 'number' || !Number.isInteger(totalTokens) || totalTokens < 0) {
+  console.error(`ERROR: project-stats.yaml — total_tokens must be a non-negative integer, got: ${totalTokens}`);
   process.exit(1);
 }
 
