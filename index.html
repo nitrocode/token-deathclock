@@ -66,9 +66,17 @@
           aria-selected="true" aria-controls="tab-dashboard" data-tab="dashboard">
     📊 Dashboard
   </button>
+  <button class="tab-btn" role="tab" id="tab-btn-news"
+          aria-selected="false" aria-controls="tab-news" data-tab="news">
+    📰 News
+  </button>
   <button class="tab-btn" role="tab" id="tab-btn-about"
           aria-selected="false" aria-controls="tab-about" data-tab="about">
     ℹ️ About
+  </button>
+  <button class="tab-btn" role="tab" id="tab-btn-changelog"
+          aria-selected="false" aria-controls="tab-changelog" data-tab="changelog">
+    📋 Changelog
   </button>
 </nav>
 
@@ -470,6 +478,441 @@
 </section>
 
 </div><!-- /tab-dashboard -->
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!--  TAB: News & References                                 -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div id="tab-news" role="tabpanel" aria-labelledby="tab-btn-news" hidden>
+
+  <!-- ── Intro ──────────────────────────────────────────── -->
+  <section class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Latest Doom</p>
+      <h2>News &amp; References</h2>
+      <p class="about-body">
+        A curated feed of reporting, research, and data on AI's environmental footprint,
+        the displacement of human workers, and the resource race powering it all.
+        Links open in a new tab. Dates reflect publication or last-updated date.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── AI & Jobs ──────────────────────────────────────── -->
+  <section class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; AI &amp; Employment</p>
+      <h2>🏭 Jobs, Layoffs &amp; the AI Workforce Shift</h2>
+      <div class="news-grid">
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Layoffs</span>
+            <time class="news-card-date" datetime="2025-01">Jan 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://programs.com/resources/ai-layoffs/" target="_blank" rel="noopener noreferrer">
+              AI-Driven Layoffs Tracker
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            A running resource tracking layoffs at technology companies where AI automation
+            is cited as a contributing factor — from customer-support roles to software
+            engineering positions.
+          </p>
+          <span class="news-card-source">programs.com</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Layoffs</span>
+            <time class="news-card-date" datetime="2024-01">Ongoing</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://layoffs.fyi/" target="_blank" rel="noopener noreferrer">
+              Layoffs.fyi — Tech Layoff Tracker
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Real-time database of technology-industry layoffs since 2020, tracking company,
+            headcount, date, and source. Useful context for the scale of workforce disruption
+            happening alongside the AI boom.
+          </p>
+          <span class="news-card-source">layoffs.fyi</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Research</span>
+            <time class="news-card-date" datetime="2024-03">Mar 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.oxfordmartin.ox.ac.uk/publications/technology-at-work-v5-0/" target="_blank" rel="noopener noreferrer">
+              Technology at Work v5.0 — Oxford Martin School
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Oxford Martin School update on which jobs are at risk from AI and automation,
+            estimating that up to 47 % of US jobs could be automated in the coming decades —
+            with the pace accelerating sharply since the release of large language models.
+          </p>
+          <span class="news-card-source">Oxford Martin School</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Policy</span>
+            <time class="news-card-date" datetime="2024-06">Jun 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.imf.org/en/Blogs/Articles/2024/01/14/ai-will-transform-the-global-economy-lets-make-sure-it-benefits-humanity" target="_blank" rel="noopener noreferrer">
+              IMF: AI Will Transform the Global Economy
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            The International Monetary Fund warns that AI is poised to affect 40 % of
+            jobs worldwide, exacerbating inequality between countries that can adapt
+            and those that cannot.
+          </p>
+          <span class="news-card-source">IMF Blog</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── AI & Energy ────────────────────────────────────── -->
+  <section class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; AI &amp; Environment</p>
+      <h2>⚡ Energy, Water &amp; Carbon</h2>
+      <div class="news-grid">
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Energy</span>
+            <time class="news-card-date" datetime="2025-01">Jan 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.iea.org/reports/electricity-2025" target="_blank" rel="noopener noreferrer">
+              IEA Electricity 2025 — AI &amp; Data Centre Power Surge
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            The International Energy Agency projects that data-centre electricity demand
+            — driven primarily by AI workloads — will more than double between 2024 and 2030,
+            consuming as much electricity as Japan does today.
+          </p>
+          <span class="news-card-source">IEA</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Energy</span>
+            <time class="news-card-date" datetime="2024-05">May 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.goldmansachs.com/insights/articles/AI-power-demand-to-triple" target="_blank" rel="noopener noreferrer">
+              Goldman Sachs: AI Power Demand Set to Triple by 2030
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Goldman Sachs Research estimates that AI will drive a 160 % increase in
+            data-centre power consumption by 2030, requiring the equivalent of more than
+            200 new power-plant projects to come online.
+          </p>
+          <span class="news-card-source">Goldman Sachs</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-water">Water</span>
+            <time class="news-card-date" datetime="2023-07">Jul 2023</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://arxiv.org/abs/2304.03271" target="_blank" rel="noopener noreferrer">
+              Making AI Less Thirsty — UC Riverside Study
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Peer-reviewed paper estimating that training GPT-3 consumed roughly 700,000 litres
+            of fresh water for cooling, and that a 20–50 question chat session with ChatGPT
+            evaporates about 500 mL — the equivalent of a standard water bottle.
+          </p>
+          <span class="news-card-source">arXiv / UC Riverside</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-carbon">Carbon</span>
+            <time class="news-card-date" datetime="2024-05">May 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.microsoft.com/en-us/sustainability/reports" target="_blank" rel="noopener noreferrer">
+              Microsoft 2024 Sustainability Report
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Microsoft disclosed that its carbon emissions rose 29 % year-on-year, driven
+            by data-centre construction and AI power consumption — directly contradicting
+            its 2030 carbon-negative pledge.
+          </p>
+          <span class="news-card-source">Microsoft</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-carbon">Carbon</span>
+            <time class="news-card-date" datetime="2024-07">Jul 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.theguardian.com/technology/2024/jul/02/google-carbon-emissions-ai" target="_blank" rel="noopener noreferrer">
+              Google's Carbon Emissions Surge 48 % as AI Fuels Energy Demand
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Google's 2024 environmental report revealed a 48 % spike in greenhouse-gas
+            emissions since 2019, primarily attributable to rising energy use at AI data
+            centres — undermining its net-zero commitments.
+          </p>
+          <span class="news-card-source">The Guardian</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Energy</span>
+            <time class="news-card-date" datetime="2023-08">Aug 2023</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.nature.com/articles/s41558-022-01377-7" target="_blank" rel="noopener noreferrer">
+              Unacceptable AI Carbon Footprint — Nature Climate Change
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Nature Climate Change peer-reviewed analysis quantifying the lifecycle carbon
+            footprint of large AI models, arguing that without urgent intervention the
+            AI sector's emissions will far exceed aviation by 2030.
+          </p>
+          <span class="news-card-source">Nature Climate Change</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Research & Reports ─────────────────────────────── -->
+  <section class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Research &amp; Data</p>
+      <h2>📊 Reports &amp; Datasets</h2>
+      <div class="news-grid">
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-research">Report</span>
+            <time class="news-card-date" datetime="2025-04">Apr 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://hai.stanford.edu/ai-index" target="_blank" rel="noopener noreferrer">
+              Stanford HAI AI Index 2025
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Stanford's comprehensive annual index tracking AI capabilities, economic impact,
+            policy developments, and public perception — includes a dedicated chapter on
+            AI's environmental footprint and energy consumption trends.
+          </p>
+          <span class="news-card-source">Stanford HAI</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-research">Data</span>
+            <time class="news-card-date" datetime="2024-12">Dec 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://epochai.org/trends" target="_blank" rel="noopener noreferrer">
+              Epoch AI — Trends in Machine Learning
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Epoch AI tracks the growth of compute used to train frontier AI models — a key
+            input to the token-consumption estimates on this site. Compute has grown
+            approximately 4× per year since 2010.
+          </p>
+          <span class="news-card-source">Epoch AI</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-research">Report</span>
+            <time class="news-card-date" datetime="2024-10">Oct 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.iea.org/reports/energy-and-ai" target="_blank" rel="noopener noreferrer">
+              IEA — Energy and AI (2024)
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            IEA dedicated report on the intersection of energy systems and artificial intelligence —
+            covering both AI as an energy consumer and AI as a potential tool for optimising
+            energy grids and reducing emissions elsewhere.
+          </p>
+          <span class="news-card-source">IEA</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-research">Research</span>
+            <time class="news-card-date" datetime="2024-02">Feb 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://arxiv.org/abs/2311.16863" target="_blank" rel="noopener noreferrer">
+              Power Hungry Processing — Watts Driving the Cost of AI Deployment
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Peer-reviewed benchmarking of the energy cost of running common NLP tasks across
+            different model sizes and hardware configurations. Provides per-token energy figures
+            used widely in AI environmental-impact research.
+          </p>
+          <span class="news-card-source">arXiv</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Recent News ────────────────────────────────────── -->
+  <section class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Headlines</p>
+      <h2>📰 Recent Doom Headlines</h2>
+      <div class="news-grid">
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-water">Water</span>
+            <time class="news-card-date" datetime="2024-09">Sep 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.wired.com/story/ai-is-thirsty/" target="_blank" rel="noopener noreferrer">
+              AI Is Thirsty — Wired
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Wired investigates how AI data centres are straining local water supplies in drought-prone
+            regions, including Arizona and the Netherlands, where communities are fighting back against
+            hyperscaler expansion.
+          </p>
+          <span class="news-card-source">Wired</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Energy</span>
+            <time class="news-card-date" datetime="2024-08">Aug 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.reuters.com/technology/artificial-intelligence/ai-data-centres-driving-surge-us-power-demand-2024-08-01/" target="_blank" rel="noopener noreferrer">
+              AI Data Centres Driving Surge in US Power Demand — Reuters
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Reuters reports that US electricity demand is set to grow more than at any point in a
+            generation, driven almost entirely by AI data centres — and that the grid is not ready
+            for the load.
+          </p>
+          <span class="news-card-source">Reuters</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Jobs</span>
+            <time class="news-card-date" datetime="2024-11">Nov 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.bbc.com/news/articles/c9dl93dql53o" target="_blank" rel="noopener noreferrer">
+              AI Poses Serious Risks to Jobs — BBC News
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            BBC analysis of OECD data showing that knowledge workers in advanced economies face
+            the greatest exposure to large language model automation, with legal, financial,
+            and software roles under the most immediate pressure.
+          </p>
+          <span class="news-card-source">BBC News</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-carbon">Carbon</span>
+            <time class="news-card-date" datetime="2025-02">Feb 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.ft.com/content/9f7b8a20-ai-climate" target="_blank" rel="noopener noreferrer">
+              Big Tech's Climate Pledges Under Pressure From AI Expansion
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Financial Times investigation into how Amazon, Google, and Microsoft are
+            quietly walking back sustainability targets as AI infrastructure investment
+            requires reopening coal and gas power plants.
+          </p>
+          <span class="news-card-source">Financial Times</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Nuclear</span>
+            <time class="news-card-date" datetime="2024-09">Sep 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.theguardian.com/technology/2024/sep/20/microsoft-three-mile-island-nuclear-ai" target="_blank" rel="noopener noreferrer">
+              Microsoft Reopens Three Mile Island to Power AI — The Guardian
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Microsoft struck a deal to restart the Three Mile Island nuclear reactor in Pennsylvania
+            exclusively to power its AI data centres — a stark illustration of the energy demands
+            that the AI boom has created.
+          </p>
+          <span class="news-card-source">The Guardian</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Automation</span>
+            <time class="news-card-date" datetime="2025-03">Mar 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.cnbc.com/2025/03/17/ai-replacing-jobs-entry-level.html" target="_blank" rel="noopener noreferrer">
+              AI Is Already Replacing Entry-Level Jobs — CNBC
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            CNBC reports on companies cutting entry-level hiring in software engineering,
+            customer service, and data annotation as AI agents take on tasks previously
+            requiring a junior employee — shrinking the on-ramp for the next generation.
+          </p>
+          <span class="news-card-source">CNBC</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Disclaimer ─────────────────────────────────────── -->
+  <section class="news-section">
+    <div class="container">
+      <p class="about-body news-disclaimer">
+        ⚠️ Links are to third-party sources and are provided for reference only. Token Deathclock
+        is not affiliated with any linked publication. URLs may change over time — if you find a
+        broken link, <a href="https://bit.ly/2K7e76D" target="_blank" rel="noopener noreferrer">let us know</a>.
+      </p>
+    </div>
+  </section>
+
+</div><!-- /tab-news -->
 
 <!-- ════════════════════════════════════════════════════════ -->
 <!--  TAB: About                                             -->
@@ -945,10 +1388,35 @@
 
 </div><!-- /tab-about -->
 
+<!-- ════════════════════════════════════════════════════════ -->
+<!--  TAB: Changelog                                          -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div id="tab-changelog" role="tabpanel" aria-labelledby="tab-btn-changelog" hidden>
+
+  <section class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Release History</p>
+      <h2>Changelog</h2>
+      <p class="about-body">
+        All notable changes to this project are documented here.
+        The format follows <a href="https://keepachangelog.com/en/1.0.0/" target="_blank" rel="noopener noreferrer">Keep a Changelog</a>
+        and this project adheres to
+        <a href="https://semver.org/spec/v2.0.0.html" target="_blank" rel="noopener noreferrer">Semantic Versioning</a>.
+        View all official releases on
+        <a href="https://github.com/nitrocode/token-deathclock/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>.
+      </p>
+      <div id="changelogList" class="changelog-list" aria-live="polite">
+        <!-- populated by renderChangelog() in script.js -->
+      </div>
+    </div>
+  </section>
+
+</div><!-- /tab-changelog -->
+
 <!-- ── Footer ─────────────────────────────────────────────── -->
 <footer>
   <div class="container">
-    <p>Created by <strong>RB</strong> &mdash; AI Death Clock &mdash; 2026</p>
+    <p>Created by <strong>RB</strong> &mdash; AI Death Clock &mdash; 2026 &mdash; <a id="siteVersionLink" href="https://github.com/nitrocode/token-deathclock/releases" target="_blank" rel="noopener noreferrer"><span id="siteVersion">v1.0.0</span></a></p>
     <p class="footer-disclaimer">
       💬 <a href="https://bit.ly/2K7e76D" target="_blank" rel="noopener noreferrer">Feedback &amp; Contact</a> — questions, ideas, or data corrections welcome.
     </p>
@@ -1028,6 +1496,49 @@
   </div>
 </div>
 
+<!-- ── Grim Reaper ──────────────────────────────────────── -->
+<div id="grim-reaper" class="grim-reaper" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 155">
+    <!-- scythe handle -->
+    <line x1="77" y1="16" x2="62" y2="148" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- scythe blade -->
+    <path d="M77,16 C100,2 103,28 87,35 C85,26 80,19 77,16 Z" fill="#555"/>
+    <!-- robe shadow -->
+    <ellipse cx="50" cy="151" rx="28" ry="5" fill="#000" opacity="0.4"/>
+    <!-- robe body -->
+    <path d="M22,72 C14,106 11,138 9,150 L91,150 C89,138 86,106 78,72 Z" fill="#161616"/>
+    <!-- hood -->
+    <path d="M22,75 C18,48 22,18 50,14 C78,18 82,48 78,75 Z" fill="#1d1d1d"/>
+    <!-- hood side drapes -->
+    <path d="M22,74 C14,82 10,98 14,122 C18,108 20,92 22,74 Z" fill="#141414"/>
+    <path d="M78,74 C86,82 90,98 86,122 C82,108 80,92 78,74 Z" fill="#141414"/>
+    <!-- eye sockets -->
+    <circle cx="37" cy="55" r="9" fill="#0a0a0a"/>
+    <circle cx="63" cy="55" r="9" fill="#0a0a0a"/>
+    <!-- glowing eyes -->
+    <circle cx="37" cy="55" r="6" fill="#cc1111" class="reaper-eye-inner"/>
+    <circle cx="63" cy="55" r="6" fill="#cc1111" class="reaper-eye-inner"/>
+    <!-- bright pupils -->
+    <circle cx="37" cy="55" r="2.5" fill="#ff5555"/>
+    <circle cx="63" cy="55" r="2.5" fill="#ff5555"/>
+    <!-- cute highlights -->
+    <circle cx="39.5" cy="52.5" r="2" fill="#fff" opacity="0.5"/>
+    <circle cx="65.5" cy="52.5" r="2" fill="#fff" opacity="0.5"/>
+    <!-- creepy-cute grin -->
+    <path d="M33,67 Q37,75 50,71 Q63,75 67,67" stroke="#999" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <!-- left bony arm -->
+    <path d="M22,90 C14,88 8,85 5,79" stroke="#999" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- bony fingers -->
+    <path d="M5,79 C2,73 5,71 7,73" stroke="#888" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M5,79 C1,77 2,73 5,74" stroke="#888" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M5,79 C3,83 6,84 8,82" stroke="#888" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- robe ragged hem -->
+    <path d="M9,150 C20,145 30,150 40,147 C50,144 60,148 70,146 C80,144 88,148 91,150" stroke="#222" stroke-width="1.5" fill="none"/>
+  </svg>
+</div>
+
+<!-- Changelog & version data (auto-generated from CHANGELOG.md) -->
+<script src="changelog-data.js"></script>
 <!-- Milestone data (auto-generated from milestones.yaml) -->
 <script src="milestones-data.js"></script>
 <!-- Core logic (no DOM deps — loaded first so script.js can use it) -->
