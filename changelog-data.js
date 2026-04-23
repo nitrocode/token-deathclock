@@ -2,9 +2,18 @@
 // AUTO-GENERATED from CHANGELOG.md — do not edit directly.
 // Run `npm run build:changelog` to regenerate from CHANGELOG.md.
 
-const SITE_VERSION = "1.2.0";
+const SITE_VERSION = "1.3.0";
 
 const CHANGELOG_RELEASES = [
+  {
+    version: "1.3.0",
+    date: null,
+    sections: [
+      { heading: "Added", items: [
+        "add extinctionMarker uniqueness validation in build-milestones.js and unit test ([#50](https://github.com/nitrocode/token-deathclock/issues/50)) ([ffdd684](https://github.com/nitrocode/token-deathclock/commit/ffdd68407739b052e09630030278dfbbe24d8d3f))",
+      ] }
+    ],
+  },
   {
     version: "1.2.0",
     date: null,
