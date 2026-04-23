@@ -51,6 +51,18 @@ Tests are in `tests/death-clock.test.js` and cover all pure functions in `death-
 
 ---
 
+## Coverage
+
+Unit-test coverage is tracked by [Codecov](https://codecov.io/gh/nitrocode/token-deathclock). Every pull request receives an automated comment showing per-file coverage deltas; the PR check fails if coverage decreases.
+
+| Unit test coverage | Coverage breakdown |
+|---|---|
+| [![Codecov icicle](https://codecov.io/gh/nitrocode/token-deathclock/branch/main/graphs/icicle.svg)](https://codecov.io/gh/nitrocode/token-deathclock) | [![Codecov sunburst](https://codecov.io/gh/nitrocode/token-deathclock/branch/main/graphs/sunburst.svg)](https://codecov.io/gh/nitrocode/token-deathclock) |
+
+E2E tests run in CI via Playwright (Chromium). Their pass/fail status is shown by the **E2E Tests** badge above.
+
+---
+
 ## Deployment (GitHub Pages)
 
 The site is automatically deployed on every push to `main` via the `deploy.yml` workflow.
