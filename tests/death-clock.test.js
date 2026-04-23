@@ -447,6 +447,11 @@ describe('Constants', () => {
     }
   });
 
+  test('at most one milestone has extinctionMarker: true', () => {
+    const marked = MILESTONES.filter((m) => m.extinctionMarker === true);
+    expect(marked.length).toBeLessThanOrEqual(1);
+  });
+
   test('HISTORICAL_DATA is a non-empty array', () => {
     expect(Array.isArray(HISTORICAL_DATA)).toBe(true);
     expect(HISTORICAL_DATA.length).toBeGreaterThan(0);
