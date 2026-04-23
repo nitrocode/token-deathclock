@@ -112,6 +112,7 @@ function runUpdateCounters() {
 
 beforeEach(() => {
   updateCountersFn = null;
+  localStorage.clear();
   document.body.innerHTML = MIN_HTML;
   jest.clearAllMocks();
   loadScript();
