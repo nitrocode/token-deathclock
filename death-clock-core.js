@@ -669,6 +669,43 @@ function formatDoomPoints(dp) {
   return Math.round(dp) + ' DP';
 }
 
+/**
+ * Return a deterministic simulated viewer count for a given timestamp.
+ *
+ * The value is based on:
+ *   - Time of day (UTC): peaks ~14:00, troughs ~03:00
+ *   - Day of week: weekdays run ~1.25× weekends
+ *   - A low-frequency sine variation (~1.8-hour cycle) for organic jitter
+ *
+ * The result is snapped to the nearest 5, minimum 12, and never requires
+ * a network request.
+ *
+ * @param {number} [dateMs] - epoch milliseconds (defaults to Date.now())
+ * @returns {number}          simulated concurrent viewers
+ */
+function getSimulatedViewerCount(dateMs) {
+  const ms = typeof dateMs === 'number' && isFinite(dateMs) ? dateMs : Date.now();
+  const d   = new Date(ms);
+  const hr  = d.getUTCHours();
+  const dow = d.getUTCDay(); // 0 = Sun, 6 = Sat
+
+  // Hour multiplier: sinusoidal with peak at 14:00 UTC, trough at 03:00 UTC
+  // Maps the 24-hour clock to [0, 2π] with peak at hr=14 → angle=π
+  const hourAngle = ((hr - 3 + 24) % 24) * (Math.PI / 12);
+  const hourMult  = 0.25 + 0.75 * Math.max(0, Math.sin(hourAngle));
+
+  // Weekday / weekend multiplier
+  const dayMult = (dow === 0 || dow === 6) ? 0.65 : 1.0;
+
+  // Low-frequency organic jitter: ~1.8-hour period (6480000 ms)
+  const organic = 1 + 0.12 * Math.sin(ms / 6480000);
+
+  const raw = Math.round(165 * hourMult * dayMult * organic);
+
+  // Snap to nearest 5, minimum 12
+  return Math.max(12, Math.round(raw / 5) * 5);
+}
+
 // ============================================================
 // EXPORTS — CommonJS for Jest; window global for the browser
 // ============================================================
@@ -705,6 +742,7 @@ const DeathClockCore = {
   formatDoomPoints,
   computePassiveRate,
   getCompanyStage,
+  getSimulatedViewerCount,
 };
 
 if (typeof module !== 'undefined' && module.exports) {

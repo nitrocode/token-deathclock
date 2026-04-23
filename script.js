@@ -40,6 +40,7 @@
     formatDoomPoints,
     computePassiveRate,
     getCompanyStage,
+    getSimulatedViewerCount,
   } = window.DeathClockCore;
 
   // ---- State -----------------------------------------------
@@ -1667,6 +1668,8 @@
     { id: 'token_maxxer_badge',   icon: '📈',           name: 'Token Maxxer',             desc: 'Deployed your first AI agent.',                      type: 'manual' },
     { id: 'ai_native_ceo',        icon: '🏢',           name: 'AI-Native CEO',            desc: 'Reached AI-Native Company stage.',                   type: 'manual' },
     { id: 'lights_out',           icon: '☠️',           name: 'Lights Out',               desc: 'Replaced every human worker. Fully automated.',      type: 'manual' },
+    // Witness badges
+    { id: 'witness',              icon: '👁️',           name: 'Witness',                  desc: 'Stayed to watch a milestone get crossed in real time.', type: 'manual' },
   ];
 
   const LS_BADGES_KEY = 'tokenDeathclockBadges';
@@ -2488,6 +2491,230 @@
     startPassiveLoop();
   }
 
+  // ============================================================
+  // FEATURE: Social Ripple — "You're Not Alone"
+  // ============================================================
+
+  const PRESENCE_REACTIONS = [
+    '"This makes me want to throw my laptop into the ocean." — Anonymous',
+    '"I showed this to my manager. They said it was fine." — Anonymous',
+    '"I can\'t stop refreshing it." — Anonymous',
+    '"My AI assistant wrote this reaction." — Anonymous',
+    '"Watching the counter tick feels weirdly calming?" — Anonymous',
+    '"I sent this to my friends. None of them opened it." — Anonymous',
+    '"We did this. We\'re still doing this." — Anonymous',
+    '"The counter went up while I was typing this." — Anonymous',
+  ];
+
+  let presenceReactionIdx = 0;
+
+  function updatePresenceStrip() {
+    const countEl    = document.getElementById('presenceCount');
+    const reactionEl = document.getElementById('presenceReaction');
+    if (!countEl) return;
+
+    const count = getSimulatedViewerCount(Date.now());
+    countEl.textContent = count.toLocaleString();
+
+    if (reactionEl) {
+      reactionEl.style.opacity = '0';
+      setTimeout(() => {
+        reactionEl.textContent =
+          PRESENCE_REACTIONS[presenceReactionIdx % PRESENCE_REACTIONS.length];
+        reactionEl.style.opacity = '1';
+        presenceReactionIdx++;
+      }, 500);
+    }
+  }
+
+  function initPresenceStrip() {
+    updatePresenceStrip();
+    setInterval(updatePresenceStrip, 25000);
+  }
+
+  // ============================================================
+  // FEATURE: Witness History — Live Session Event Log
+  // ============================================================
+
+  let logEntryCount = 0;
+  const LOG_INTERVAL_MS = 15000;
+
+  function appendLogEntry() {
+    const logEl = document.getElementById('event-log');
+    if (!logEl) return;
+
+    const now = Date.now();
+    const elapsed = Math.max(1, (now - pageLoadTime) / 1000);
+    const rate = getRateAtDate(new Date(now));
+    const sessionTokens = elapsed * rate;
+
+    const d = new Date(now);
+    const timeStr = [
+      String(d.getHours()).padStart(2, '0'),
+      String(d.getMinutes()).padStart(2, '0'),
+      String(d.getSeconds()).padStart(2, '0'),
+    ].join(':');
+
+    const equivs = generateEquivalences(sessionTokens, 'hopeful');
+    const equiv = equivs.length
+      ? equivs[logEntryCount % equivs.length]
+      : null;
+
+    const entry = document.createElement('div');
+    entry.className = 'event-log-entry';
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'log-time';
+    timeSpan.textContent = timeStr;
+    entry.appendChild(timeSpan);
+
+    if (equiv) {
+      const iconSpan = document.createElement('span');
+      iconSpan.className = 'log-icon';
+      iconSpan.setAttribute('aria-hidden', 'true');
+      iconSpan.textContent = equiv.icon;
+      entry.appendChild(iconSpan);
+    }
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'log-text';
+    const tokenStr = formatTokenCount(sessionTokens);
+    textSpan.textContent = equiv
+      ? '+' + tokenStr + ' tokens since you arrived · ' + equiv.text
+      : '+' + tokenStr + ' tokens generated globally since you arrived';
+    entry.appendChild(textSpan);
+
+    logEl.appendChild(entry);
+
+    // Cap at 50 visible entries to avoid unbounded DOM growth
+    while (logEl.children.length > 50) {
+      logEl.removeChild(logEl.firstChild);
+    }
+
+    // Auto-scroll to the newest entry
+    logEl.scrollTop = logEl.scrollHeight;
+    logEntryCount++;
+  }
+
+  function buildLogExportText() {
+    const logEl = document.getElementById('event-log');
+    if (!logEl) return '';
+    const lines = [];
+    lines.push('=== AI DEATH CLOCK — SESSION LOG ===');
+    lines.push('Session started: ' + new Date(pageLoadTime).toUTCString());
+    lines.push('');
+    logEl.querySelectorAll('.event-log-entry').forEach((entry) => {
+      const time = entry.querySelector('.log-time');
+      const text = entry.querySelector('.log-text');
+      if (time && text) {
+        lines.push('[' + time.textContent + '] ' + text.textContent);
+      }
+    });
+    lines.push('');
+    lines.push('\u2192 ' + SITE_URL);
+    return lines.join('\n');
+  }
+
+  function initEventLog() {
+    // First entry after 5 seconds, then every 15 seconds
+    setTimeout(appendLogEntry, 5000);
+    setInterval(appendLogEntry, LOG_INTERVAL_MS);
+
+    const exportBtn = document.getElementById('exportLogBtn');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        const text = buildLogExportText();
+        navigator.clipboard.writeText(text).then(() => {
+          exportBtn.textContent = '\u2705 Copied!';
+          setTimeout(() => { exportBtn.textContent = '\uD83D\uDCCB Copy Log'; }, 2000);
+        }).catch(() => {
+          exportBtn.textContent = '\u274C Failed';
+          setTimeout(() => { exportBtn.textContent = '\uD83D\uDCCB Copy Log'; }, 2000);
+        });
+      });
+    }
+  }
+
+  // ============================================================
+  // FEATURE: "Wait for It" — Milestone Countdown Alert
+  // ============================================================
+
+  const MILESTONE_ALERT_THRESHOLD_SEC = 120;
+  const milestoneAlertShown = new Set(); // ids of milestones already flashed this session
+
+  function checkMilestoneAlert() {
+    const tokens = getCurrentTokens();
+    const next   = getNextMilestone(tokens, MILESTONES);
+    const bannerEl   = document.getElementById('milestone-alert-banner');
+    const msgEl      = document.getElementById('milestone-alert-msg');
+    const countEl    = document.getElementById('milestone-alert-countdown');
+    const iconEl     = document.getElementById('milestone-alert-icon');
+
+    if (!bannerEl) return;
+
+    if (!next) {
+      if (!bannerEl.hidden) bannerEl.hidden = true;
+      return;
+    }
+
+    const secsToNext = (next.tokens - tokens) / TOKENS_PER_SECOND;
+
+    if (secsToNext > MILESTONE_ALERT_THRESHOLD_SEC) {
+      if (!bannerEl.hidden) bannerEl.hidden = true;
+      return;
+    }
+
+    if (secsToNext <= 0) {
+      // Milestone just crossed — fire flash once per milestone
+      if (!milestoneAlertShown.has(next.id)) {
+        milestoneAlertShown.add(next.id);
+        bannerEl.hidden = true;
+        showMilestoneFlash(next);
+        awardBadge('witness');
+      }
+      return;
+    }
+
+    // Within alert window — show / update the banner
+    bannerEl.hidden = false;
+    if (iconEl) iconEl.textContent = next.icon;
+    if (msgEl) {
+      msgEl.textContent =
+        '\u26A0\uFE0F ' + next.name + ' threshold crossing imminent \u2014 stay to witness it!';
+    }
+    if (countEl) {
+      const s = Math.ceil(secsToNext);
+      countEl.textContent = s < 60
+        ? s + 's'
+        : Math.floor(s / 60) + 'm\u00A0' + (s % 60) + 's';
+    }
+  }
+
+  function showMilestoneFlash(milestone) {
+    const overlay  = document.getElementById('milestone-flash-overlay');
+    const nameEl   = document.getElementById('milestone-flash-name');
+    const iconEl   = document.getElementById('milestone-flash-icon');
+    const descEl   = document.getElementById('milestone-flash-desc');
+    const closeBtn = document.getElementById('milestone-flash-close');
+    if (!overlay) return;
+
+    if (nameEl) nameEl.textContent = milestone.name;
+    if (iconEl) iconEl.textContent = milestone.icon;
+    if (descEl) descEl.textContent = milestone.shortDesc + ' \u2014 ' + milestone.description;
+
+    overlay.hidden = false;
+    if (closeBtn) {
+      closeBtn.focus();
+      closeBtn.onclick = () => { overlay.hidden = true; };
+    }
+
+    // Haptic feedback where supported
+    if (typeof navigator.vibrate === 'function') navigator.vibrate([200, 100, 200]);
+
+    // Auto-dismiss after 6 seconds
+    setTimeout(() => { overlay.hidden = true; }, 6000);
+  }
+
   // ---- Tab navigation ------------------------------------
   function initTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn[data-tab]');
@@ -2553,12 +2780,18 @@
     initReceiptModal();
     initCalculator();
     initAccelerator();
+    // Engagement features
+    initPresenceStrip();
+    initEventLog();
 
     // Kick off the live counter RAF loop
     requestAnimationFrame(updateCounters);
 
-    // Check time-based badges every second
-    setInterval(checkTimeBadges, 1000);
+    // Check time-based badges and milestone alert every second
+    setInterval(() => {
+      checkTimeBadges();
+      checkMilestoneAlert();
+    }, 1000);
   }
 
   if (document.readyState === 'loading') {

@@ -36,6 +36,7 @@ const {
   SESSION_CHALLENGE_DEFS,
   BASE_TOKENS,
   TOKENS_PER_SECOND,
+  getSimulatedViewerCount,
 } = core;
 
 // ============================================================
@@ -1367,5 +1368,60 @@ describe('getCompanyStage', () => {
   test('floors fractional inputs', () => {
     // e.g. 0.9 should floor to 0 and give stage 0
     expect(getCompanyStage(0.9)).toBe(COMPANY_STAGES[0]);
+  });
+});
+
+// ============================================================
+// getSimulatedViewerCount
+// ============================================================
+describe('getSimulatedViewerCount', () => {
+  // 2026-04-15 14:00 UTC — Wednesday peak hour
+  const peakMs    = new Date('2026-04-15T14:00:00Z').getTime();
+  // 2026-04-15 03:00 UTC — Wednesday trough hour
+  const troughMs  = new Date('2026-04-15T03:00:00Z').getTime();
+  // 2026-04-19 14:00 UTC — Sunday peak hour (weekend)
+  const weekendMs = new Date('2026-04-19T14:00:00Z').getTime();
+
+  test('returns a positive integer', () => {
+    const count = getSimulatedViewerCount(peakMs);
+    expect(Number.isInteger(count)).toBe(true);
+    expect(count).toBeGreaterThan(0);
+  });
+
+  test('result is a multiple of 5', () => {
+    expect(getSimulatedViewerCount(peakMs) % 5).toBe(0);
+  });
+
+  test('minimum result is 12', () => {
+    // Trough hour should still be at least 12
+    expect(getSimulatedViewerCount(troughMs)).toBeGreaterThanOrEqual(12);
+  });
+
+  test('peak hours return more viewers than trough hours', () => {
+    expect(getSimulatedViewerCount(peakMs)).toBeGreaterThan(
+      getSimulatedViewerCount(troughMs),
+    );
+  });
+
+  test('weekday peak returns more viewers than weekend peak', () => {
+    expect(getSimulatedViewerCount(peakMs)).toBeGreaterThan(
+      getSimulatedViewerCount(weekendMs),
+    );
+  });
+
+  test('same timestamp always returns the same count (deterministic)', () => {
+    expect(getSimulatedViewerCount(peakMs)).toBe(getSimulatedViewerCount(peakMs));
+  });
+
+  test('defaults to current time when called with no argument', () => {
+    const count = getSimulatedViewerCount();
+    expect(Number.isInteger(count)).toBe(true);
+    expect(count).toBeGreaterThanOrEqual(12);
+  });
+
+  test('handles invalid input gracefully (defaults to current time)', () => {
+    const count = getSimulatedViewerCount(NaN);
+    expect(Number.isInteger(count)).toBe(true);
+    expect(count).toBeGreaterThanOrEqual(12);
   });
 });

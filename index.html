@@ -127,6 +127,14 @@
     <div class="receipt-trigger-wrap">
       <button id="getReceiptBtn" class="receipt-trigger-btn">🧾 Get My Session Receipt</button>
     </div>
+
+    <!-- Social Ripple — live presence strip -->
+    <div class="presence-strip" role="status" aria-live="polite">
+      <span class="presence-dot" aria-hidden="true"></span>
+      <span id="presenceCount" class="presence-count">—</span>
+      <span class="presence-label">people watching right now</span>
+      <span id="presenceReaction" class="presence-reaction"></span>
+    </div>
   </div>
 </section>
 
@@ -147,6 +155,19 @@
           <button id="ai-ticker-resume" class="btn-sm">▶ Resume</button>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Witness History — Live Event Log ─────────────────── -->
+<section id="event-log-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Session Log</p>
+    <h2>📜 Witness History</h2>
+    <p class="lb-desc">A live terminal log of what has happened globally since you arrived. A new entry appears every 15 seconds.</p>
+    <div id="event-log" class="event-log" aria-live="polite" aria-label="Session event log" aria-relevant="additions"></div>
+    <div class="event-log-actions">
+      <button id="exportLogBtn" class="btn-secondary">📋 Copy Log</button>
     </div>
   </div>
 </section>
@@ -670,6 +691,23 @@
     <div id="toast-desc"  class="toast-desc"></div>
   </div>
   <button id="toast-close" class="toast-close" aria-label="Close notification">✕</button>
+</div>
+
+<!-- ── Milestone Countdown Alert Banner ───────────────────── -->
+<div id="milestone-alert-banner" class="milestone-alert-banner" hidden role="alert" aria-live="assertive" aria-atomic="true">
+  <span id="milestone-alert-icon" class="milestone-alert-icon" aria-hidden="true"></span>
+  <span id="milestone-alert-msg"  class="milestone-alert-msg"></span>
+  <span id="milestone-alert-countdown" class="milestone-alert-countdown" aria-label="Countdown"></span>
+</div>
+
+<!-- ── Milestone Flash Overlay ────────────────────────────── -->
+<div id="milestone-flash-overlay" class="milestone-flash-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="milestone-flash-name">
+  <div class="milestone-flash-content">
+    <div id="milestone-flash-icon" class="milestone-flash-icon" aria-hidden="true"></div>
+    <div id="milestone-flash-name" class="milestone-flash-name"></div>
+    <div id="milestone-flash-desc" class="milestone-flash-desc"></div>
+    <button id="milestone-flash-close" class="milestone-flash-close">✕ Dismiss</button>
+  </div>
 </div>
 
 <!-- Milestone data (auto-generated from milestones.yaml) -->
