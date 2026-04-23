@@ -3,6 +3,8 @@
 This document indexes all product requirement documents for new visitor-facing features
 aimed at increasing amusement, engagement, and social sharing.
 
+## Phase 1 — Completed Features
+
 | PRD | File | Summary | Shareability | Effort |
 |-----|------|---------|-------------|--------|
 | Share Your Doom | `prd-share-your-doom.md` | One-click personalised social sharing with scary session stats | ⭐⭐⭐⭐⭐ | Low |
@@ -12,14 +14,27 @@ aimed at increasing amusement, engagement, and social sharing.
 | "AI Is Currently Writing…" Ticker | `prd-ai-is-currently-writing.md` | Live absurdist ticker of what AI is probably generating right now | ⭐⭐⭐⭐⭐ | Low |
 | Token Receipt | `prd-token-receipt.md` | Before-unload thermal receipt summarising your session's environmental cost | ⭐⭐⭐⭐⭐ | Medium |
 
-## Recommended Implementation Order
+## Phase 2 — Engagement & Retention Features
 
-1. **"AI Is Currently Writing…" Ticker** — lowest effort, highest comedy, immediate shareability
-2. **Share Your Doom** — low effort, highest direct sharing impact
-3. **Token Receipt** — medium effort, extremely memorable, triggers before-unload for passive sharing
-4. **"What Could We Have Done Instead?"** — enriches existing impact strip, low effort
-5. **Personal Footprint Calculator** — medium effort, personal stake mechanic, good for repeat sharing
-6. **Doom Achievements** — medium effort, drives return visits and longer sessions
+| # | PRD | File | Summary | Session impact | Return-visit impact | Effort |
+|---|-----|------|---------|---------------|--------------------|----|
+| 1 | Milestone Countdown Alert | `prd-milestone-countdown-alert.md` | Fixed banner + flash when a global milestone is ≤120 s away | ★★★★★ | ★★ | Low |
+| 7 | Witness History Log | `prd-witness-history-log.md` | Terminal-style session log that appends an environmental equivalence every 15 s | ★★★★ | ★★ | Low |
+| 5 | Social Ripple | `prd-social-ripple.md` | Simulated live viewer count + rotating reactions (deterministic, no backend) | ★★★ | ★★ | Low |
+| 3 | Daily Streak | `prd-daily-streak.md` | localStorage streak counter + badges for 3-day and 7-day consecutive visits | ★★★ | ★★★★★ | Medium |
+| 4 | Trivia Quiz | `prd-trivia-quiz.md` | 8-question rotating quiz about AI environmental impact; badge for high score | ★★★★ | ★★★ | Medium |
+| 2 | What-If Simulator | `prd-what-if-simulator.md` | Sliders for model efficiency / renewable energy; real-time projection updates; shareable URL | ★★★★★ | ★★★★ | Medium |
+| 6 | Pledge to Reduce | `prd-pledge-to-reduce.md` | Commitment device after the Calculator; progress banner on return visits | ★★★ | ★★★★ | Medium |
+
+### Phase 2 Implementation Order
+
+1. **Milestone Countdown Alert** — low effort, highest immediate session-time impact
+2. **Witness History Log** — low effort, makes passive time feel meaningful
+3. **Social Ripple** — low effort, zero infrastructure, instant social proof
+4. **Daily Streak** — medium effort, strongest D7 return-visit driver
+5. **Trivia Quiz** — medium effort, 3–5 min active engagement
+6. **What-If Simulator** — medium effort, highest shareability + return traffic
+7. **Pledge to Reduce** — medium effort, longest return-visit tail
 
 ## Shared Design Principles
 
