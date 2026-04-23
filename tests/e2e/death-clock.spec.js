@@ -38,7 +38,7 @@ test.describe('AI Death Clock — end-to-end', () => {
   // ── Page structure ────────────────────────────────────────────────────────
 
   test('has correct page title', async ({ page }) => {
-    await expect(page).toHaveTitle(/AI Death Clock/i);
+    await expect(page).toHaveTitle(/Token Deathclock/i);
   });
 
   test('renders main header', async ({ page }) => {
