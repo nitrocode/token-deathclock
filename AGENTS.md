@@ -25,6 +25,8 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 ├── script.js               ← All DOM manipulation, Chart.js wiring, RAF loop
 ├── changelog-data.js       ← AUTO-GENERATED from CHANGELOG.md — do not edit
 ├── milestones-data.js      ← AUTO-GENERATED from milestones.yaml — do not edit
+├── project-stats-data.js   ← AUTO-GENERATED from project-stats.yaml — do not edit
+├── project-stats.yaml      ← Edit this to update footer PR count + token total
 ├── package.json            ← version, Jest config & devDependencies (no runtime deps)
 ├── release-please-config.json      ← release-please release automation config
 ├── .release-please-manifest.json  ← release-please version manifest
@@ -107,6 +109,19 @@ When adding or modifying code, agents **must** write matching tests:
 Edit the `MILESTONES` array in `death-clock-core.js`. Each object requires:
 `id`, `name`, `icon`, `tokens`, `shortDesc`, `description`, `consequence`, `followingEvent`, `color`, `darkColor`.
 Keep the array sorted in ascending `tokens` order — the constants test enforces this.
+
+### Updating project token consumption stats (footer)
+The footer shows how many tokens this project has consumed building itself.
+After each agent session that merges one or more PRs, **update `project-stats.yaml`**:
+
+```yaml
+pr_count: 47        # ← increment by the number of PRs merged this session
+total_tokens: 7000000  # ← add the tokens consumed this session
+```
+
+Then run `npm run build:project-stats` to regenerate `project-stats-data.js`.
+The deploy workflow runs this automatically on every push to `main`, so the
+generated file will always reflect the latest YAML values.
 
 ### Adding a new pure utility function
 1. Add the function to `death-clock-core.js`.
@@ -225,6 +240,6 @@ feat!: redesign anchor hash scheme (removes legacy ?tab= param)
 - Do **not** use mutable tags (e.g. `@v6`) in `uses:` — always pin to a commit SHA with a full semver comment (e.g. `@abc1234... # v6.0.2`).
 - Do **not** finish a session without running `npm run test:ci` and `npm run test:e2e` to confirm both suites pass.
 - Do **not** let coverage decrease — a negative coverage delta on any PR fails the Codecov status check.
-- Do **not** edit `changelog-data.js` or `milestones-data.js` directly — they are auto-generated; edit `CHANGELOG.md` / `milestones.yaml` and run the corresponding build script.
+- Do **not** edit `changelog-data.js`, `milestones-data.js`, or `project-stats-data.js` directly — they are auto-generated; edit `CHANGELOG.md` / `milestones.yaml` / `project-stats.yaml` and run the corresponding build script.
 - Do **not** bump the version in `package.json` manually — let release-please handle it via Conventional Commits.
 - Do **not** use free-form commit or PR title messages — always follow the Conventional Commits format described above.
