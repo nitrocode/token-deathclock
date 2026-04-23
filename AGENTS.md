@@ -112,6 +112,29 @@ Every pull request automatically gets a live preview URL:
 
 ---
 
+## GitHub Actions Pinning
+
+All `uses:` references in `.github/workflows/` **must** be pinned to a full commit SHA, with the exact semver tag as an inline comment:
+
+```yaml
+# Correct — SHA-pinned with full semver comment
+uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+# Wrong — mutable tag, vulnerable to supply-chain attacks
+uses: actions/checkout@v6
+```
+
+**Why:** Mutable tags (e.g. `v6`) can be silently redirected to a different commit, creating a supply-chain risk. Pinning to a SHA guarantees immutability.
+
+**Keeping pins up-to-date:** Dependabot is configured in `.github/dependabot.yml` to open weekly PRs that bump pinned SHAs when new versions are released (ecosystem: `github-actions`). Do not disable or skip those PRs — they are the intended update mechanism.
+
+**When adding a new action:**
+1. Find the full semver tag for the version you want (e.g. `v3.1.0`).
+2. Resolve its commit SHA (`git ls-remote https://github.com/<owner>/<repo>.git refs/tags/<tag>`).
+3. Write `uses: <owner>/<action>@<sha> # <semver>`.
+
+---
+
 ## What NOT to Do
 
 - Do **not** add runtime npm packages — the site must remain fully static.
@@ -119,3 +142,4 @@ Every pull request automatically gets a live preview URL:
 - Do **not** remove or weaken the `escHtml()` guard on dynamic HTML.
 - Do **not** skip tests when adding new pure functions to the core module.
 - Do **not** change `BASE_TOKENS` / `TOKENS_PER_SECOND` / `BASE_DATE_ISO` independently — update all three as a set with a comment explaining the source.
+- Do **not** use mutable tags (e.g. `@v6`) in `uses:` — always pin to a commit SHA with a full semver comment (e.g. `@abc1234... # v6.0.2`).
