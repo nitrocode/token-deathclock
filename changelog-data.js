@@ -2,9 +2,21 @@
 // AUTO-GENERATED from CHANGELOG.md — do not edit directly.
 // Run `npm run build:changelog` to regenerate from CHANGELOG.md.
 
-const SITE_VERSION = "1.1.0";
+const SITE_VERSION = "1.2.0";
 
 const CHANGELOG_RELEASES = [
+  {
+    version: "1.2.0",
+    date: null,
+    sections: [
+      { heading: "Added", items: [
+        "bring predicted extinction date from year 5174 to ~2030 ([#48](https://github.com/nitrocode/token-deathclock/issues/48)) ([f24e0b5](https://github.com/nitrocode/token-deathclock/commit/f24e0b578eb7f09dfb4b36929a5bd1194809f6d7))",
+      ] },
+      { heading: "Fixed", items: [
+        "update footer PR count to 47 and token estimate to ~7M ([#47](https://github.com/nitrocode/token-deathclock/issues/47)) ([6b532b5](https://github.com/nitrocode/token-deathclock/commit/6b532b5facd3cfbeb4cf277a8a3ef4a8873f79cb))",
+      ] }
+    ],
+  },
   {
     version: "1.1.0",
     date: null,
