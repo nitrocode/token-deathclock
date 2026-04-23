@@ -174,6 +174,47 @@ uses: actions/checkout@v6
 
 ---
 
+## Commit and PR Title Convention
+
+**All commits and PR titles MUST use [Conventional Commits](https://www.conventionalcommits.org/) format:**
+
+```
+<type>[optional scope]: <short description>
+```
+
+Common types and when to use them:
+
+| Type | Use for |
+|------|---------|
+| `feat` | New feature or user-visible capability |
+| `fix` | Bug fix |
+| `docs` | Documentation-only changes |
+| `style` | Formatting, whitespace — no logic change |
+| `refactor` | Code restructure with no behaviour change |
+| `test` | Adding or updating tests |
+| `chore` | Build scripts, CI config, dependency bumps |
+| `perf` | Performance improvement |
+
+**Examples:**
+```
+feat: add URL hash anchoring for tabs and sections
+fix: prevent counter from drifting on tab switch
+docs: update AGENTS.md with semantic commit guidance
+chore: bump actions/checkout SHA to v4.2.0
+```
+
+This is required (not optional) because:
+- release-please reads commit types to determine the next semver bump automatically
+- The CHANGELOG.md is generated entirely from commit messages
+- PR titles become the squash-merge commit message on `main`
+
+**Breaking changes** — append `!` after the type or add a `BREAKING CHANGE:` footer:
+```
+feat!: redesign anchor hash scheme (removes legacy ?tab= param)
+```
+
+---
+
 ## What NOT to Do
 
 - Do **not** add runtime npm packages — the site must remain fully static.
@@ -186,3 +227,4 @@ uses: actions/checkout@v6
 - Do **not** let coverage decrease — a negative coverage delta on any PR fails the Codecov status check.
 - Do **not** edit `changelog-data.js` or `milestones-data.js` directly — they are auto-generated; edit `CHANGELOG.md` / `milestones.yaml` and run the corresponding build script.
 - Do **not** bump the version in `package.json` manually — let release-please handle it via Conventional Commits.
+- Do **not** use free-form commit or PR title messages — always follow the Conventional Commits format described above.
