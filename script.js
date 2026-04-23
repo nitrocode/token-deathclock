@@ -1,4 +1,4 @@
-/* global Chart, DeathClockCore, ChangelogData */
+/* global Chart, DeathClockCore, ChangelogData, ProjectStatsData */
 'use strict';
 
 // ============================================================
@@ -48,6 +48,12 @@
     SITE_VERSION      = '',
     CHANGELOG_RELEASES = [],
   } = (typeof window !== 'undefined' && window.ChangelogData) || {};
+
+  // ---- Unpack project stats -----------------------------------
+  const {
+    PROJECT_PR_COUNT     = 0,
+    PROJECT_TOTAL_TOKENS = 0,
+  } = (typeof window !== 'undefined' && window.ProjectStatsData) || {};
 
   // ---- State -----------------------------------------------
   const BASE_DATE_MS = new Date(BASE_DATE_ISO).getTime();
@@ -1182,6 +1188,18 @@
     });
 
     list.innerHTML = html;
+  }
+
+  // ---- Render footer meta-irony stats -------------------------
+  function renderFooterStats() {
+    const el = document.getElementById('footerMetaIrony');
+    if (!el || !PROJECT_PR_COUNT || !PROJECT_TOTAL_TOKENS) return;
+    const formattedTokens = '~' + PROJECT_TOTAL_TOKENS.toLocaleString('en-US');
+    el.innerHTML =
+      '🔥 This site was built using AI coding agents across ' +
+      escHtml(String(PROJECT_PR_COUNT)) + ' pull requests, consuming an estimated ' +
+      '<strong>' + escHtml(formattedTokens) + ' tokens</strong> in the process \u2014 ' +
+      'adding to the very problem it tracks.';
   }
 
   // ============================================================
@@ -3453,6 +3471,7 @@
     renderPredictionsTable();
     renderTips();
     renderChangelog();
+    renderFooterStats();
 
     // Chart init is isolated so a missing date-adapter or other chart error
     // cannot prevent the counters and life-blocks from running.
