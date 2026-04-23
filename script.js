@@ -2923,6 +2923,7 @@
     renderMilestones();
     renderPredictionsTable();
     renderTips();
+    renderChangelog();
 
     // Chart init is isolated so a missing date-adapter or other chart error
     // cannot prevent the counters and life-blocks from running.
