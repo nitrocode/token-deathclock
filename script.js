@@ -2991,7 +2991,7 @@
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
         const text = apologyText + '\n— The AI Industry, collectively\n\n\u2192 ' + SITE_URL;
-        copyToClipboard(copyBtn, text, '\uD83D\uDCCB Copy &amp; Send to Your AI Vendor');
+        copyToClipboard(copyBtn, text, '\uD83D\uDCCB Copy & Send to Your AI Vendor');
       });
     }
 
@@ -3185,7 +3185,6 @@
 
   function updateVillainLeaderboard() {
     const userDp    = acc.doomPoints;
-    const userBest  = acc.bestScore > 0 ? acc.bestScore * (1 / 1_000_000) : 0;
     const userTitle = getVillainRankTitle(userDp);
 
     // Update rank banner
@@ -3210,11 +3209,7 @@
       tr.innerHTML =
         '<td class="villain-pos">' + (idx + 1) + '</td>' +
         '<td class="villain-name">' + escHtml(entry.name) + (entry.isUser ? ' 👈' : '') + '</td>' +
-        '<td class="villain-score">' + (entry.dp >= 1_000_000
-          ? (entry.dp / 1_000_000).toFixed(1) + 'M DP'
-          : entry.dp >= 1000
-          ? (entry.dp / 1000).toFixed(1) + 'K DP'
-          : Math.round(entry.dp) + ' DP') + '</td>' +
+        '<td class="villain-score">' + escHtml(formatDoomPoints(entry.dp)) + '</td>' +
         '<td class="villain-rank-cell">' + escHtml(entry.note) + '</td>';
       tbody.appendChild(tr);
     });
