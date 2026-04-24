@@ -7,12 +7,12 @@ coverage:
     project:
       default:
         target: auto       # compare against the base commit
-        threshold: 0%      # zero tolerance — any drop in project coverage fails
+        threshold: 100%    # zero tolerance — any drop in project coverage fails
     # Fails the PR check if lines changed in the PR are not covered.
     patch:
       default:
         target: auto
-        threshold: 0%      # lines touched in the PR must not reduce coverage
+        threshold: 100%    # lines touched in the PR must not reduce coverage
 
 comment:
   # Show per-file coverage deltas in every PR comment.
