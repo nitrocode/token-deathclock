@@ -17,14 +17,14 @@
     "build": "npm run build:milestones && npm run build:changelog && npm run build:project-stats && npm run build:js && npm run build:css"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
-    "@types/js-yaml": "^4.0.9",
-    "esbuild": "^0.28.0",
-    "jest": "^30.3.0",
-    "jest-environment-jsdom": "^30.3.0",
-    "js-yaml": "^4.1.0",
-    "serve": "^14.2.6",
-    "typescript": "^6.0.3"
+    "@playwright/test": "1.59.1",
+    "@types/js-yaml": "4.0.9",
+    "esbuild": "0.28.0",
+    "jest": "30.3.0",
+    "jest-environment-jsdom": "30.3.0",
+    "js-yaml": "4.1.0",
+    "serve": "14.2.6",
+    "typescript": "6.0.3"
   },
   "jest": {
     "testEnvironment": "node",
