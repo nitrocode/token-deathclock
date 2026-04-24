@@ -4,6 +4,7 @@
   "description": "AI Death Clock — visualising the environmental cost of global AI token consumption",
   "homepage": "https://nitrocode.github.io/token-deathclock/",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "test": "jest --coverage",
     "test:ci": "jest --ci --coverage",
     "test:e2e": "playwright test",
@@ -14,10 +15,12 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
+    "@types/js-yaml": "^4.0.9",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
     "js-yaml": "^4.1.0",
-    "serve": "^14.2.6"
+    "serve": "^14.2.6",
+    "typescript": "^6.0.3"
   },
   "jest": {
     "testEnvironment": "node",

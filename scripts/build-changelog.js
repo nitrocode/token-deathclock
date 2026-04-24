@@ -28,8 +28,14 @@ const SITE_VERSION = pkg.version || '0.0.0';
 // ── Read and parse CHANGELOG.md ──────────────────────────────────────────────
 const raw = fs.readFileSync(SRC, 'utf8');
 
+/** @typedef {{ heading: string, items: string[] }} Section */
+/** @typedef {{ version: string, date: string|null, sections: Section[] }} Release */
+
+/** @type {Release[]} */
 const releases = [];
+/** @type {Release|null} */
 let currentRelease = null;
+/** @type {Section|null} */
 let currentSection = null;
 
 for (const line of raw.split('\n')) {
@@ -71,15 +77,18 @@ if (releases.length === 0) {
 }
 
 // ── Generate JS ───────────────────────────────────────────────────────────────
+/** @param {string} s */
 function jsStr(s) {
   return JSON.stringify(String(s));
 }
 
+/** @param {Section} sec */
 function renderSection(sec) {
   const itemLines = sec.items.map((item) => `        ${jsStr(item)},`).join('\n');
   return `      { heading: ${jsStr(sec.heading)}, items: [\n${itemLines}\n      ] }`;
 }
 
+/** @param {Release} r */
 function renderRelease(r) {
   const secLines = r.sections.map(renderSection).join(',\n');
   const datePart = r.date ? jsStr(r.date) : 'null';

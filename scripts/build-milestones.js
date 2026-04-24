@@ -27,7 +27,18 @@ const REQUIRED_FIELDS = [
 
 // ── Load & parse ─────────────────────────────────────────────────────────────
 const raw = fs.readFileSync(SRC, 'utf8');
-const doc = yaml.load(raw);
+
+/**
+ * @typedef {{
+ *   id: string, name: string, icon: string, tokens: number,
+ *   shortDesc: string, description: string, consequence: string,
+ *   followingEvent: string, color: string, darkColor: string,
+ *   reference?: string, extinctionMarker?: boolean,
+ *   [key: string]: unknown
+ * }} MilestoneConfig
+ */
+
+const doc = /** @type {{ milestones?: MilestoneConfig[] } | null | undefined} */ (yaml.load(raw));
 
 if (!doc || !Array.isArray(doc.milestones) || doc.milestones.length === 0) {
   console.error('ERROR: milestones.yaml must contain a non-empty `milestones` array.');
@@ -78,12 +89,14 @@ if (extinctionMarkers.length > 1) {
 }
 
 // ── Generate JS ───────────────────────────────────────────────────────────────
+/** @param {string} s */
 function jsString(s) {
   // Emit as a template-literal-safe single-quoted JS string.
   // We use JSON.stringify for reliable escaping.
   return JSON.stringify(String(s));
 }
 
+/** @param {MilestoneConfig} m */
 function renderMilestone(m) {
   const lines = [
     '  {',
