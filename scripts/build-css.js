@@ -3,7 +3,8 @@
  * build-css.js
  *
  * Concatenates the component stylesheet source files from styles/ into the
- * single styles.css file served by the site.
+ * single styles.css file served by the site.  The concatenated output is then
+ * minified with esbuild.
  *
  * Source files are loaded in the order defined in PARTS below, which mirrors
  * the original top-to-bottom section order of styles.css.
@@ -13,8 +14,9 @@
 
 'use strict';
 
-const fs   = require('fs');
-const path = require('path');
+const fs      = require('fs');
+const path    = require('path');
+const esbuild = require('esbuild');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -44,10 +46,20 @@ const chunks = PARTS.map((file) => {
 
 // Concatenate directly — each source file preserves its own trailing blank lines
 // so no additional separator is needed.
-const output = chunks.join('');
+const unminified = chunks.join('');
 
 const outPath = path.join(ROOT, 'styles.css');
-fs.writeFileSync(outPath, output);
 
-const lineCount = output.split('\n').length - 1;
-console.log(`styles.css rebuilt from ${PARTS.length} source files (${lineCount} lines)`);
+// Minify with esbuild (synchronous transform API — no temp files needed).
+const result = esbuild.transformSync(unminified, {
+  minify: true,
+  loader: 'css',
+});
+
+fs.writeFileSync(outPath, result.code);
+
+const ratio = ((1 - result.code.length / unminified.length) * 100).toFixed(1);
+console.log(
+  `styles.css rebuilt from ${PARTS.length} source files ` +
+  `(${unminified.split('\n').length - 1} lines → ${result.code.length} bytes, −${ratio}% via esbuild minification)`,
+);
