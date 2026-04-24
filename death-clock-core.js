@@ -184,9 +184,9 @@ function formatTokenCountShort(n) {
 
 /**
  * Return all milestones whose token threshold has been reached.
- * @param {number} tokens - current cumulative token count
- * @param {Array}  milestones
- * @returns {Array}
+ * @param {number}     tokens - current cumulative token count
+ * @param {Milestone[]} milestones
+ * @returns {Milestone[]}
  */
 function getTriggeredMilestones(tokens, milestones) {
   if (typeof tokens !== 'number' || !Array.isArray(milestones)) return [];
@@ -195,9 +195,9 @@ function getTriggeredMilestones(tokens, milestones) {
 
 /**
  * Return the next milestone not yet reached.
- * @param {number} tokens
- * @param {Array}  milestones
- * @returns {Object|null}
+ * @param {number}      tokens
+ * @param {Milestone[]} milestones
+ * @returns {Milestone|null}
  */
 function getNextMilestone(tokens, milestones) {
   if (typeof tokens !== 'number' || !Array.isArray(milestones)) return null;
@@ -278,7 +278,7 @@ function generateProjectionData(currentTokens, ratePerSec, months, now, annualGr
   for (let i = 0; i <= months; i++) {
     const d = new Date(base.getTime());
     d.setMonth(d.getMonth() + i);
-    const elapsed = (d - base) / 1000; // seconds since base
+    const elapsed = (d.getTime() - base.getTime()) / 1000; // seconds since base
     let additionalTokens;
     if (growth === 0) {
       additionalTokens = ratePerSec * elapsed;
@@ -316,7 +316,7 @@ function formatDate(date) {
 function getTimeDelta(date, now) {
   if (!(date instanceof Date) || isNaN(date.getTime())) return '';
   const base = now instanceof Date ? now : new Date();
-  const diff = date - base;
+  const diff = date.getTime() - base.getTime();
   if (diff <= 0) return 'Already passed';
   const totalSeconds = Math.floor(diff / 1000);
   const totalMinutes = Math.floor(diff / (1000 * 60));
@@ -564,8 +564,8 @@ const COMPANY_STAGES = [
  * Compute the total passive token generation rate (tokens/sec) from owned AI
  * agents and fired (replaced) company roles.
  *
- * @param {Object} ownedAgents   - { agentId: count }  (non-integer counts are floored)
- * @param {Object} replacedRoles - { roleId: true }
+ * @param {Object.<string, number>}  ownedAgents   - { agentId: count }  (non-integer counts are floored)
+ * @param {Object.<string, boolean>} replacedRoles - { roleId: true }
  * @returns {number}               tokens per second
  */
 function computePassiveRate(ownedAgents, replacedRoles) {
@@ -616,9 +616,9 @@ const SESSION_CHALLENGE_DEFS = [
 
 /**
  * Return the first personal milestone that the player has not yet crossed.
- * @param {number} personalTokens
- * @param {Array}  milestones
- * @returns {Object|null}
+ * @param {number}      personalTokens
+ * @param {Milestone[]} milestones
+ * @returns {Milestone|null}
  */
 function getNextMilestoneForPlayer(personalTokens, milestones) {
   if (typeof personalTokens !== 'number' || !Array.isArray(milestones)) return null;

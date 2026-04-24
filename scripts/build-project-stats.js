@@ -22,7 +22,7 @@ const DEST = path.join(ROOT, 'project-stats-data.js');
 
 // ── Load & parse ─────────────────────────────────────────────────────────────
 const raw = fs.readFileSync(SRC, 'utf8');
-const doc = yaml.load(raw);
+const doc = /** @type {{ pr_count?: unknown, total_tokens?: unknown } | null | undefined} */ (yaml.load(raw));
 
 if (!doc || typeof doc !== 'object') {
   console.error('ERROR: project-stats.yaml must be a valid YAML mapping.');
