@@ -20,9 +20,9 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 ```
 .
 ├── index.html              ← GitHub Pages entry point (static HTML shell)
-├── styles.css              ← Dark/light theme, animations, responsive layout
+├── styles.css              ← AUTO-GENERATED from styles/ — do not edit directly
+├── script.js               ← AUTO-GENERATED from src/js/ — do not edit directly
 ├── death-clock-core.js     ← Pure functions only — no DOM, safe to unit-test
-├── script.js               ← All DOM manipulation, Chart.js wiring, RAF loop
 ├── changelog-data.js       ← AUTO-GENERATED from CHANGELOG.md — do not edit
 ├── milestones-data.js      ← AUTO-GENERATED from milestones.yaml — do not edit
 ├── project-stats-data.js   ← AUTO-GENERATED from project-stats.yaml — do not edit
@@ -30,6 +30,43 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 ├── package.json            ← version, Jest config & devDependencies (no runtime deps)
 ├── release-please-config.json      ← release-please release automation config
 ├── .release-please-manifest.json  ← release-please version manifest
+├── src/
+│   └── js/                 ← Source files that build into script.js (run npm run build:js)
+│       ├── 00-state.js         ← Shared state, core unpacking, helpers
+│       ├── 01-theme.js         ← Theme toggle (applyTheme, toggleTheme)
+│       ├── 02-counter.js       ← Live counter updater (updateCounters, setStatText)
+│       ├── 03-milestones.js    ← Milestone + predictions table rendering
+│       ├── 04-chart.js         ← Chart.js integration
+│       ├── 05-security.js      ← HTML escaping helper (escHtml)
+│       ├── 06-life-blocks.js   ← Life Blocks drill-down view
+│       ├── 07-stack-panel.js   ← Always-On Stack Panel
+│       ├── 08-static-renders.js← Tips, Changelog, Footer stats, SITE_URL
+│       ├── 09-ticker.js        ← "AI Is Currently Generating…" Ticker
+│       ├── 10-equivalences.js  ← "What Could We Have Done Instead?" strip
+│       ├── 11-share.js         ← Share Your Doom + Footer share row
+│       ├── 12-receipt.js       ← Token Receipt Modal
+│       ├── 13-calculator.js    ← Personal Footprint Calculator
+│       ├── 14-badges.js        ← Doom Achievements / Badge System
+│       ├── 15-accelerator.js   ← Accelerate the Doom game
+│       ├── 16-social-ripple.js ← Social Ripple — "You're Not Alone"
+│       ├── 17-witness-history.js ← Witness History — Live Session Event Log
+│       ├── 18-scary-features.js  ← Scary & Satirical Features (PRDs 1–7)
+│       ├── 19-milestone-alert.js ← "Wait for It" Milestone Countdown Alert
+│       ├── 20-tabs.js          ← Tab navigation
+│       └── 21-boot.js          ← Bootstrap / init
+├── styles/                 ← Source files that build into styles.css (run npm run build:css)
+│   ├── variables.css           ← CSS custom properties (colour tokens, themes)
+│   ├── base.css                ← Reset, typography, layout, GitHub corner, theme toggle
+│   ├── hero-tabs.css           ← Hero header, tab bar
+│   ├── content-pages.css       ← News, About, FAQ, Changelog tabs
+│   ├── counter-milestones.css  ← Counter, impact stats, milestones, chart, predictions
+│   ├── life-blocks.css         ← Life Blocks + Always-On Stack Panel
+│   ├── tips.css                ← Token-Saving Tips, milestone ref links
+│   ├── footer.css              ← Footer element, footer-share buttons, utility classes, responsive overrides
+│   ├── features.css            ← Equivalences, ticker, calculator, achievements, share, receipt
+│   ├── accelerator.css         ← Accelerate the Doom game styles
+│   ├── social.css              ← Social ripple, witness history, milestone countdown/flash
+│   └── scary-features.css      ← Scary & satirical features (PRDs 1–7)
 ├── tests/
 │   └── death-clock.test.js ← 75 Jest unit tests for death-clock-core.js
 └── .github/
@@ -48,11 +85,12 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 
 | Rule | Detail |
 |------|--------|
-| **Core / DOM split** | `death-clock-core.js` must never import or reference the DOM. All DOM work belongs in `script.js`. |
+| **Core / DOM split** | `death-clock-core.js` must never import or reference the DOM. All DOM work belongs in `src/js/` (built into `script.js`). |
 | **No runtime dependencies** | The live site loads only Chart.js from a CDN. There are no npm runtime packages. |
 | **CommonJS + browser dual export** | `death-clock-core.js` exports via `module.exports` for Jest and via `window.DeathClockCore` for the browser. Do not change this pattern without updating both consumers. |
-| **HTML escaping** | All dynamic strings rendered into `innerHTML` must pass through `escHtml()` in `script.js`. Never assign untrusted data directly to `innerHTML`. |
-| **Counter anchor** | `getCurrentTokens()` in `script.js` computes elapsed time from `BASE_DATE_ISO` (exported by the core module), **not** from page-load time. `pageLoadTime` is reserved for the session counter only. |
+| **HTML escaping** | All dynamic strings rendered into `innerHTML` must pass through `escHtml()` in `src/js/05-security.js`. Never assign untrusted data directly to `innerHTML`. |
+| **Counter anchor** | `getCurrentTokens()` in `src/js/00-state.js` computes elapsed time from `BASE_DATE_ISO` (exported by the core module), **not** from page-load time. `pageLoadTime` is reserved for the session counter only. |
+| **Build before commit** | After editing any file in `src/js/`, run `npm run build:js`. After editing any file in `styles/`, run `npm run build:css`. Commit both the source file and the rebuilt output file. The CI deploy step also rebuilds automatically. |
 
 ---
 
@@ -127,10 +165,13 @@ generated file will always reflect the latest YAML values.
 1. Add the function to `death-clock-core.js`.
 2. Export it via the `DeathClockCore` object at the bottom of the file.
 3. Add unit tests in `tests/death-clock.test.js`.
-4. Import it in `script.js` via the destructuring at the top of the IIFE.
+4. Import it in `src/js/00-state.js` via the destructuring at the top, then run `npm run build:js`.
+
+### Adding or modifying DOM behaviour
+Edit the relevant file in `src/js/` (see the repository layout for which file covers which feature), then run `npm run build:js` to regenerate `script.js`.
 
 ### Changing the visual theme
-Edit `styles.css`. CSS custom properties for colours live in `:root[data-theme="dark"]` and `:root[data-theme="light"]`. The theme toggle is managed by `applyTheme()` in `script.js`.
+Edit `styles/variables.css` for colour tokens, or the relevant component file in `styles/` for layout. CSS custom properties for colours live in `:root[data-theme="dark"]` and `:root[data-theme="light"]` inside `styles/variables.css`. The theme toggle is managed by `applyTheme()` in `src/js/01-theme.js`. After any CSS change, run `npm run build:css` to regenerate `styles.css`.
 
 ### Deployment
 Merging to `main` triggers the `deploy.yml` workflow automatically. It pushes the static site to the `gh-pages` branch (root).
@@ -241,5 +282,7 @@ feat!: redesign anchor hash scheme (removes legacy ?tab= param)
 - Do **not** finish a session without running `npm run test:ci` and `npm run test:e2e` to confirm both suites pass.
 - Do **not** let coverage decrease — a negative coverage delta on any PR fails the Codecov status check.
 - Do **not** edit `changelog-data.js`, `milestones-data.js`, or `project-stats-data.js` directly — they are auto-generated; edit `CHANGELOG.md` / `milestones.yaml` / `project-stats.yaml` and run the corresponding build script.
+- Do **not** edit `script.js` directly — it is auto-generated from `src/js/` source files; edit the relevant file in `src/js/` and run `npm run build:js`.
+- Do **not** edit `styles.css` directly — it is auto-generated from `styles/` source files; edit the relevant file in `styles/` and run `npm run build:css`.
 - Do **not** bump the version in `package.json` manually — let release-please handle it via Conventional Commits.
 - Do **not** use free-form commit or PR title messages — always follow the Conventional Commits format described above.
