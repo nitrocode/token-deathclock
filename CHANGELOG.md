@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.3.0...ai-death-clock-v1.3.1) (2026-04-24)
+
+
+### Fixed
+
+* HTML entity bug in apology copy label, remove dead userBest variable, simplify villain DP formatting ([#52](https://github.com/nitrocode/token-deathclock/issues/52)) ([3cd91d7](https://github.com/nitrocode/token-deathclock/commit/3cd91d7253b557249ce9dcdd2df775dc2ae42099))
+
 ## [1.3.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.2.0...ai-death-clock-v1.3.0) (2026-04-23)
 
 
