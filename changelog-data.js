@@ -2,9 +2,18 @@
 // AUTO-GENERATED from CHANGELOG.md — do not edit directly.
 // Run `npm run build:changelog` to regenerate from CHANGELOG.md.
 
-const SITE_VERSION = "1.3.0";
+const SITE_VERSION = "1.3.1";
 
 const CHANGELOG_RELEASES = [
+  {
+    version: "1.3.1",
+    date: null,
+    sections: [
+      { heading: "Fixed", items: [
+        "HTML entity bug in apology copy label, remove dead userBest variable, simplify villain DP formatting ([#52](https://github.com/nitrocode/token-deathclock/issues/52)) ([3cd91d7](https://github.com/nitrocode/token-deathclock/commit/3cd91d7253b557249ce9dcdd2df775dc2ae42099))",
+      ] }
+    ],
+  },
   {
     version: "1.3.0",
     date: null,
