@@ -27,6 +27,7 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 ├── milestones-data.js      ← AUTO-GENERATED from milestones.yaml — do not edit
 ├── project-stats-data.js   ← AUTO-GENERATED from project-stats.yaml — do not edit
 ├── project-stats.yaml      ← Edit this to update footer PR count + token total
+├── CLAUDE.md               ← symlink → AGENTS.md (read by Claude AI agents)
 ├── package.json            ← version, Jest config & devDependencies (no runtime deps)
 ├── release-please-config.json      ← release-please release automation config
 ├── .release-please-manifest.json  ← release-please version manifest
@@ -173,6 +174,15 @@ Edit the relevant file in `src/js/` (see the repository layout for which file co
 ### Changing the visual theme
 Edit `styles/variables.css` for colour tokens, or the relevant component file in `styles/` for layout. CSS custom properties for colours live in `:root[data-theme="dark"]` and `:root[data-theme="light"]` inside `styles/variables.css`. The theme toggle is managed by `applyTheme()` in `src/js/01-theme.js`. After any CSS change, run `npm run build:css` to regenerate `styles.css`.
 
+### Running a full build
+The `npm run build` convenience script runs all five build steps in sequence:
+
+```bash
+npm run build   # equivalent to: build:milestones + build:changelog + build:project-stats + build:js + build:css
+```
+
+This is useful when multiple YAML/source changes need to be batched in one step.
+
 ### Deployment
 Merging to `main` triggers the `deploy.yml` workflow automatically. It pushes the static site to the `gh-pages` branch (root).
 
@@ -204,6 +214,44 @@ Every pull request automatically gets a live preview URL:
 - Deployed to: `https://nitrocode.github.io/token-deathclock/previews/pr-{number}/`
 - A bot comment is posted (and updated) on the PR with the link
 - Preview directory is removed automatically by `preview-cleanup.yml` when the PR is closed
+
+---
+
+## Build System & Bundler
+
+The build pipeline uses **esbuild** (`devDependency`) to minify the concatenated JS and
+CSS output.  The two-stage process is:
+
+1. **Concatenate** — `scripts/build-js.js` (or `build-css.js`) assembles source files
+   into a single string in memory.
+2. **Minify** — esbuild's synchronous `transformSync()` API minifies the string and
+   writes the final file.
+
+Measured savings on the current codebase:
+
+| File | Before | After | Saving |
+|------|--------|-------|--------|
+| `script.js` | ~140 KB | ~74 KB | ~47% |
+| `styles.css` | ~86 KB | ~66 KB | ~23% |
+
+**Why esbuild and not webpack/rollup/parcel/vite?**
+
+- The site uses an IIFE/globals architecture (no ES modules), so true tree-shaking does
+  not apply.
+- esbuild handles both JS and CSS minification with a single devDependency.
+- It requires zero configuration files.
+- Build times are in the low-millisecond range.
+
+**Why the root-level JS files stay at root:**
+
+GitHub Pages publishes from `publish_dir: .` in the deploy workflow.  Moving the
+generated runtime files (`script.js`, `death-clock-core.js`, `*-data.js`, etc.) to a
+`dist/` subdirectory would require updating all `<script src="">` references in
+`index.html` and the `exclude_assets` list in the deploy workflow.  This is a valid
+future refactor, but the current layout keeps things simple.
+
+**CLAUDE.md symlink:** `CLAUDE.md` is a symlink to `AGENTS.md`.  Both files are read
+by Claude-family agents; keeping a single source avoids drift between the two.
 
 ---
 

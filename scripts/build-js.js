@@ -5,6 +5,7 @@
  * Concatenates the JS source files from src/js/ into the single script.js
  * file served by the site.  The source files contain the inner body of the
  * IIFE; this script wraps them with the standard header and footer.
+ * The concatenated output is then minified with esbuild.
  *
  * Source files are loaded in the order defined by PARTS (alphabetical order
  * matches the numeric prefixes on the filenames).
@@ -14,8 +15,9 @@
 
 'use strict';
 
-const fs   = require('fs');
-const path = require('path');
+const fs      = require('fs');
+const path    = require('path');
+const esbuild = require('esbuild');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -71,10 +73,26 @@ const chunks = PARTS.map((file) => {
 // trailing blank lines so no additional separator is needed.
 const innerBody = chunks.join('');
 
-const output = HEADER + '\n' + innerBody + FOOTER + '\n';
+const unminified = HEADER + '\n' + innerBody + FOOTER + '\n';
 
 const outPath = path.join(ROOT, 'script.js');
-fs.writeFileSync(outPath, output);
 
-const lineCount = output.split('\n').length - 1;
-console.log(`script.js rebuilt from ${PARTS.length} source files (${lineCount} lines)`);
+// Minify with esbuild (synchronous transform API — no temp files needed).
+const result = esbuild.transformSync(unminified, {
+  minify:       true,
+  // Keep the IIFE wrapper intact; tell esbuild the code is already IIFE-wrapped.
+  globalName:   undefined,
+  // Preserve the leading banner comment so tools can still identify the file.
+  banner:       '/* AI DEATH CLOCK — browser/DOM layer (minified) */',
+  // Target all modern browsers; no transpilation needed.
+  target:       ['es2018'],
+  loader:       'js',
+});
+
+fs.writeFileSync(outPath, result.code);
+
+const ratio = ((1 - result.code.length / unminified.length) * 100).toFixed(1);
+console.log(
+  `script.js rebuilt from ${PARTS.length} source files ` +
+  `(${unminified.split('\n').length - 1} lines → ${result.code.length} bytes, −${ratio}% via esbuild minification)`,
+);

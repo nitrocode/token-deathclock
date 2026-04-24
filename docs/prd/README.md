@@ -3,6 +3,12 @@
 This document indexes all product requirement documents for new visitor-facing features
 aimed at increasing amusement, engagement, and social sharing.
 
+## Infrastructure PRDs
+
+| PRD | File | Summary | Status |
+|-----|------|---------|--------|
+| Bundler & Build Optimisation | `bundler.md` | Minify JS/CSS with esbuild; ~47% JS / ~23% CSS savings | ✅ Implemented |
+
 ## Phase 1 — Completed Features
 
 | PRD | File | Summary | Shareability | Effort |
