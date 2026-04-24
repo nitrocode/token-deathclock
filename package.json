@@ -11,7 +11,9 @@
     "test:e2e:ui": "playwright test --ui",
     "build:milestones": "node scripts/build-milestones.js",
     "build:changelog": "node scripts/build-changelog.js",
-    "build:project-stats": "node scripts/build-project-stats.js"
+    "build:project-stats": "node scripts/build-project-stats.js",
+    "build:js": "node scripts/build-js.js",
+    "build:css": "node scripts/build-css.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
