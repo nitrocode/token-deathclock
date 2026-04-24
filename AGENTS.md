@@ -175,7 +175,7 @@ Edit the relevant file in `src/js/` (see the repository layout for which file co
 Edit `styles/variables.css` for colour tokens, or the relevant component file in `styles/` for layout. CSS custom properties for colours live in `:root[data-theme="dark"]` and `:root[data-theme="light"]` inside `styles/variables.css`. The theme toggle is managed by `applyTheme()` in `src/js/01-theme.js`. After any CSS change, run `npm run build:css` to regenerate `styles.css`.
 
 ### Running a full build
-The `npm run build` convenience script runs all six build steps in sequence:
+The `npm run build` convenience script runs all five build steps in sequence:
 
 ```bash
 npm run build   # equivalent to: build:milestones + build:changelog + build:project-stats + build:js + build:css
