@@ -2,9 +2,24 @@
 // AUTO-GENERATED from CHANGELOG.md — do not edit directly.
 // Run `npm run build:changelog` to regenerate from CHANGELOG.md.
 
-const SITE_VERSION = "1.3.1";
+const SITE_VERSION = "1.4.0";
 
 const CHANGELOG_RELEASES = [
+  {
+    version: "1.4.0",
+    date: null,
+    sections: [
+      { heading: "Added", items: [
+        "implement Option B checkJs TypeScript type checking ([#54](https://github.com/nitrocode/token-deathclock/issues/54)) ([7fda3f0](https://github.com/nitrocode/token-deathclock/commit/7fda3f047fae9aaf41dd39981a895d66d9bad0cb))",
+      ] },
+      { heading: "Changed", items: [
+        "split large files into organized source structure ([#56](https://github.com/nitrocode/token-deathclock/issues/56)) ([00629a0](https://github.com/nitrocode/token-deathclock/commit/00629a014ba5ca3b39f30a30111a1f1684e1c898))",
+      ] },
+      { heading: "Documentation", items: [
+        "spruce up README with mermaid diagram, emojis, and hyperlinks ([#60](https://github.com/nitrocode/token-deathclock/issues/60)) ([f3dcf70](https://github.com/nitrocode/token-deathclock/commit/f3dcf703cca30577be4596874055a6b3a99ae7ad))",
+      ] }
+    ],
+  },
   {
     version: "1.3.1",
     date: null,
