@@ -27,6 +27,7 @@ const PARTS = [
   'counter-milestones.css',
   'life-blocks.css',
   'tips.css',
+  'footer.css',
   'features.css',
   'accelerator.css',
   'social.css',

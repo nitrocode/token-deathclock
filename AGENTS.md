@@ -61,7 +61,8 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 │   ├── content-pages.css       ← News, About, FAQ, Changelog tabs
 │   ├── counter-milestones.css  ← Counter, impact stats, milestones, chart, predictions
 │   ├── life-blocks.css         ← Life Blocks + Always-On Stack Panel
-│   ├── tips.css                ← Token-Saving Tips, milestone ref links, utilities
+│   ├── tips.css                ← Token-Saving Tips, milestone ref links
+│   ├── footer.css              ← Footer element, footer-share buttons, utility classes, responsive overrides
 │   ├── features.css            ← Equivalences, ticker, calculator, achievements, share, receipt
 │   ├── accelerator.css         ← Accelerate the Doom game styles
 │   ├── social.css              ← Social ripple, witness history, milestone countdown/flash
