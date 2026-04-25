@@ -41,7 +41,7 @@ const CONFIGS = [
 /** Milliseconds to wait for the local server to start */
 const SERVER_STARTUP_MS = 2000;
 
-async function waitMs(ms) {
+async function waitMs(/** @type {number} */ ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -85,7 +85,7 @@ async function main() {
     await browser.close();
     console.log(`[screenshots] Done. Files are in: ${OUT_DIR}`);
   } catch (err) {
-    console.error('[screenshots] Error:', err.message);
+    console.error('[screenshots] Error:', err instanceof Error ? err.message : String(err));
     exitCode = 1;
   } finally {
     if (serverProcess) {
