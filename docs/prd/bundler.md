@@ -91,12 +91,12 @@ Reasons:
 
 ### What changes
 
-1. **`esbuild` devDependency** added (`^0.28.0`).
+1. **`esbuild` devDependency** added (`0.28.0`).
 2. **`scripts/build-js.js`** — concatenation unchanged; esbuild minifies the
    result in-process before writing `script.js`.
 3. **`scripts/build-css.js`** — same pattern; esbuild minifies before writing
    `styles.css`.
-4. **`package.json`** — new `build` convenience script runs all six build
+4. **`package.json`** — new `build` convenience script runs all five build
    steps in sequence.
 5. **Deploy workflow** — unchanged; `npm run build:js` and `npm run build:css`
    now produce minified output automatically.

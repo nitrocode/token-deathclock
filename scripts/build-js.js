@@ -80,8 +80,6 @@ const outPath = path.join(ROOT, 'script.js');
 // Minify with esbuild (synchronous transform API — no temp files needed).
 const result = esbuild.transformSync(unminified, {
   minify:       true,
-  // Keep the IIFE wrapper intact; tell esbuild the code is already IIFE-wrapped.
-  globalName:   undefined,
   // Preserve the leading banner comment so tools can still identify the file.
   banner:       '/* AI DEATH CLOCK — browser/DOM layer (minified) */',
   // Target all modern browsers; no transpilation needed.
