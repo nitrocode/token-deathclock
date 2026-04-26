@@ -362,8 +362,103 @@ describe('renderChangelog (DOM)', () => {
     expect(el.textContent).toBe('v1.2.3');
   });
 
-  test('changelog HTML does not contain unescaped script tags', () => {
-    expect(document.getElementById('changelogList').innerHTML).not.toContain('<script>');
+  test('markdown links in items are rendered as anchor tags', () => {
+    // Re-initialise with an item containing a markdown link
+    document.body.innerHTML = MIN_HTML;
+    global.ChangelogData = {
+      SITE_VERSION: '2.0.0',
+      CHANGELOG_RELEASES: [{
+        version: '2.0.0',
+        date: '2025-07-01',
+        sections: [{
+          heading: 'Added',
+          items: ['New feature ([#99](https://github.com/nitrocode/token-deathclock/issues/99)) ([abc1234](https://github.com/nitrocode/token-deathclock/commit/abc1234))'],
+        }],
+      }],
+    };
+    global.requestAnimationFrame = jest.fn();
+    // eslint-disable-next-line no-eval
+    eval(scriptCode);
+    const html = document.getElementById('changelogList').innerHTML;
+    // Markdown link syntax must not appear verbatim
+    expect(html).not.toContain('[#99]');
+    // PR link should be an anchor
+    expect(html).toContain('href="https://github.com/nitrocode/token-deathclock/issues/99"');
+    expect(html).toContain('>#99<');
+    // Commit link should be an anchor
+    expect(html).toContain('href="https://github.com/nitrocode/token-deathclock/commit/abc1234"');
+  });
+
+  test('non-https markdown link text is escaped, not rendered as anchor', () => {
+    document.body.innerHTML = MIN_HTML;
+    global.ChangelogData = {
+      SITE_VERSION: '2.0.0',
+      CHANGELOG_RELEASES: [{
+        version: '2.0.0',
+        date: null,
+        sections: [{
+          heading: 'Added',
+          items: ['bad link [click](javascript:alert(1))'],
+        }],
+      }],
+    };
+    global.requestAnimationFrame = jest.fn();
+    // eslint-disable-next-line no-eval
+    eval(scriptCode);
+    const html = document.getElementById('changelogList').innerHTML;
+    expect(html).not.toContain('href="javascript:');
+    // The raw markdown text should be escaped as literal text, not injected as a link
+    expect(html).not.toContain('<a href="javascript');
+  });
+
+  test('show-more button is rendered when there are older releases', () => {
+    const list = document.getElementById('changelogList');
+    const btn = list.querySelector('#changelogShowMore');
+    expect(btn).not.toBeNull();
+    expect(btn.textContent).toContain('older release');
+  });
+
+  test('older releases container is hidden by default', () => {
+    const list = document.getElementById('changelogList');
+    const older = list.querySelector('#changelogOlder');
+    expect(older).not.toBeNull();
+    expect(older.hidden).toBe(true);
+  });
+
+  test('clicking show-more reveals older releases and updates button text', () => {
+    const list = document.getElementById('changelogList');
+    const btn = list.querySelector('#changelogShowMore');
+    const older = list.querySelector('#changelogOlder');
+    btn.click();
+    expect(older.hidden).toBe(false);
+    expect(btn.textContent).toContain('Hide older releases');
+  });
+
+  test('clicking show-more again re-hides older releases', () => {
+    const list = document.getElementById('changelogList');
+    const btn = list.querySelector('#changelogShowMore');
+    const older = list.querySelector('#changelogOlder');
+    btn.click(); // expand
+    btn.click(); // collapse
+    expect(older.hidden).toBe(true);
+    expect(btn.textContent).toContain('older release');
+  });
+
+  test('no show-more button when there is only one release', () => {
+    document.body.innerHTML = MIN_HTML;
+    global.ChangelogData = {
+      SITE_VERSION: '1.0.0',
+      CHANGELOG_RELEASES: [{
+        version: '1.0.0',
+        date: '2025-04-14',
+        sections: [{ heading: 'Added', items: ['Initial release'] }],
+      }],
+    };
+    global.requestAnimationFrame = jest.fn();
+    // eslint-disable-next-line no-eval
+    eval(scriptCode);
+    const btn = document.getElementById('changelogShowMore');
+    expect(btn).toBeNull();
   });
 
   test('renders gracefully when ChangelogData is absent', () => {
