@@ -42,6 +42,32 @@ aimed at increasing amusement, engagement, and social sharing.
 6. **What-If Simulator** — medium effort, highest shareability + return traffic
 7. **Pledge to Reduce** — medium effort, longest return-visit tail
 
+## Phase 3 — Virality & Joy Features
+
+| # | PRD | File | Summary | Shareability | Return-visit pull | Effort |
+|---|-----|------|---------|-------------|-------------------|--------|
+| 1 | Token Horoscope | `prd-token-horoscope.md` | Daily satirical AI horoscope seeded from UTC date; shareable + refreshes every 24 h | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ (daily) | Low |
+| 2 | AI Guilt-O-Meter | `prd-guilt-o-meter.md` | Real-time guilt thermometer filling over 5 min; share your guilt level; unlocks Certified Hypocrite badge | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Low |
+| 3 | Token Confessional | `prd-token-confessional.md` | Confess your worst AI sin; receive satirical absolution + shareable card; ephemeral (nothing leaves the browser) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Low |
+| 4 | Token Exchange Rate Board | `prd-token-exchange-board.md` | Financial-terminal ticker showing live token-to-absurd-thing exchange rates reusing existing equivalences logic | ⭐⭐⭐⭐ | ⭐⭐ | Low |
+| 5 | Doomscroll Bingo | `prd-doomscroll-bingo.md` | Weekly 5×5 bingo card of AI sins; confetti on BINGO; Full House of Doom badge; highly shareable card image | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ (weekly) | Medium |
+| 6 | Name That Wasteful Prompt | `prd-name-that-prompt.md` | Daily slider game: guess how many tokens a silly fictional prompt used; Prompt Sommelier badge for 5 plays | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ (daily) | Medium |
+| 7 | AI Autopsy Report | `prd-ai-autopsy-report.md` | On-unload satirical autopsy document for session tokens; printable HTML card; shareable as screenshot | ⭐⭐⭐⭐ | ⭐⭐ | Medium |
+| 8 | Doom Postcard Generator | `prd-doom-postcard.md` | Canvas-rendered downloadable PNG postcard with chosen greeting, milestone, and live token count | ⭐⭐⭐⭐⭐ | ⭐⭐ | Medium |
+
+### Phase 3 Implementation Order
+
+1. **Token Horoscope** — low effort, strongest daily return-visit driver; daily seed + share button
+2. **AI Guilt-O-Meter** — low effort, adds emotional persistence throughout the session; badge milestone
+3. **Token Confessional** — low effort, highly relatable; shareable absolution card drives organic spread
+4. **Token Exchange Rate Board** — low effort, reuses existing equivalences; visual punch for Dashboard
+5. **Doomscroll Bingo** — medium effort, proven viral bingo format; weekly rotation drives D7 returns
+6. **Name That Wasteful Prompt** — medium effort, daily curiosity-gap game; strong badge retention mechanic
+7. **AI Autopsy Report** — medium effort, printable satirical artefact; complements Token Receipt
+8. **Doom Postcard Generator** — medium effort, highest absolute shareability (downloadable image)
+
+---
+
 ## Shared Design Principles
 
 - **No new runtime npm packages** — the site must remain fully static
