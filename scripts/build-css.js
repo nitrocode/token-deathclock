@@ -14,9 +14,8 @@
 
 'use strict';
 
-const fs      = require('fs');
-const path    = require('path');
-const esbuild = require('esbuild');
+const path = require('path');
+const { buildBundle } = require('./build-bundle');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -36,30 +35,9 @@ const PARTS = [
   'scary-features.css',
 ];
 
-const chunks = PARTS.map((file) => {
-  const fullPath = path.join(ROOT, 'styles', file);
-  if (!fs.existsSync(fullPath)) {
-    throw new Error(`Missing source file: styles/${file}`);
-  }
-  return fs.readFileSync(fullPath, 'utf8');
-});
-
-// Concatenate directly — each source file preserves its own trailing blank lines
-// so no additional separator is needed.
-const unminified = chunks.join('');
-
-const outPath = path.join(ROOT, 'styles.css');
-
-// Minify with esbuild (synchronous transform API — no temp files needed).
-const result = esbuild.transformSync(unminified, {
-  minify: true,
+buildBundle({
+  parts:  PARTS,
+  srcDir: path.join(ROOT, 'styles'),
+  outPath: path.join(ROOT, 'styles.css'),
   loader: 'css',
 });
-
-fs.writeFileSync(outPath, result.code);
-
-const ratio = ((1 - result.code.length / unminified.length) * 100).toFixed(1);
-console.log(
-  `styles.css rebuilt from ${PARTS.length} source files ` +
-  `(${unminified.split('\n').length - 1} lines → ${result.code.length} bytes, −${ratio}% via esbuild minification)`,
-);
