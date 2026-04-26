@@ -15,7 +15,7 @@
   padding: 1.5rem;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   transition: box-shadow 0.3s;
 }
 
@@ -54,6 +54,28 @@
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
+}
+
+/* ---- Token pop (+N float-up animation on total counter) ---- */
+.token-pop {
+  position: absolute;
+  bottom: 55%;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--accent-glow);
+  pointer-events: none;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: tokenPopFloat 1.5s ease-out forwards;
+  z-index: 20;
+}
+
+@keyframes tokenPopFloat {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(0); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-56px); }
 }
 
 /* ---- Impact Stats Strip ---- */

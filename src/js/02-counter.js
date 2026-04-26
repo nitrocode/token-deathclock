@@ -1,8 +1,25 @@
   // ---- Counter updater -------------------------------------
+  let _lastTokenPop = 0;
+
+  function spawnTokenPop(ratePerSec) {
+    const totalEl = document.getElementById('totalCounter');
+    if (!totalEl) return;
+    const container = totalEl.closest('.counter-box');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = 'token-pop';
+    el.setAttribute('aria-hidden', 'true');
+    // Slight random horizontal spread so successive pops don't stack perfectly
+    el.style.left = (42 + Math.random() * 16) + '%';
+    el.textContent = '+' + formatTokenCountShort(ratePerSec);
+    container.appendChild(el);
+    el.addEventListener('animationend', () => el.remove(), { once: true });
+  }
+
   function updateCounters() {
     const now = Date.now();
     const tokens = getCurrentTokens();
-    const currentRate = getRateAtDate(new Date(now));
+    const currentRate = getDynamicRate(new Date(now));
     // Use firstArrivalTime so the counter accumulates across return visits
     const sessionTokens = Math.round((now - firstArrivalTime) / 1000 * currentRate);
     const elapsed = Math.floor((now - firstArrivalTime) / 1000);
@@ -23,11 +40,22 @@
     }
     if (rateEl) rateEl.textContent = formatTokenCount(currentRate);
     if (rateEventEl) {
-      // Show the event that triggered this rate step
-      const rateEntry = [...RATE_SCHEDULE].reverse().find(
-        (r) => now >= new Date(r.date).getTime()
-      );
-      if (rateEntry) rateEventEl.textContent = rateEntry.event + ' · tokens/sec';
+      // Beyond BASE_DATE the rate is growing — reflect that in the subtitle
+      const baseMs = new Date(BASE_DATE_ISO).getTime();
+      if (now > baseMs) {
+        rateEventEl.textContent = 'and growing · tokens/sec';
+      } else {
+        const rateEntry = [...RATE_SCHEDULE].reverse().find(
+          (r) => now >= new Date(r.date).getTime()
+        );
+        if (rateEntry) rateEventEl.textContent = rateEntry.event + ' · tokens/sec';
+      }
+    }
+
+    // Spawn a floating "+N" pop on the total counter once per second
+    if (now - _lastTokenPop >= 1000) {
+      _lastTokenPop = now;
+      spawnTokenPop(currentRate);
     }
 
     // Impact stats
