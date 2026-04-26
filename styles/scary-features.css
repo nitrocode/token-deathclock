@@ -866,16 +866,13 @@
 
 @media (max-width: 480px) {
   .grim-reaper svg { width: 55px; }
-  /* Reduce the peek offset on small screens so the reaper isn't cut off too much */
-  .grim-reaper { transform: translateX(-8px); }
-  .grim-reaper:hover { transform: translateX(0); }
+  /* On small screens show the reaper fully — no peek offset so neither side is cut off */
+  .grim-reaper { transform: translateX(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .grim-reaper svg,
   .reaper-eye-inner { animation: none; }
-  /* transition: none keeps the hover snap instant; the mobile translateX(-8px)
-     offset (set above) still applies so the reaper remains partially peeking
-     even on reduced-motion devices — hover simply snaps it to translateX(0). */
+  /* transition: none keeps the hover snap instant on reduced-motion devices. */
   .grim-reaper { transition: none; }
 }
