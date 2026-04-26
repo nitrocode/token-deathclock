@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Token Deathclock — AI Energy Cost Live Counter 💀</title>
+  <meta name="description" content="100 million tokens per second. Watch AI consume the planet in real time — live counters, environmental milestones, and growth projections." />
+  <link rel="canonical" href="https://nitrocode.github.io/token-deathclock/" />
+
+  <!-- Open Graph (Facebook, LinkedIn, Discord, Slack, iMessage…) -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://nitrocode.github.io/token-deathclock/" />
+  <meta property="og:title"       content="Token Deathclock — AI's Environmental Cost, Live" />
+  <meta property="og:description" content="100 million tokens per second. Watch AI consume the planet in real time. Live counters, environmental milestones, and growth projections." />
+  <meta property="og:image"       content="https://nitrocode.github.io/token-deathclock/og-image.png" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Token Deathclock — AI's Environmental Cost, Live" />
+  <meta name="twitter:description" content="100 million tokens per second. Watch AI consume the planet in real time." />
+  <meta name="twitter:image"       content="https://nitrocode.github.io/token-deathclock/og-image.png" />
+
+  <!-- Content-Security-Policy: restrict scripts to self + jsDelivr CDN, styles to self + Google Fonts -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
+
+  <!-- Chart.js (pinned UMD build with SRI hash, loaded from CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"
+          integrity="sha384-FcQlsUOd0TJjROrBxhJdUhXTUgNJQxTMcxZe6nHbaEfFL1zjQ+bq/uRoBQxb0KMo"
+          crossorigin="anonymous"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ── GitHub Corner Banner ──────────────────────────────── -->
+<a href="https://github.com/nitrocode/token-deathclock" class="github-corner" aria-label="Fork me on GitHub" target="_blank" rel="noopener noreferrer">
+  <svg width="60" height="60" viewBox="0 0 250 250" aria-hidden="true">
+    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+    <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" class="octo-arm"></path>
+    <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+  </svg>
+</a>
+
+<!-- ── Theme Toggle ────────────────────────────────────────── -->
+<button id="themeToggle" aria-label="Toggle colour theme">☀️</button>
+
+<!-- ── Header ─────────────────────────────────────────────── -->
+<header>
+  <div class="container">
+    <span class="header-skull" aria-hidden="true">💀</span>
+    <h1 class="site-title glow-text">AI DEATH CLOCK</h1>
+    <p class="site-subtitle">The True Environmental Cost of Global AI Token Consumption</p>
+  </div>
+</header>
+
+
+<!-- ── Tab Navigation ────────────────────────────────────── -->
+<nav class="tab-bar" role="tablist" aria-label="Page sections">
+  <button class="tab-btn tab-btn--active" role="tab" id="tab-btn-dashboard"
+          aria-selected="true" aria-controls="tab-dashboard" data-tab="dashboard">
+    📊 Dashboard
+  </button>
+  <button class="tab-btn" role="tab" id="tab-btn-news"
+          aria-selected="false" aria-controls="tab-news" data-tab="news">
+    📰 News
+  </button>
+  <button class="tab-btn" role="tab" id="tab-btn-about"
+          aria-selected="false" aria-controls="tab-about" data-tab="about">
+    ℹ️ About
+  </button>
+  <button class="tab-btn" role="tab" id="tab-btn-changelog"
+          aria-selected="false" aria-controls="tab-changelog" data-tab="changelog">
+    📋 Changelog
+  </button>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!--  TAB: Dashboard                                         -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div id="tab-dashboard" role="tabpanel" aria-labelledby="tab-btn-dashboard">
+
+<!-- ── Live Counter ────────────────────────────────────────── -->
+<section id="counter-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Live Feed</p>
+    <h2>Global Token Counter</h2>
+
+    <div class="counter-grid">
+      <div class="counter-box">
+        <div class="counter-label">🌍 Total AI Tokens Consumed (Global, Est.)</div>
+        <div id="totalCounter" class="counter-value" aria-live="polite" aria-atomic="true">Loading…</div>
+        <div class="counter-subtitle">since 1 January 2020</div>
+      </div>
+
+      <div class="counter-box">
+        <div class="counter-label">⚡ Tokens Since You Arrived</div>
+        <div id="sessionCounter" class="counter-value session" aria-live="polite" aria-atomic="true">0</div>
+        <div class="counter-subtitle" id="sessionTime">0 seconds ago</div>
+      </div>
+
+      <div class="counter-box">
+        <div class="counter-label">🔥 Current Rate (Estimated)</div>
+        <div id="rateCounter" class="counter-value rate">100,000,000</div>
+        <div class="counter-subtitle" id="rateEvent">tokens per second, globally</div>
+      </div>
+    </div>
+
+    <!-- Environmental impact strip -->
+    <div class="impact-strip" id="impactStrip">
+      <div class="impact-stat">
+        <span class="stat-icon">⚡</span>
+        <div class="stat-value" id="statKwh">—</div>
+        <div class="stat-label">kWh Energy Used</div>
+      </div>
+      <div class="impact-stat">
+        <span class="stat-icon">💨</span>
+        <div class="stat-value" id="statCo2">—</div>
+        <div class="stat-label">kg CO₂ Emitted</div>
+      </div>
+      <div class="impact-stat">
+        <span class="stat-icon">🌊</span>
+        <div class="stat-value" id="statWater">—</div>
+        <div class="stat-label">Litres of Water Used</div>
+      </div>
+      <div class="impact-stat">
+        <span class="stat-icon">🌳</span>
+        <div class="stat-value" id="statTrees">—</div>
+        <div class="stat-label">Trees' CO₂ Capacity</div>
+      </div>
+    </div>
+
+    <!-- Your Tab (Running) — PRD 4 -->
+    <div class="session-tab-strip" id="sessionTabStrip" aria-live="polite" aria-atomic="true">
+      <div class="session-tab-header">
+        <span class="session-tab-title">🍺 Your Tab (Running)</span>
+        <span class="session-tab-sub">What this visit is costing the planet</span>
+      </div>
+      <div class="session-tab-items" id="sessionTabItems">
+        <div class="session-tab-item"><span class="sti-icon">💧</span><span id="stiWater" class="sti-val">—</span><span class="sti-label">cups of coffee worth of water</span></div>
+        <div class="session-tab-item"><span class="sti-icon">🌳</span><span id="stiTrees" class="sti-val">—</span><span class="sti-label">trees needed a full year to offset</span></div>
+        <div class="session-tab-item"><span class="sti-icon">⚡</span><span id="stiCharges" class="sti-val">—</span><span class="sti-label">smartphone charges of energy</span></div>
+        <div class="session-tab-item"><span class="sti-icon">🚗</span><span id="stiMetres" class="sti-val">—</span><span class="sti-label">metres driven in a car</span></div>
+      </div>
+    </div>
+
+    <!-- What could we have done instead -->
+    <div class="equiv-wrap">
+      <div class="equiv-header">
+        <span class="equiv-label">♻️ What we could have done instead:</span>
+        <button id="snarkToggle" class="snarky-toggle" aria-pressed="false">😤 Snarky Mode</button>
+      </div>
+      <div id="equivDisplay" class="equiv-display" role="status" aria-live="polite" aria-atomic="true">
+        <span id="equivIcon" class="equiv-icon" aria-hidden="true"></span>
+        <span id="equivText" class="equiv-text"></span>
+      </div>
+    </div>
+
+    <!-- Get My Receipt -->
+    <div class="receipt-trigger-wrap">
+      <button id="getReceiptBtn" class="receipt-trigger-btn">🧾 Get My Session Receipt</button>
+    </div>
+
+    <!-- Social Ripple — live presence strip -->
+    <div class="presence-strip" role="status" aria-live="polite">
+      <span class="presence-dot" aria-hidden="true"></span>
+      <span id="presenceCount" class="presence-count">—</span>
+      <span class="presence-label">people watching right now</span>
+      <span id="presenceReaction" class="presence-reaction"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ── AI Is Currently Writing Ticker ───────────────────── -->
+<section id="ticker-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Live Activity</p>
+    <h2>🤖 AI Is Currently Generating…</h2>
+    <div id="ai-ticker-wrap" class="ai-ticker-wrap">
+      <div class="ai-ticker-header">
+        <div id="ai-ticker-text" class="ai-ticker-text" role="status" aria-live="polite" aria-atomic="true"></div>
+        <button id="ai-ticker-toggle" class="ai-ticker-toggle-btn" aria-pressed="false">⏸ Pause</button>
+      </div>
+      <div id="ai-ticker-expanded" class="ai-ticker-expanded" hidden>
+        <pre id="ai-ticker-math" class="ai-ticker-math"></pre>
+        <div class="ai-ticker-actions">
+          <button id="ai-ticker-share" class="btn-sm">📤 Share this fact</button>
+          <button id="ai-ticker-resume" class="btn-sm">▶ Resume</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Apology Generator (PRD 2) ─────────────────────────── -->
+<section id="apology-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Corporate Accountability</p>
+    <h2>🙇 AI Writes Its Own Apology</h2>
+    <p class="lb-desc">Rotating corporate press-release apologies, generated entirely without AI. (Probably.)</p>
+    <div class="apology-card" id="apologyCard" aria-live="polite" aria-atomic="true">
+      <div class="apology-quote" id="apologyQuote"></div>
+      <div class="apology-footer">
+        <span class="apology-signoff">— The AI Industry, collectively</span>
+        <span class="apology-note">(AI did not write this)</span>
+      </div>
+    </div>
+    <div class="apology-actions">
+      <button id="apologyCopyBtn" class="btn-secondary">📋 Copy &amp; Send to Your AI Vendor</button>
+      <button id="apologyNextBtn" class="btn-ghost">↻ Next Apology</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── Prompt Hall of Shame (PRD 5) ──────────────────────── -->
+<section id="shame-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Leaked Intelligence</p>
+    <h2>🗂️ The Prompt Hall of Shame</h2>
+    <p class="lb-desc">A live-scrolling feed of prompts being processed right now, globally. (Dramatised. Probably.)</p>
+    <div class="shame-feed" id="shameFeed" aria-live="polite" aria-relevant="additions" aria-label="Live prompt feed"></div>
+    <div class="shame-submit-wrap">
+      <label class="shame-submit-label" for="shameInput">😤 Submit Your Worst Prompt:</label>
+      <div class="shame-input-row">
+        <input type="text" id="shameInput" class="shame-input" maxlength="200"
+               placeholder="e.g. &quot;Write me a haiku about synergy&quot;"
+               aria-label="Your worst AI prompt" autocomplete="off" spellcheck="false"/>
+        <button id="shameSubmitBtn" class="btn-primary">Submit</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Witness History — Live Event Log ─────────────────── -->
+<section id="event-log-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Session Log</p>
+    <h2>📜 Witness History</h2>
+    <p class="lb-desc">A live terminal log of what has happened globally since you arrived. A new entry appears every 15 seconds.</p>
+    <div id="event-log" class="event-log" aria-live="polite" aria-label="Session event log" aria-relevant="additions"></div>
+    <div class="event-log-actions">
+      <button id="exportLogBtn" class="btn-secondary">📋 Copy Log</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── Life Blocks ────────────────────────────────────────── -->
+<section id="life-blocks-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Countdown</p>
+    <h2>Life Blocks — Days Until Extinction 💀</h2>
+    <p class="lb-desc">
+      Every scale of time is being consumed right now. The always-on panel below shows years,
+      months, days, hours, minutes, and seconds simultaneously — no clicks required. Click any
+      block to jump the drill-down panel below to that time scale.
+    </p>
+    <!-- Always-On Temporal Stack -->
+    <div id="lb-stack-panel" class="lb-stack-panel" role="grid" aria-label="Time passing now" aria-live="polite">
+      <div class="lb-stack-row" id="lb-stack-years"   role="row" aria-label="Years"></div>
+      <div class="lb-stack-row" id="lb-stack-months"  role="row" aria-label="Months"></div>
+      <div class="lb-stack-row" id="lb-stack-days"    role="row" aria-label="Days"></div>
+      <div class="lb-stack-row" id="lb-stack-hours"   role="row" aria-label="Hours"></div>
+      <div class="lb-stack-row" id="lb-stack-minutes" role="row" aria-label="Minutes"></div>
+      <div class="lb-stack-row" id="lb-stack-seconds" role="row" aria-label="Seconds"></div>
+    </div>
+    <!-- Drill-down panel -->
+    <div class="lb-controls">
+      <nav id="lb-breadcrumb" class="lb-breadcrumb" aria-label="Life blocks drill-down navigation"></nav>
+      <div id="lb-info" class="lb-info"></div>
+    </div>
+    <div id="lb-container" class="lb-container" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ── Milestones ──────────────────────────────────────────── -->
+<section id="milestones-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Environmental Events</p>
+    <h2>Token Consumption Milestones</h2>
+    <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:1rem;">
+      Each threshold represents the cumulative global AI token count at which a symbolic environmental
+      event occurs.  Triggered milestones are highlighted in red.
+    </p>
+    <label class="milestone-filter-label">
+      <input type="checkbox" id="hideCompletedMilestones" />
+      Hide completed milestones
+    </label>
+    <div class="milestones-grid" id="milestonesGrid">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Chart ───────────────────────────────────────────────── -->
+<section id="chart-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Visualisation</p>
+    <h2>Token Growth Over Time &amp; Projections</h2>
+    <div class="chart-container">
+      <div class="chart-wrapper">
+        <canvas id="tokenChart" aria-label="Line chart showing historical and projected global AI token consumption"></canvas>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#ff3333;"></div>
+          <span>Historical (estimated)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#ff8800;border-top:2px dashed #ff8800;height:0;margin-top:1px;"></div>
+          <span>Projected</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#00cc77;"></div>
+          <span>Milestone thresholds</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Predictions Table ───────────────────────────────────── -->
+<section id="predictions-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Forecast</p>
+    <h2>Milestone Prediction Dates</h2>
+    <div class="predictions-table-wrap">
+      <table id="predictionsTable">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Threshold</th>
+            <th>Status</th>
+            <th>Predicted Date</th>
+            <th>Time Remaining</th>
+          </tr>
+        </thead>
+        <tbody id="predictionsBody">
+          <!-- populated by script.js -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── Token-Saving Tips ──────────────────────────────────── -->
+<section id="tips-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Act Now</p>
+    <h2>🌱 How to Reduce Your AI Footprint</h2>
+    <p class="tips-intro">
+      Every prompt matters. Small changes in how you use AI add up to billions of tokens saved —
+      and real environmental resources. The projections above show the worst case.
+      Here's how we change the trajectory.
+    </p>
+    <div class="tips-grid" id="tipsGrid">
+      <!-- populated by script.js -->
+    </div>
+    <div class="tips-impact-wrap" id="tipsImpactWrap">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
+
+<!-- ── Personal Footprint Calculator ─────────────────────── -->
+<section id="calculator-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Personal Impact</p>
+    <h2>💻 How Much Did <em>You</em> Destroy?</h2>
+    <button id="calcToggleBtn" class="scoring-toggle-btn" aria-expanded="false" aria-controls="calc-content">
+      ▶ Open Personal AI Carbon Footprint Calculator
+    </button>
+    <div id="calc-content" class="calc-content" hidden>
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <label for="calcPrompts" class="calc-label">
+            🗣️ Prompts sent this week: <strong id="calcPromptsVal">20</strong>
+          </label>
+          <input type="range" id="calcPrompts" class="calc-range" min="1" max="500" value="20" aria-valuemin="1" aria-valuemax="500" aria-valuenow="20" />
+        </div>
+        <div class="calc-field">
+          <label for="calcLength" class="calc-label">📏 Typical prompt length:</label>
+          <select id="calcLength" class="calc-select">
+            <option value="100">Short tweet-style (~100 tokens)</option>
+            <option value="500" selected>Medium paragraph (~500 tokens)</option>
+            <option value="2000">Long essay / code review (~2,000 tokens)</option>
+            <option value="8000">Deep research / long doc (~8,000 tokens)</option>
+          </select>
+        </div>
+        <div class="calc-field">
+          <label for="calcModel" class="calc-label">🤖 Which AI do you use most?</label>
+          <select id="calcModel" class="calc-select">
+            <option value="1">GPT-3.5 / smaller models (1×)</option>
+            <option value="3" selected>GPT-4o / Claude 3 (3×)</option>
+            <option value="4">GPT-4 class (4×)</option>
+            <option value="8">o1 / reasoning models (8×)</option>
+            <option value="0.1">Local CPU model (0.1×)</option>
+          </select>
+        </div>
+      </div>
+      <div id="calc-results" class="calc-results" aria-live="polite"></div>
+      <div class="calc-actions">
+        <button id="calcShareBtn" class="btn-primary">📤 Share My Footprint</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Doom Achievements ──────────────────────────────────── -->
+<section id="achievements-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Achievements</p>
+    <h2>🏆 Your Doom Badges</h2>
+    <p class="lb-desc">Earn badges for how long you stare into the abyss — and for what you do while you're here.</p>
+    <div id="badges-grid" class="badges-grid" aria-label="Badge collection">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Accelerate the Doom ──────────────────────────────── -->
+<section id="accelerator-section">
+  <div class="container">
+    <p class="section-label">&#x25A0; Gamification</p>
+    <h2>🚀 Accelerate the Doom</h2>
+    <p class="lb-desc">You know it's bad. Tap anyway. Every click adds tokens to your personal contribution to the apocalypse. Earn Doom Points, unlock upgrades, and trigger environmental milestones yourself.</p>
+    <button id="accelToggleBtn" class="scoring-toggle-btn" aria-expanded="false" aria-controls="accel-content">
+      ▶ Open Doom Accelerator
+    </button>
+    <div id="accel-content" hidden>
+
+      <!-- Personal stats strip -->
+      <div class="accel-stats-strip" aria-label="Personal acceleration stats">
+        <div class="accel-stat">
+          <div class="accel-stat-value" id="accelTokens">0</div>
+          <div class="accel-stat-label">Personal Tokens</div>
+        </div>
+        <div class="accel-stat">
+          <div class="accel-stat-value" id="accelCo2">0 g</div>
+          <div class="accel-stat-label">CO₂ Generated</div>
+        </div>
+        <div class="accel-stat">
+          <div class="accel-stat-value" id="accelWater">0 mL</div>
+          <div class="accel-stat-label">Water Used</div>
+        </div>
+        <div class="accel-stat accel-stat-dp">
+          <div class="accel-stat-value" id="accelDp">0 DP</div>
+          <div class="accel-stat-label">Doom Points</div>
+        </div>
+      </div>
+
+      <!-- Big Red Button area -->
+      <div class="brb-wrap">
+        <div id="comboDisplay" class="combo-display" aria-live="polite" aria-atomic="true" aria-label="Combo multiplier: 1×">1×</div>
+        <button id="bigRedButton" class="big-red-button" aria-label="Feed the Machine — 1× combo">
+          <span class="brb-icon" aria-hidden="true">⚙️</span>
+          <span id="brbLabel" class="brb-label">Feed the Machine</span>
+        </button>
+        <div class="brb-rate" id="brbTapRate">Tap to begin</div>
+      </div>
+
+      <!-- Milestone race bar -->
+      <div class="milestone-race-wrap">
+        <div class="milestone-race-header">
+          <span class="milestone-race-label">Next milestone: <strong id="milestoneRaceName">—</strong></span>
+          <span class="milestone-race-pct" id="milestoneRacePct">0%</span>
+        </div>
+        <div class="progress-bar" role="progressbar"
+             aria-label="Personal progress toward next milestone"
+             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+             id="milestoneRaceBar">
+          <div class="progress-fill milestone-race-fill" id="milestoneRaceFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Session Challenges -->
+      <div class="accel-section-title">⚡ Session Challenges</div>
+      <div id="challengeRow" class="challenge-row" role="list" aria-label="Session challenges">
+        <!-- populated by script.js -->
+      </div>
+
+      <!-- Upgrade Shop -->
+      <div class="accel-section-title">🛒 Upgrade Shop</div>
+      <div id="upgradeShop" class="upgrade-shop" aria-label="Upgrade shop">
+        <!-- populated by script.js -->
+      </div>
+
+      <!-- Company Stage Banner -->
+      <div class="accel-section-title">🏢 Build Your AI-Native Company</div>
+      <p class="lb-desc" style="margin-bottom:0.75rem;">
+        Fire your human workforce. Deploy AI agents. Token maxx your way to <em>Fully Automated Corp</em>
+        — all in the name of being AI-Native.
+      </p>
+      <div class="company-stage-banner" id="companyStage" aria-label="Current company stage">
+        <span class="company-stage-icon" id="companyStageIcon" aria-hidden="true">🌱</span>
+        <div>
+          <div class="company-stage-label">Company Stage</div>
+          <div class="company-stage-name" id="companyStageName">Garage Startup</div>
+        </div>
+        <div class="passive-rate-wrap">
+          <div class="passive-rate-label">⚙️ Passive</div>
+          <div class="passive-rate-value" id="passiveRateDisplay">0 tokens/sec</div>
+        </div>
+      </div>
+
+      <!-- Fire Your Human Workers -->
+      <div class="accel-section-title">👔 Replace Your Workforce</div>
+      <div id="workforcePanel" class="workforce-panel" aria-label="Workforce management — fire workers and replace with AI">
+        <!-- populated by script.js -->
+      </div>
+
+      <!-- AI Agents (passive generators) -->
+      <div class="accel-section-title">🤖 Deploy AI Agents</div>
+      <div id="agentShop" class="agent-shop" aria-label="AI agent deployment shop — passive token generation">
+        <!-- populated by script.js -->
+      </div>
+
+      <!-- Footer row: best score + share -->
+      <div class="accel-footer-row">
+        <div id="bestScoreRow" class="best-score-row">🏆 Best session: <span id="bestScoreValue">—</span></div>
+        <button id="shareAccelerationBtn" class="btn-secondary" hidden>📤 Share My Destruction</button>
+      </div>
+
+      <!-- Villain Leaderboard (PRD 6) -->
+      <div class="villain-leaderboard-wrap" id="villainLeaderboardWrap">
+        <div class="accel-section-title">🏆 Global Doom Leaderboard</div>
+        <p class="lb-desc" style="margin-bottom:0.75rem;">
+          You're doing great. Relatively speaking. <em>Very</em> relatively speaking.
+        </p>
+        <div class="villain-rank-banner" id="villainRankBanner" aria-live="polite">
+          <span class="villain-rank-title" id="villainRankTitle">Innocent Bystander</span>
+          <span class="villain-rank-score" id="villainRankScore">0 DP</span>
+        </div>
+        <table class="villain-table" aria-label="Global Doom Leaderboard">
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Doom Points</th><th>Rank</th></tr>
+          </thead>
+          <tbody id="villainTableBody">
+            <!-- populated by script.js -->
+          </tbody>
+        </table>
+        <div class="villain-congratulations" id="villainCongrats" hidden aria-live="assertive">
+          🏆 You are now the most prolific destroyer in this session. Congratulations.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</div><!-- /tab-dashboard -->
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!--  TAB: News & References                                 -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div id="tab-news" role="tabpanel" aria-labelledby="tab-btn-news" hidden>
+
+  <!-- ── Intro ──────────────────────────────────────────── -->
+  <section id="news-intro" class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Latest Doom</p>
+      <h2>News &amp; References</h2>
+      <p class="about-body">
+        A curated feed of reporting, research, and data on AI's environmental footprint,
+        the displacement of human workers, and the resource race powering it all.
+        Links open in a new tab. Dates reflect publication or last-updated date.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── AI & Jobs ──────────────────────────────────────── -->
+  <section id="news-employment" class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; AI &amp; Employment</p>
+      <h2>🏭 Jobs, Layoffs &amp; the AI Workforce Shift</h2>
+      <div class="news-grid">
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Layoffs</span>
+            <time class="news-card-date" datetime="2025-01">Jan 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://programs.com/resources/ai-layoffs/" target="_blank" rel="noopener noreferrer">
+              AI-Driven Layoffs Tracker
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            A running resource tracking layoffs at technology companies where AI automation
+            is cited as a contributing factor — from customer-support roles to software
+            engineering positions.
+          </p>
+          <span class="news-card-source">programs.com</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Layoffs</span>
+            <time class="news-card-date" datetime="2024-01">Ongoing</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://layoffs.fyi/" target="_blank" rel="noopener noreferrer">
+              Layoffs.fyi — Tech Layoff Tracker
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Real-time database of technology-industry layoffs since 2020, tracking company,
+            headcount, date, and source. Useful context for the scale of workforce disruption
+            happening alongside the AI boom.
+          </p>
+          <span class="news-card-source">layoffs.fyi</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Research</span>
+            <time class="news-card-date" datetime="2024-03">Mar 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.oxfordmartin.ox.ac.uk/publications/technology-at-work-v5-0/" target="_blank" rel="noopener noreferrer">
+              Technology at Work v5.0 — Oxford Martin School
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Oxford Martin School update on which jobs are at risk from AI and automation,
+            estimating that up to 47 % of US jobs could be automated in the coming decades —
+            with the pace accelerating sharply since the release of large language models.
+          </p>
+          <span class="news-card-source">Oxford Martin School</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Policy</span>
+            <time class="news-card-date" datetime="2024-06">Jun 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.imf.org/en/Blogs/Articles/2024/01/14/ai-will-transform-the-global-economy-lets-make-sure-it-benefits-humanity" target="_blank" rel="noopener noreferrer">
+              IMF: AI Will Transform the Global Economy
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            The International Monetary Fund warns that AI is poised to affect 40 % of
+            jobs worldwide, exacerbating inequality between countries that can adapt
+            and those that cannot.
+          </p>
+          <span class="news-card-source">IMF Blog</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── AI & Energy ────────────────────────────────────── -->
+  <section id="news-energy" class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; AI &amp; Environment</p>
+      <h2>⚡ Energy, Water &amp; Carbon</h2>
+      <div class="news-grid">
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Energy</span>
+            <time class="news-card-date" datetime="2025-01">Jan 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.iea.org/reports/electricity-2025" target="_blank" rel="noopener noreferrer">
+              IEA Electricity 2025 — AI &amp; Data Centre Power Surge
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            The International Energy Agency projects that data-centre electricity demand
+            — driven primarily by AI workloads — will more than double between 2024 and 2030,
+            consuming as much electricity as Japan does today.
+          </p>
+          <span class="news-card-source">IEA</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Energy</span>
+            <time class="news-card-date" datetime="2024-05">May 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.goldmansachs.com/insights/articles/AI-power-demand-to-triple" target="_blank" rel="noopener noreferrer">
+              Goldman Sachs: AI Power Demand Set to Triple by 2030
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Goldman Sachs Research estimates that AI will drive a 160 % increase in
+            data-centre power consumption by 2030, requiring the equivalent of more than
+            200 new power-plant projects to come online.
+          </p>
+          <span class="news-card-source">Goldman Sachs</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-water">Water</span>
+            <time class="news-card-date" datetime="2023-07">Jul 2023</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://arxiv.org/abs/2304.03271" target="_blank" rel="noopener noreferrer">
+              Making AI Less Thirsty — UC Riverside Study
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Peer-reviewed paper estimating that training GPT-3 consumed roughly 700,000 litres
+            of fresh water for cooling, and that a 20–50 question chat session with ChatGPT
+            evaporates about 500 mL — the equivalent of a standard water bottle.
+          </p>
+          <span class="news-card-source">arXiv / UC Riverside</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-carbon">Carbon</span>
+            <time class="news-card-date" datetime="2024-05">May 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.microsoft.com/en-us/sustainability/reports" target="_blank" rel="noopener noreferrer">
+              Microsoft 2024 Sustainability Report
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Microsoft disclosed that its carbon emissions rose 29 % year-on-year, driven
+            by data-centre construction and AI power consumption — directly contradicting
+            its 2030 carbon-negative pledge.
+          </p>
+          <span class="news-card-source">Microsoft</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-carbon">Carbon</span>
+            <time class="news-card-date" datetime="2024-07">Jul 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.theguardian.com/technology/2024/jul/02/google-carbon-emissions-ai" target="_blank" rel="noopener noreferrer">
+              Google's Carbon Emissions Surge 48 % as AI Fuels Energy Demand
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Google's 2024 environmental report revealed a 48 % spike in greenhouse-gas
+            emissions since 2019, primarily attributable to rising energy use at AI data
+            centres — undermining its net-zero commitments.
+          </p>
+          <span class="news-card-source">The Guardian</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Energy</span>
+            <time class="news-card-date" datetime="2023-08">Aug 2023</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.nature.com/articles/s41558-022-01377-7" target="_blank" rel="noopener noreferrer">
+              Unacceptable AI Carbon Footprint — Nature Climate Change
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Nature Climate Change peer-reviewed analysis quantifying the lifecycle carbon
+            footprint of large AI models, arguing that without urgent intervention the
+            AI sector's emissions will far exceed aviation by 2030.
+          </p>
+          <span class="news-card-source">Nature Climate Change</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Research & Reports ─────────────────────────────── -->
+  <section id="news-research" class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Research &amp; Data</p>
+      <h2>📊 Reports &amp; Datasets</h2>
+      <div class="news-grid">
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-research">Report</span>
+            <time class="news-card-date" datetime="2025-04">Apr 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://hai.stanford.edu/ai-index" target="_blank" rel="noopener noreferrer">
+              Stanford HAI AI Index 2025
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Stanford's comprehensive annual index tracking AI capabilities, economic impact,
+            policy developments, and public perception — includes a dedicated chapter on
+            AI's environmental footprint and energy consumption trends.
+          </p>
+          <span class="news-card-source">Stanford HAI</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-research">Data</span>
+            <time class="news-card-date" datetime="2024-12">Dec 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://epochai.org/trends" target="_blank" rel="noopener noreferrer">
+              Epoch AI — Trends in Machine Learning
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Epoch AI tracks the growth of compute used to train frontier AI models — a key
+            input to the token-consumption estimates on this site. Compute has grown
+            approximately 4× per year since 2010.
+          </p>
+          <span class="news-card-source">Epoch AI</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-research">Report</span>
+            <time class="news-card-date" datetime="2024-10">Oct 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.iea.org/reports/energy-and-ai" target="_blank" rel="noopener noreferrer">
+              IEA — Energy and AI (2024)
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            IEA dedicated report on the intersection of energy systems and artificial intelligence —
+            covering both AI as an energy consumer and AI as a potential tool for optimising
+            energy grids and reducing emissions elsewhere.
+          </p>
+          <span class="news-card-source">IEA</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-research">Research</span>
+            <time class="news-card-date" datetime="2024-02">Feb 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://arxiv.org/abs/2311.16863" target="_blank" rel="noopener noreferrer">
+              Power Hungry Processing — Watts Driving the Cost of AI Deployment
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Peer-reviewed benchmarking of the energy cost of running common NLP tasks across
+            different model sizes and hardware configurations. Provides per-token energy figures
+            used widely in AI environmental-impact research.
+          </p>
+          <span class="news-card-source">arXiv</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Recent News ────────────────────────────────────── -->
+  <section id="news-headlines" class="news-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Headlines</p>
+      <h2>📰 Recent Doom Headlines</h2>
+      <div class="news-grid">
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-water">Water</span>
+            <time class="news-card-date" datetime="2024-09">Sep 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.wired.com/story/ai-is-thirsty/" target="_blank" rel="noopener noreferrer">
+              AI Is Thirsty — Wired
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Wired investigates how AI data centres are straining local water supplies in drought-prone
+            regions, including Arizona and the Netherlands, where communities are fighting back against
+            hyperscaler expansion.
+          </p>
+          <span class="news-card-source">Wired</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Energy</span>
+            <time class="news-card-date" datetime="2024-08">Aug 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.reuters.com/technology/artificial-intelligence/ai-data-centres-driving-surge-us-power-demand-2024-08-01/" target="_blank" rel="noopener noreferrer">
+              AI Data Centres Driving Surge in US Power Demand — Reuters
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Reuters reports that US electricity demand is set to grow more than at any point in a
+            generation, driven almost entirely by AI data centres — and that the grid is not ready
+            for the load.
+          </p>
+          <span class="news-card-source">Reuters</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Jobs</span>
+            <time class="news-card-date" datetime="2024-11">Nov 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.bbc.com/news/articles/c9dl93dql53o" target="_blank" rel="noopener noreferrer">
+              AI Poses Serious Risks to Jobs — BBC News
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            BBC analysis of OECD data showing that knowledge workers in advanced economies face
+            the greatest exposure to large language model automation, with legal, financial,
+            and software roles under the most immediate pressure.
+          </p>
+          <span class="news-card-source">BBC News</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-carbon">Carbon</span>
+            <time class="news-card-date" datetime="2025-02">Feb 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.ft.com/content/9f7b8a20-ai-climate" target="_blank" rel="noopener noreferrer">
+              Big Tech's Climate Pledges Under Pressure From AI Expansion
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Financial Times investigation into how Amazon, Google, and Microsoft are
+            quietly walking back sustainability targets as AI infrastructure investment
+            requires reopening coal and gas power plants.
+          </p>
+          <span class="news-card-source">Financial Times</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-energy">Nuclear</span>
+            <time class="news-card-date" datetime="2024-09">Sep 2024</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.theguardian.com/technology/2024/sep/20/microsoft-three-mile-island-nuclear-ai" target="_blank" rel="noopener noreferrer">
+              Microsoft Reopens Three Mile Island to Power AI — The Guardian
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            Microsoft struck a deal to restart the Three Mile Island nuclear reactor in Pennsylvania
+            exclusively to power its AI data centres — a stark illustration of the energy demands
+            that the AI boom has created.
+          </p>
+          <span class="news-card-source">The Guardian</span>
+        </article>
+
+        <article class="news-card">
+          <div class="news-card-meta">
+            <span class="news-card-category news-cat-jobs">Automation</span>
+            <time class="news-card-date" datetime="2025-03">Mar 2025</time>
+          </div>
+          <h3 class="news-card-title">
+            <a href="https://www.cnbc.com/2025/03/17/ai-replacing-jobs-entry-level.html" target="_blank" rel="noopener noreferrer">
+              AI Is Already Replacing Entry-Level Jobs — CNBC
+            </a>
+          </h3>
+          <p class="news-card-desc">
+            CNBC reports on companies cutting entry-level hiring in software engineering,
+            customer service, and data annotation as AI agents take on tasks previously
+            requiring a junior employee — shrinking the on-ramp for the next generation.
+          </p>
+          <span class="news-card-source">CNBC</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Disclaimer ─────────────────────────────────────── -->
+  <section class="news-section">
+    <div class="container">
+      <p class="about-body news-disclaimer">
+        ⚠️ Links are to third-party sources and are provided for reference only. Token Deathclock
+        is not affiliated with any linked publication. URLs may change over time — if you find a
+        broken link, <a href="https://bit.ly/2K7e76D" target="_blank" rel="noopener noreferrer">let us know</a>.
+      </p>
+    </div>
+  </section>
+
+</div><!-- /tab-news -->
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!--  TAB: About                                             -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div id="tab-about" role="tabpanel" aria-labelledby="tab-btn-about" hidden>
+
+  <!-- ── Why This Was Built ──────────────────────────────── -->
+  <section id="about-why" class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Origin</p>
+      <h2>Why We Built This</h2>
+      <p class="about-lead">
+        Every AI prompt silently consumes electricity, emits CO₂, and evaporates cooling
+        water&nbsp;— yet every chat interface shows you exactly none of that.
+        The AI Death Clock exists to make the invisible tangible.
+      </p>
+      <div class="about-origin-grid">
+        <div class="about-origin-card">
+          <span class="about-origin-icon" aria-hidden="true">🌫️</span>
+          <h3>The Cost Is Hidden</h3>
+          <p>
+            AI inference servers run 24 / 7, globally, at enormous scale.
+            The convenience of an instant answer obscures a very real chain of
+            resource consumption that most users never see.
+          </p>
+        </div>
+        <div class="about-origin-card">
+          <span class="about-origin-icon" aria-hidden="true">📈</span>
+          <h3>Growth Is Exponential</h3>
+          <p>
+            Global AI token consumption has grown by orders of magnitude since
+            2020 and is projected to keep accelerating.  Training gets the
+            headlines, but <em>inference</em>&nbsp;— the constant, every-second
+            generation of tokens&nbsp;— is where most ongoing energy goes.
+          </p>
+        </div>
+        <div class="about-origin-card">
+          <span class="about-origin-icon" aria-hidden="true">🔢</span>
+          <h3>Numbers Need Context</h3>
+          <p>
+            &ldquo;65 quadrillion tokens&rdquo; means nothing to most people.
+            Translating it into kWh spent, CO₂ emitted, and trees required to
+            offset it makes the scale viscerally real.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Our Approach ────────────────────────────────────── -->
+  <section id="about-methodology" class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Methodology</p>
+      <h2>How It Works</h2>
+      <p class="about-body">
+        We estimate cumulative global token consumption from public data
+        (OpenAI usage disclosures, Epoch AI compute trends, AI&nbsp;Index),
+        anchor it to a known point in time, and extrapolate forward at the
+        current estimated global inference rate of&nbsp;100&thinsp;million
+        tokens per second.
+      </p>
+      <p class="about-body">
+        Environmental equivalents are derived from published per-token energy
+        figures and IEA / Microsoft sustainability data (see Sources below).
+        The milestones translate raw token counts into memorable environmental
+        thresholds&nbsp;— not to predict exact doom, but to give scale to what
+        these numbers mean.
+      </p>
+      <div class="about-steps">
+        <div class="about-step">
+          <div class="about-step-num">01</div>
+          <div>
+            <strong>Anchor point</strong> — a verified token-count estimate is
+            fixed to a specific date and time.
+          </div>
+        </div>
+        <div class="about-step">
+          <div class="about-step-num">02</div>
+          <div>
+            <strong>Live extrapolation</strong> — tokens tick forward in
+            real-time using the current estimated global inference rate.
+          </div>
+        </div>
+        <div class="about-step">
+          <div class="about-step-num">03</div>
+          <div>
+            <strong>Environmental conversion</strong> — token count is
+            multiplied by per-token energy, CO₂, and water factors from
+            peer-reviewed sources.
+          </div>
+        </div>
+        <div class="about-step">
+          <div class="about-step-num">04</div>
+          <div>
+            <strong>Milestone triggers</strong> — each environmental threshold
+            is crossed once and only once; the card lights up and stays lit.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Data Sources ────────────────────────────────────── -->
+  <section id="about-sources" class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Transparency</p>
+      <h2>Data Sources</h2>
+      <p class="about-body">
+        All figures are illustrative estimates intended to communicate scale,
+        not precise measurements.  The underlying factors are:
+      </p>
+      <div class="about-sources-wrap">
+        <table class="about-sources-table">
+          <thead>
+            <tr><th>Metric</th><th>Value</th><th>Source</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Energy per token</td>
+              <td>~0.0003 kWh / 1K tokens</td>
+              <td>Google / DeepMind inference benchmarks; MLPerf</td>
+            </tr>
+            <tr>
+              <td>CO₂ intensity</td>
+              <td>0.4 kg CO₂ / kWh</td>
+              <td>IEA global average grid intensity, 2024</td>
+            </tr>
+            <tr>
+              <td>Water per token</td>
+              <td>~0.5 L / 1K tokens</td>
+              <td>Microsoft Sustainability Report, 2023</td>
+            </tr>
+            <tr>
+              <td>CO₂ per tree</td>
+              <td>~21 kg CO₂ / year</td>
+              <td>US Forest Service estimates</td>
+            </tr>
+            <tr>
+              <td>Historical token growth</td>
+              <td>2020 – present</td>
+              <td>OpenAI usage blog; Epoch AI; AI Index 2024</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ────────────────────────────────────────────── -->
+  <section id="about-faq" class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Plain-Language Guide</p>
+      <h2>Frequently Asked Questions</h2>
+      <p class="about-lead">
+        Not a tech expert? No problem. Here are plain-language answers to the
+        most common questions about AI, tokens, and why any of this matters.
+      </p>
+
+      <div class="faq-list">
+
+        <!-- Q1 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🤖</span>
+            What is AI?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <strong>AI (Artificial Intelligence)</strong> is software that can do tasks we used
+              to think only humans could do — like writing text, answering questions, translating
+              languages, recognising photos, or generating images.
+            </p>
+            <p>
+              Modern AI systems (such as ChatGPT, Google Gemini, or Claude) are powered by
+              <em>large language models</em> (LLMs) — giant programs trained on billions of web
+              pages, books, and articles so they can predict what words should come next in a
+              sentence.
+            </p>
+            <div class="faq-example">
+              💡 Think of it like autocomplete on your phone — except it's been trained on almost
+              everything ever written, so it can complete entire essays, code files, or conversations.
+            </div>
+          </div>
+        </details>
+
+        <!-- Q2 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🔤</span>
+            What is a "token"?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              AI models don't read words — they read <strong>tokens</strong>. A token is a small
+              chunk of text, roughly 3–4 characters on average. Common short words like
+              "the" or "is" are a single token each. Longer words get split into several tokens.
+            </p>
+            <!-- Token count examples based on GPT-4 / cl100k_base tokenizer -->
+            <div class="faq-example">
+              💡 The sentence <em>"Hello, world!"</em> is about 4 tokens.
+              A typical email (~250 words) is roughly 330 tokens.
+              A full novel (~90,000 words) is around 120,000 tokens.
+            </div>
+            <p>
+              Every time you send a message to an AI chatbot, it reads your message (input tokens)
+              and writes a reply (output tokens). <strong>Both cost energy.</strong>
+            </p>
+          </div>
+        </details>
+
+        <!-- Q3 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">⚙️</span>
+            What is AI "inference"?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <strong>Inference</strong> is the moment an AI actually generates a response — when
+              it takes your question and produces an answer, word by word (or token by token).
+            </p>
+            <p>
+              It's different from <em>training</em> (which is the one-time process of teaching the
+              AI using vast amounts of data). Inference happens billions of times every day, around
+              the clock, every time anyone uses an AI tool anywhere in the world.
+            </p>
+            <div class="faq-example">
+              💡 Analogy: training is like sending an employee through a three-year university
+              programme. Inference is like that employee answering customer calls — it happens
+              constantly, and each call consumes electricity.
+            </div>
+          </div>
+        </details>
+
+        <!-- Q4 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">📚</span>
+            What's the difference between AI training and AI inference?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <strong>Training</strong> is the expensive, one-time (or infrequent) process of
+              building an AI model. It requires running data through billions of mathematical
+              operations on specialised hardware for weeks or months. A single training run can
+              use as much electricity as hundreds of homes use in a year.
+            </p>
+            <p>
+              <strong>Inference</strong> is the ongoing, every-second process of using that
+              already-trained model to answer questions. Each individual inference is cheap, but
+              with hundreds of millions of queries per day across every AI product on Earth, the
+              cumulative energy use is enormous — and <em>this is what this site tracks</em>.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q5 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">⚡</span>
+            Why does AI use so much energy?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Generating each token requires running your input through a neural network with
+              <em>billions of mathematical multiplications</em> on specialised chips called GPUs
+              or TPUs. These chips are extremely powerful — and extremely power-hungry.
+            </p>
+            <p>
+              A single AI server rack can draw as much electricity as 20–30 family homes. Data
+              centres housing thousands of those racks run 24 hours a day, 365 days a year.
+              The chips also generate a lot of heat, requiring large cooling systems that consume
+              even more electricity and water.
+            </p>
+            <div class="faq-example">
+              💡 One short ChatGPT conversation uses roughly the same energy as charging your
+              phone from 0% to 1% — but multiply that by billions of conversations every day.
+            </div>
+          </div>
+        </details>
+
+        <!-- Q6 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">💧</span>
+            How does AI use water?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              AI data centres use enormous amounts of water to cool their servers. When chips run
+              at full power, they generate heat. That heat is carried away using chillers and
+              cooling towers that evaporate large quantities of water into the air.
+            </p>
+            <p>
+              Microsoft's own sustainability report estimated that training a single large AI model
+              can consume hundreds of thousands of litres of fresh water. Inference — happening
+              continuously — adds billions more litres every year across the industry.
+            </p>
+            <!-- Source: Microsoft Sustainability Report 2023 (~0.5 L per 1K tokens) — matches Data Sources table -->
+            <div class="faq-example">
+              💡 Estimates suggest around 0.5 litres of water are consumed per 1,000 tokens
+              generated — or roughly half a small water bottle per short AI conversation.
+              (Source: Microsoft Sustainability Report 2023.)
+            </div>
+          </div>
+        </details>
+
+        <!-- Q7 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">💨</span>
+            What is CO₂ and why does it matter?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <strong>CO₂ (carbon dioxide)</strong> is a greenhouse gas. When power stations burn
+              coal, oil, or natural gas to generate electricity, CO₂ is released into the
+              atmosphere. This extra CO₂ traps heat from the sun, gradually warming the planet —
+              a process known as <strong>climate change</strong>.
+            </p>
+            <p>
+              Because AI data centres consume huge amounts of electricity, and much of the world's
+              electricity grid still relies on fossil fuels, running AI produces a significant
+              amount of CO₂. Even data centres that use renewable energy have an indirect carbon
+              footprint through manufacturing, water use, and grid draw during low-renewable
+              periods.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q8 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🌍</span>
+            Is AI bad for the environment?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              It's complicated. AI <em>can</em> be a powerful tool for environmental good —
+              helping model climate systems, optimise energy grids, or accelerate scientific
+              research. But the <em>current rapid growth</em> of AI token consumption is also
+              a significant and fast-growing source of energy and water use.
+            </p>
+            <p>
+              The goal of this site is not to say "AI is evil" — it's to make the hidden cost
+              <strong>visible</strong>, so individuals and organisations can make more informed
+              decisions about when and how to use AI, and so that pressure builds on AI companies
+              to invest in efficiency and clean energy.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q9 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">📊</span>
+            How accurate are the numbers on this site?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              The numbers are <strong>estimates</strong>, not official measurements. No public
+              real-time feed of global AI token consumption exists. We derive our figures from:
+            </p>
+            <p>
+              Published AI usage disclosures (OpenAI, etc.) · Epoch AI compute trend research ·
+              Academic papers on AI energy use · IEA electricity data ·
+              Microsoft sustainability reports.
+            </p>
+            <p>
+              The real-world figure could be higher or lower — the point is to communicate
+              <em>order of magnitude</em>. The counter is live in the sense that it extrapolates
+              forward in real time from a fixed anchor point at the current estimated global rate.
+              See the <strong>Data Sources</strong> section above for the exact figures used.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q10 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🚀</span>
+            Why does the counter go up so fast?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              <!-- Keep this rate in sync with TOKENS_PER_SECOND in death-clock-core.js -->
+              The current estimated global AI inference rate is around
+              <strong>100 million tokens per second</strong> — generated by all the AI services
+              (chatbots, search assistants, coding tools, image generators, API calls, etc.) running
+              simultaneously across every country, every company, and every individual user on the
+              planet.
+            </p>
+            <p>
+              That rate has grown by orders of magnitude since 2020, and is projected to keep
+              growing as more AI products launch and more people adopt them. Even if one company's
+              service is efficient, the sheer scale of global AI usage means the total climbs
+              relentlessly.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q11 -->
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span class="faq-question-icon" aria-hidden="true">🌱</span>
+            What can I actually do about this?
+          </summary>
+          <div class="faq-answer">
+            <p>
+              Quite a lot, actually. Individual habits scale up when millions of people share them:
+            </p>
+            <p>
+              <strong>Write shorter, clearer prompts</strong> — the more specific you are, the
+              fewer tokens the AI needs to generate a good answer.<br />
+              <strong>Use smaller models</strong> — for simple tasks (summarising a paragraph,
+              checking grammar), a lightweight model uses a fraction of the energy of a frontier
+              model.<br />
+              <strong>Don't regenerate unnecessarily</strong> — if an answer is good enough, use
+              it. Every regeneration is another burst of tokens.<br />
+              <strong>Tell organisations you care</strong> — write to your AI providers asking
+              about their energy roadmap. Consumer pressure works.<br />
+              <strong>Share this page</strong> — the more people understand the cost, the more
+              pressure there is to improve efficiency.
+            </p>
+            <div class="faq-example">
+              💡 Visit the <strong>Dashboard</strong> tab for the full
+              <em>Tips</em> section and <em>Personal Footprint Calculator</em>.
+            </div>
+          </div>
+        </details>
+
+      </div><!-- /.faq-list -->
+    </div>
+  </section>
+
+  <!-- ── What You Can Do ─────────────────────────────────── -->
+  <section id="about-action" class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Take Action</p>
+      <h2>What You Can Do</h2>
+      <p class="about-body">
+        Awareness is the first step — but action matters more.  Check the
+        <button class="about-inline-tab-link" data-switch-tab="dashboard"
+                role="link" aria-label="Switch to Dashboard tab">Dashboard</button>
+        for the <strong>Tips</strong> section and the
+        <strong>Personal Footprint Calculator</strong> to see your own impact
+        and how to reduce it.
+      </p>
+      <div class="about-action-grid">
+        <div class="about-action-card">
+          <span aria-hidden="true">✏️</span>
+          <strong>Write tighter prompts</strong>
+          <p>Fewer tokens in means fewer tokens out. Clear, specific questions outperform vague essays every time.</p>
+        </div>
+        <div class="about-action-card">
+          <span aria-hidden="true">🤏</span>
+          <strong>Use the right model</strong>
+          <p>Smaller models handle most everyday tasks at a fraction of the compute cost of frontier models.</p>
+        </div>
+        <div class="about-action-card">
+          <span aria-hidden="true">🔁</span>
+          <strong>Reuse &amp; cache</strong>
+          <p>Re-reading the same content, regenerating the same boilerplate, or spinning up duplicate contexts all cost tokens unnecessarily.</p>
+        </div>
+        <div class="about-action-card">
+          <span aria-hidden="true">📢</span>
+          <strong>Spread awareness</strong>
+          <p>Share this page.  The more people understand the cost, the more pressure builds on AI providers to improve efficiency.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /tab-about -->
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!--  TAB: Changelog                                          -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div id="tab-changelog" role="tabpanel" aria-labelledby="tab-btn-changelog" hidden>
+
+  <section id="changelog-history" class="about-section">
+    <div class="container">
+      <p class="section-label">&#x25A0; Release History</p>
+      <h2>Changelog</h2>
+      <p class="about-body">
+        All notable changes to this project are documented here.
+        The format follows <a href="https://keepachangelog.com/en/1.0.0/" target="_blank" rel="noopener noreferrer">Keep a Changelog</a>
+        and this project adheres to
+        <a href="https://semver.org/spec/v2.0.0.html" target="_blank" rel="noopener noreferrer">Semantic Versioning</a>.
+        View all official releases on
+        <a href="https://github.com/nitrocode/token-deathclock/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>.
+      </p>
+      <div id="changelogList" class="changelog-list" aria-live="polite">
+        <!-- populated by renderChangelog() in script.js -->
+      </div>
+    </div>
+  </section>
+
+</div><!-- /tab-changelog -->
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <p>Created by <strong>RB</strong> &mdash; AI Death Clock &mdash; 2026 &mdash; <a id="siteVersionLink" href="https://github.com/nitrocode/token-deathclock/releases" target="_blank" rel="noopener noreferrer"><span id="siteVersion">v1.0.0</span></a></p>
+    <p class="footer-disclaimer">
+      💬 <a href="https://bit.ly/2K7e76D" target="_blank" rel="noopener noreferrer">Feedback &amp; Contact</a> — questions, ideas, or data corrections welcome.
+    </p>
+    <p class="footer-disclaimer">
+      Environmental figures are illustrative estimates based on published AI energy-use research,
+      not official measurements. Sources: Google/DeepMind energy reports, Microsoft sustainability
+      disclosures, Epoch AI compute trends, AI Index 2024.
+    </p>
+    <p class="footer-disclaimer footer-meta-irony" id="footerMetaIrony">
+      🔥 This site was built using AI coding agents — consuming tokens in the process —
+      adding to the very problem it tracks.
+    </p>
+    <div class="footer-share-row" aria-label="Share this page">
+      <span class="footer-share-label">📣 Spread the Doom</span>
+      <button class="footer-share-btn" id="footerShareTwitter"   aria-label="Share on Twitter / X">🐦 Twitter</button>
+      <button class="footer-share-btn" id="footerShareReddit"    aria-label="Share on Reddit">🤖 Reddit</button>
+      <button class="footer-share-btn" id="footerShareLinkedIn"  aria-label="Share on LinkedIn">💼 LinkedIn</button>
+      <button class="footer-share-btn" id="footerShareWhatsApp"  aria-label="Share on WhatsApp">💬 WhatsApp</button>
+      <button class="footer-share-btn" id="footerShareBluesky"   aria-label="Share on Bluesky">🦋 Bluesky</button>
+      <button class="footer-share-btn" id="footerShareCopy"      aria-label="Copy link">📋 Copy link</button>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Share Your Doom (floating) ────────────────────────── -->
+<div id="share-doom-panel" class="share-doom-panel" hidden>
+  <div id="share-doom-options" class="share-doom-options" hidden>
+    <button id="shareTwitterBtn"  class="share-opt-btn">🐦 Twitter / X</button>
+    <button id="shareRedditBtn"   class="share-opt-btn">🤖 Reddit</button>
+    <button id="shareLinkedInBtn" class="share-opt-btn">💼 LinkedIn</button>
+    <button id="shareWhatsAppBtn" class="share-opt-btn">💬 WhatsApp</button>
+    <button id="shareBlueskyBtn"  class="share-opt-btn">🦋 Bluesky</button>
+    <button id="shareCopyBtn"     class="share-opt-btn">📋 Copy text</button>
+    <button id="shareCloseBtn"    class="share-opt-close" aria-label="Close share options">✕</button>
+  </div>
+  <button id="shareDoomBtn" class="share-doom-btn">📤 Share Your Doom</button>
+</div>
+
+<!-- ── Receipt Modal ─────────────────────────────────────── -->
+<div id="receipt-modal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="receipt-heading">
+  <div class="receipt-card" role="document">
+    <h2 id="receipt-heading" class="sr-only">Session Receipt</h2>
+    <pre id="receipt-body" class="receipt-body"></pre>
+    <div class="receipt-actions">
+      <button id="receiptShareBtn" class="btn-primary">📤 Share</button>
+      <button id="receiptCopyBtn"  class="btn-secondary">📋 Copy Receipt</button>
+      <button id="receiptCloseBtn" class="btn-ghost">✕ Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Notification ─────────────────────────────────── -->
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden>
+  <span id="toast-icon"  class="toast-icon"></span>
+  <div class="toast-content">
+    <div id="toast-title" class="toast-title"></div>
+    <div id="toast-desc"  class="toast-desc"></div>
+  </div>
+  <button id="toast-close" class="toast-close" aria-label="Close notification">✕</button>
+</div>
+
+<!-- ── Milestone Flash Overlay ────────────────────────────── -->
+<div id="milestone-flash-overlay" class="milestone-flash-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="milestone-flash-name">
+  <div class="milestone-flash-content">
+    <div id="milestone-flash-icon" class="milestone-flash-icon" aria-hidden="true"></div>
+    <div id="milestone-flash-name" class="milestone-flash-name"></div>
+    <div id="milestone-flash-desc" class="milestone-flash-desc"></div>
+    <button id="milestone-flash-close" class="milestone-flash-close">✕ Dismiss</button>
+  </div>
+</div>
+
+<!-- ── Emergency Broadcast Overlay (PRD 1) ───────────────── -->
+<div id="emergency-broadcast" class="emergency-broadcast" hidden role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="eb-inner">
+    <span class="eb-icon" aria-hidden="true">📡</span>
+    <span class="eb-label">EMERGENCY BULLETIN</span>
+    <span id="ebMsg" class="eb-msg"></span>
+    <span class="eb-sign-off">We now return you to your regularly scheduled doom.</span>
+  </div>
+  <button id="ebDismissBtn" class="eb-dismiss" aria-label="Dismiss bulletin">✕</button>
+</div>
+
+<!-- ── The Intervention Modal (PRD 7) ────────────────────── -->
+<div id="intervention-modal" class="intervention-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="intervention-heading">
+  <div class="intervention-card">
+    <div class="intervention-header">
+      <span class="intervention-avatar" aria-hidden="true">😟</span>
+      <span class="intervention-sender">Earth</span>
+      <span class="intervention-time">just now</span>
+    </div>
+    <div class="intervention-bubble">
+      <p class="intervention-greeting">Hey… are you sure you want to leave?</p>
+      <p id="intervention-msg" class="intervention-msg"></p>
+      <p class="intervention-coda">We're not saying don't go. We're just saying… tell a friend.</p>
+    </div>
+    <div class="intervention-actions">
+      <button id="intervention-stay" class="intervention-btn-stay">🌱 I'll Stay (For the Planet)</button>
+      <button id="intervention-leave" class="intervention-btn-leave">💀 Leave (Monster)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Grim Reaper ──────────────────────────────────────── -->
+<div id="grim-reaper" class="grim-reaper" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 155">
+    <!-- scythe handle -->
+    <line x1="77" y1="16" x2="62" y2="148" class="reaper-scythe-handle" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- scythe blade — large crescent sweeping left over the hood -->
+    <path d="M77,16 C72,6 55,2 38,5 C20,8 6,20 6,32 C6,44 22,48 40,38 C56,28 72,20 77,16 Z" class="reaper-scythe-blade"/>
+    <!-- robe shadow -->
+    <ellipse cx="50" cy="151" rx="28" ry="5" fill="#000" opacity="0.4"/>
+    <!-- robe body -->
+    <path d="M22,72 C14,106 11,138 9,150 L91,150 C89,138 86,106 78,72 Z" fill="#161616"/>
+    <!-- hood -->
+    <path d="M22,75 C18,48 22,18 50,14 C78,18 82,48 78,75 Z" fill="#1d1d1d"/>
+    <!-- hood side drapes -->
+    <path d="M22,74 C14,82 10,98 14,122 C18,108 20,92 22,74 Z" fill="#141414"/>
+    <path d="M78,74 C86,82 90,98 86,122 C82,108 80,92 78,74 Z" fill="#141414"/>
+    <!-- eye sockets -->
+    <circle cx="37" cy="55" r="9" fill="#0a0a0a"/>
+    <circle cx="63" cy="55" r="9" fill="#0a0a0a"/>
+    <!-- glowing eyes -->
+    <circle cx="37" cy="55" r="6" fill="#cc1111" class="reaper-eye-inner"/>
+    <circle cx="63" cy="55" r="6" fill="#cc1111" class="reaper-eye-inner"/>
+    <!-- bright pupils -->
+    <circle cx="37" cy="55" r="2.5" fill="#ff5555"/>
+    <circle cx="63" cy="55" r="2.5" fill="#ff5555"/>
+    <!-- cute highlights -->
+    <circle cx="39.5" cy="52.5" r="2" fill="#fff" opacity="0.5"/>
+    <circle cx="65.5" cy="52.5" r="2" fill="#fff" opacity="0.5"/>
+    <!-- creepy-cute grin -->
+    <path d="M33,67 Q37,75 50,71 Q63,75 67,67" stroke="#999" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <!-- left bony arm -->
+    <path d="M22,90 C14,88 8,85 5,79" class="reaper-bone" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- bony fingers -->
+    <path d="M5,79 C1,72 4,67 7,65" class="reaper-bone" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M5,79 C1,75 1,69 4,67" class="reaper-bone" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M5,79 C2,84 4,89 8,88" class="reaper-bone" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- robe ragged hem -->
+    <path d="M9,150 C20,145 30,150 40,147 C50,144 60,148 70,146 C80,144 88,148 91,150" stroke="#222" stroke-width="1.5" fill="none"/>
+  </svg>
+</div>
+
+<!-- Changelog & version data (auto-generated from CHANGELOG.md) -->
+<script src="changelog-data.js"></script>
+<!-- Milestone data (auto-generated from milestones.yaml) -->
+<script src="milestones-data.js"></script>
+<!-- Project build stats (auto-generated from project-stats.yaml) -->
+<script src="project-stats-data.js"></script>
+<!-- Core logic (no DOM deps — loaded first so script.js can use it) -->
+<script src="death-clock-core.js"></script>
+<!-- Minimal Chart.js date adapter (required for time-scale x-axis) -->
+<script src="chart-date-adapter.js"></script>
+<!-- DOM / Chart logic -->
+<script src="script.js"></script>
+</body>
+</html>
