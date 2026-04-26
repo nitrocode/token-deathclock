@@ -290,6 +290,62 @@ test.describe('AI Death Clock — end-to-end', () => {
   });
 });
 
+// ── Mobile layout: fixed elements must stay within the viewport ───────────
+// These tests use a narrow (390 × 844) viewport to catch regressions where
+// position:fixed elements are clipped off-screen on small screens.
+
+test.describe('mobile layout — fixed elements within viewport', () => {
+  const MOBILE_VIEWPORT = { width: 390, height: 844 };
+
+  test.use({ viewport: MOBILE_VIEWPORT });
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('GitHub corner banner is fully within the viewport on mobile', async ({ page }) => {
+    const vp   = page.viewportSize();
+    const bbox = await page.locator('.github-corner').boundingBox();
+    expect(bbox).not.toBeNull();
+    // The corner must not extend beyond the right edge of the viewport
+    expect(bbox.x + bbox.width).toBeLessThanOrEqual(vp.width + 1); // +1 px rounding tolerance
+    // The corner must not extend above the top of the viewport
+    expect(bbox.y).toBeGreaterThanOrEqual(-1);
+    // At least part of the element must be visible (not fully off to the right)
+    expect(bbox.x).toBeLessThan(vp.width);
+  });
+
+  test('grim reaper is not excessively cut off on the left on mobile', async ({ page }) => {
+    const vp   = page.viewportSize();
+    const bbox = await page.locator('#grim-reaper').boundingBox();
+    expect(bbox).not.toBeNull();
+    // The reaper's right edge must be within the viewport (it should be visible)
+    expect(bbox.x + bbox.width).toBeGreaterThan(0);
+    // Allow a small intentional peek offset but no more than half the element width
+    const cutOff = -bbox.x; // pixels hidden to the left (positive = cut off)
+    expect(cutOff).toBeLessThan(bbox.width / 2);
+  });
+
+  test('Share Your Doom button is fully within the viewport on mobile', async ({ page }) => {
+    // Reveal the panel immediately via the ?share=true query param
+    await page.goto('/?share=true');
+    await page.waitForLoadState('networkidle');
+
+    const vp   = page.viewportSize();
+    const btn  = page.locator('#shareDoomBtn');
+    await expect(btn).toBeVisible();
+    const bbox = await btn.boundingBox();
+    expect(bbox).not.toBeNull();
+    // Button must not overflow right edge
+    expect(bbox.x + bbox.width).toBeLessThanOrEqual(vp.width + 1); // +1 px rounding tolerance
+    // Button must not overflow left edge
+    expect(bbox.x).toBeGreaterThanOrEqual(-1); // +1 px rounding tolerance
+    // Button must not overflow bottom edge
+    expect(bbox.y + bbox.height).toBeLessThanOrEqual(vp.height + 1); // +1 px rounding tolerance
+  });
+});
+
 // ── Mobile tab-bar visibility ─────────────────────────────────────────────────
 
 test.describe('Mobile tab bar — 375 px viewport', () => {

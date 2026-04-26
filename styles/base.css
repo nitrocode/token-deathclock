@@ -4,7 +4,11 @@
 /* Enforce [hidden] even when a class sets an explicit display value */
 [hidden] { display: none !important; }
 
-html { scroll-behavior: smooth; }
+/* overflow-x on both html and body prevents horizontal scroll and ensures
+   position:fixed elements anchor to the viewport on iOS Safari, where
+   overflow on body alone can cause fixed elements to position relative to
+   the body scroll container instead of the viewport. */
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 body {
   font-family: 'Share Tech Mono', 'Courier New', monospace;
