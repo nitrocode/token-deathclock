@@ -29,10 +29,12 @@ async function waitForCounter(page, selector, timeout = 3000) {
 
 test.describe('AI Death Clock — end-to-end', () => {
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    // Desktop-only tests — skip on the mobile-chrome project to avoid doubling run time
+    test.skip(testInfo.project.name !== 'chromium', 'Desktop-only test suite');
     await page.goto('/');
-    // Give the page time to initialise (RAF loop, Chart.js, etc.)
-    await page.waitForLoadState('networkidle');
+    // Wait for DOM+resources; networkidle is unnecessary for a static site.
+    await page.waitForLoadState('load');
   });
 
   // ── Page structure ────────────────────────────────────────────────────────
@@ -56,12 +58,12 @@ test.describe('AI Death Clock — end-to-end', () => {
   });
 
   test('session counter populates after a moment', async ({ page }) => {
-    // Wait up to 3 s for at least one tick
-    await page.waitForTimeout(1100);
-    const text = await page.locator('#sessionCounter').textContent();
-    expect(text.trim()).not.toBe('');
-    // Should be a formatted number (contains digits)
-    expect(text).toMatch(/\d/);
+    // Poll until the counter has at least one tick
+    await expect(async () => {
+      const text = await page.locator('#sessionCounter').textContent();
+      expect(text.trim()).not.toBe('');
+      expect(text).toMatch(/\d/);
+    }).toPass({ timeout: 3000 });
   });
 
   test('current rate counter shows a dynamic rate', async ({ page }) => {
@@ -73,21 +75,25 @@ test.describe('AI Death Clock — end-to-end', () => {
   });
 
   test('rate event subtitle is populated', async ({ page }) => {
-    await page.waitForTimeout(500);
-    const text = await page.locator('#rateEvent').textContent();
-    expect(text.trim()).not.toBe('');
-    expect(text.toLowerCase()).toContain('tokens');
+    await expect(async () => {
+      const text = await page.locator('#rateEvent').textContent();
+      expect(text.trim()).not.toBe('');
+      expect(text.toLowerCase()).toContain('tokens');
+    }).toPass({ timeout: 3000 });
   });
 
   test('total counter grows over time', async ({ page }) => {
     await waitForCounter(page, '#totalCounter');
     const first = await page.locator('#totalCounter').textContent();
-    await page.waitForTimeout(2000);
-    const second = await page.locator('#totalCounter').textContent();
-    // Both should be truthy; after 2 s the numeric part should advance
-    // (They may format the same string if growth is tiny — at minimum they must be non-empty)
     expect(first).toBeTruthy();
+    // The formatted display rounds to 3 decimal places of a quadrillion, so the
+    // visible text does not change on a sub-second timescale.  A short pause is
+    // enough to confirm the counter stays live and non-empty.
+    await page.waitForTimeout(200);
+    const second = await page.locator('#totalCounter').textContent();
     expect(second).toBeTruthy();
+    expect(second.trim()).not.toBe('');
+    expect(second).not.toContain('Loading');
   });
 
   // ── Environmental impact strip ────────────────────────────────────────────
@@ -169,12 +175,13 @@ test.describe('AI Death Clock — end-to-end', () => {
   });
 
   test('chart canvas has non-zero dimensions after render', async ({ page }) => {
-    // Give Chart.js time to paint
-    await page.waitForTimeout(1000);
-    const box = await page.locator('#tokenChart').boundingBox();
-    expect(box).not.toBeNull();
-    expect(box.width).toBeGreaterThan(0);
-    expect(box.height).toBeGreaterThan(0);
+    // Poll until Chart.js has painted and the canvas has non-zero dimensions
+    await expect(async () => {
+      const box = await page.locator('#tokenChart').boundingBox();
+      expect(box).not.toBeNull();
+      expect(box.width).toBeGreaterThan(0);
+      expect(box.height).toBeGreaterThan(0);
+    }).toPass({ timeout: 3000 });
   });
 
   // ── Theme toggle ──────────────────────────────────────────────────────────
@@ -260,7 +267,7 @@ test.describe('AI Death Clock — end-to-end', () => {
     const errors = [];
     page.on('pageerror', (err) => errors.push(err.message));
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     expect(errors).toHaveLength(0);
   });
 
@@ -277,7 +284,7 @@ test.describe('AI Death Clock — end-to-end', () => {
       }
     });
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     expect(messages).toHaveLength(0);
   });
 
@@ -305,7 +312,7 @@ test.describe('AI Death Clock — end-to-end', () => {
 
   test('navigating to a section anchor deep-link activates the correct tab', async ({ page }) => {
     await page.goto('/#milestones-section');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     // milestones-section lives in the dashboard tab; it should be visible (not hidden)
     const section = page.locator('#milestones-section');
     await expect(section).toBeVisible();
@@ -325,7 +332,7 @@ test.describe('mobile layout — fixed elements within viewport', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
   });
 
   test('GitHub corner banner is fully within the viewport on mobile', async ({ page }) => {
@@ -381,14 +388,14 @@ test.describe('mobile layout — fixed elements within viewport', () => {
     await reaper.click();
     await expect(bubble).toHaveClass(/visible/, { timeout: 1000 });
 
-    // After ~4 s the bubble should disappear (default duration is 3.5 s)
-    await expect(bubble).not.toHaveClass(/visible/, { timeout: 5000 });
+    // After ~4 s the bubble should disappear (app default is 3.5 s + 700 ms buffer = 4200 ms)
+    await expect(bubble).not.toHaveClass(/visible/, { timeout: 4200 });
   });
 
   test('Share Your Doom button is fully within the viewport on mobile', async ({ page }) => {
     // Reveal the panel immediately via the ?share=true query param
     await page.goto('/?share=true');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
 
     const vp   = page.viewportSize();
     const btn  = page.locator('#shareDoomBtn');
@@ -411,7 +418,7 @@ test.describe('Mobile tab bar — 375 px viewport', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
   });
 
   test('all four tab buttons are present in the DOM at mobile width', async ({ page }) => {
