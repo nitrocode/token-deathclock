@@ -2,33 +2,9 @@
   // SCARY & SATIRICAL FEATURES — PRDs 1–7
   // ============================================================
 
-  // ── PRD 1: Doomsday Clock ────────────────────────────────────
+  // ── PRD 1: Emergency Broadcast Overlay ──────────────────────
 
   const shownEmergencyBroadcasts = new Set();
-
-  // Cache milestone doom thresholds (static — computed once at init)
-  const DOOM_FIRST_THRESHOLD = MILESTONES.length ? MILESTONES[0].tokens : 1e15;
-  const DOOM_LAST_THRESHOLD  = MILESTONES.length ? MILESTONES[MILESTONES.length - 1].tokens : 1e18;
-  const DOOM_RANGE = DOOM_LAST_THRESHOLD - DOOM_FIRST_THRESHOLD;
-
-  function updateDoomsdayClock(tokens) {
-    const doomPercent = Math.min(1, Math.max(0,
-      (tokens - DOOM_FIRST_THRESHOLD) / DOOM_RANGE
-    ));
-
-    // Rotate minute hand from 330° (11 o'clock, 5 min before midnight) to 360°/0° (midnight)
-    const angle = 330 + doomPercent * 30;
-    const hand = document.getElementById('doomMinHand');
-    if (hand) hand.setAttribute('transform', `rotate(${angle}, 50, 50)`);
-
-    // Percentage text
-    const pctEl = document.getElementById('doomTokenPct');
-    if (pctEl) pctEl.textContent = (doomPercent * 100).toFixed(1) + '%';
-
-    // Progress bar
-    const barFill = document.getElementById('doomBarFill');
-    if (barFill) barFill.style.width = (doomPercent * 100).toFixed(2) + '%';
-  }
 
   function showEmergencyBroadcast(milestone) {
     const el = document.getElementById('emergency-broadcast');
@@ -45,8 +21,7 @@
     el._dismissTimer = setTimeout(() => { el.hidden = true; }, 6000);
   }
 
-  function initDoomsdayClock() {
-    updateDoomsdayClock(getCurrentTokens());
+  function initEmergencyBroadcast() {
     const dismissBtn = document.getElementById('ebDismissBtn');
     if (dismissBtn) {
       dismissBtn.addEventListener('click', () => {

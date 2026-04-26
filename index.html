@@ -60,44 +60,6 @@
   </div>
 </header>
 
-<!-- ── Doomsday Clock Strip (PRD 1) ──────────────────────── -->
-<div id="doomsday-strip" class="doomsday-strip" aria-label="Doomsday Clock — proximity to final AI threshold">
-  <div class="doomsday-clock-wrap" aria-hidden="true">
-    <svg id="doomClockSvg" class="doom-clock-svg" viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="46" class="doom-clock-face"/>
-      <!-- Hour ticks -->
-      <line x1="50" y1="6"  x2="50" y2="13" class="doom-tick doom-tick-major"/>
-      <line x1="50" y1="87" x2="50" y2="94" class="doom-tick"/>
-      <line x1="6"  y1="50" x2="13" y2="50" class="doom-tick"/>
-      <line x1="87" y1="50" x2="94" y2="50" class="doom-tick"/>
-      <line x1="18.2" y1="18.2" x2="23.2" y2="23.2" class="doom-tick"/>
-      <line x1="76.8" y1="18.2" x2="71.8" y2="23.2" class="doom-tick"/>
-      <line x1="18.2" y1="81.8" x2="23.2" y2="76.8" class="doom-tick"/>
-      <line x1="81.8" y1="81.8" x2="76.8" y2="76.8" class="doom-tick"/>
-      <line x1="27"   y1="11.5" x2="29.5" y2="16"   class="doom-tick doom-tick-sm"/>
-      <line x1="11.5" y1="27"   x2="16"   y2="29.5" class="doom-tick doom-tick-sm"/>
-      <line x1="73"   y1="11.5" x2="70.5" y2="16"   class="doom-tick doom-tick-sm doom-tick-warn"/>
-      <line x1="88.5" y1="27"   x2="84"   y2="29.5" class="doom-tick doom-tick-sm"/>
-      <!-- Minute hand — rotated by JS -->
-      <line id="doomMinHand" x1="50" y1="50" x2="50" y2="14" class="doom-clock-hand" transform="rotate(330, 50, 50)"/>
-      <!-- Center dot -->
-      <circle cx="50" cy="50" r="3.5" class="doom-clock-dot"/>
-    </svg>
-  </div>
-  <div class="doomsday-text-wrap">
-    <div class="doomsday-sub">
-      <span id="doomTokenPct">0.0%</span> of the way to the final threshold
-    </div>
-  </div>
-  <div class="doomsday-bar-wrap" aria-hidden="true">
-    <div class="doomsday-bar-track">
-      <div class="doomsday-bar-fill" id="doomBarFill" style="width:0%"></div>
-    </div>
-    <div class="doomsday-bar-labels">
-      <span>SAFE</span><span>MIDNIGHT</span>
-    </div>
-  </div>
-</div>
 
 <!-- ── Tab Navigation ────────────────────────────────────── -->
 <nav class="tab-bar" role="tablist" aria-label="Page sections">

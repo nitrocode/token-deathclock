@@ -52,7 +52,7 @@
     initPresenceStrip();
     initEventLog();
     // Scary & satirical features (PRDs 1–7)
-    initDoomsdayClock();
+    initEmergencyBroadcast();
     initSessionTabStrip();
     initApologies();
     initShame();
