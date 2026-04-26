@@ -1,0 +1,94 @@
+name: Weekly Project Stats Check
+
+# Opens a reminder issue when the recorded pr_count in project-stats.yaml
+# is lower than the actual number of merged PRs in the repository.
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check project-stats.yaml against actual merged PR count
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read the recorded pr_count from project-stats.yaml
+            const yaml = fs.readFileSync('project-stats.yaml', 'utf8');
+            const match = yaml.match(/^pr_count:\s*(\d+)/m);
+            const recordedCount = match ? parseInt(match[1], 10) : 0;
+
+            // Count actual merged PRs via the GitHub API
+            let page = 1;
+            let totalMerged = 0;
+            while (true) {
+              const { data } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'closed',
+                per_page: 100,
+                page,
+              });
+              if (data.length === 0) break;
+              totalMerged += data.filter(pr => pr.merged_at !== null).length;
+              if (data.length < 100) break;
+              page++;
+            }
+
+            console.log(`Recorded pr_count: ${recordedCount}, actual merged PRs: ${totalMerged}`);
+
+            if (recordedCount >= totalMerged) {
+              console.log('project-stats.yaml is up to date — no action needed.');
+              return;
+            }
+
+            const title = `chore: update project-stats.yaml (recorded ${recordedCount}, actual ${totalMerged} merged PRs)`;
+            const body = [
+              '## 📊 Project Stats Are Out of Date',
+              '',
+              `**Recorded \`pr_count\`:** ${recordedCount}`,
+              `**Actual merged PRs:** ${totalMerged}`,
+              `**Difference:** ${totalMerged - recordedCount} untracked PR(s)`,
+              '',
+              'After the next agent session, update `project-stats.yaml`:',
+              '',
+              '```yaml',
+              `pr_count: ${totalMerged}`,
+              '```',
+              '',
+              'Then run `npm run build:project-stats` to regenerate `project-stats-data.js`, or let the deploy workflow handle it.',
+            ].join('\n');
+
+            // Avoid duplicate open issues
+            const { data: openIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+            });
+            const duplicate = openIssues.find(i =>
+              i.title.startsWith('chore: update project-stats.yaml')
+            );
+            if (duplicate) {
+              console.log(`Reminder issue already open: #${duplicate.number} — skipping.`);
+              return;
+            }
+
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+            });
+            console.log(`Created reminder issue: #${issue.number}`);
