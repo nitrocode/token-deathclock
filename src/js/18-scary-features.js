@@ -21,17 +21,6 @@
     const hand = document.getElementById('doomMinHand');
     if (hand) hand.setAttribute('transform', `rotate(${angle}, 50, 50)`);
 
-    // Text display
-    const minsLeft = Math.max(0, (1 - doomPercent) * 5);
-    const timeEl = document.getElementById('doomTimeText');
-    if (timeEl) {
-      if (minsLeft < 0.05) {
-        timeEl.textContent = '☠️ MIDNIGHT';
-      } else {
-        timeEl.textContent = minsLeft.toFixed(1) + ' MIN TO MIDNIGHT';
-      }
-    }
-
     // Percentage text
     const pctEl = document.getElementById('doomTokenPct');
     if (pctEl) pctEl.textContent = (doomPercent * 100).toFixed(1) + '%';
