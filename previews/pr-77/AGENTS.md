@@ -20,12 +20,12 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 ```
 .
 ├── index.html              ← GitHub Pages entry point (static HTML shell)
-├── styles.css              ← AUTO-GENERATED from styles/ — do not edit directly
-├── script.js               ← AUTO-GENERATED from src/js/ — do not edit directly
+├── styles.css              ← AUTO-GENERATED — not committed; built by `npm run build:css`
+├── script.js               ← AUTO-GENERATED — not committed; built by `npm run build:js`
 ├── death-clock-core.js     ← Pure functions only — no DOM, safe to unit-test
-├── changelog-data.js       ← AUTO-GENERATED from CHANGELOG.md — do not edit
-├── milestones-data.js      ← AUTO-GENERATED from milestones.yaml — do not edit
-├── project-stats-data.js   ← AUTO-GENERATED from project-stats.yaml — do not edit
+├── changelog-data.js       ← AUTO-GENERATED — not committed; built by `npm run build:changelog`
+├── milestones-data.js      ← AUTO-GENERATED — not committed; built by `npm run build:milestones`
+├── project-stats-data.js   ← AUTO-GENERATED — not committed; built by `npm run build:project-stats`
 ├── project-stats.yaml      ← Edit this to update footer PR count + token total
 ├── CLAUDE.md               ← symlink → AGENTS.md (read by Claude AI agents)
 ├── package.json            ← version, Jest config & devDependencies (no runtime deps)
@@ -91,7 +91,7 @@ a Chart.js growth chart with projections, and a prompt/PR quality scoring sectio
 | **CommonJS + browser dual export** | `death-clock-core.js` exports via `module.exports` for Jest and via `window.DeathClockCore` for the browser. Do not change this pattern without updating both consumers. |
 | **HTML escaping** | All dynamic strings rendered into `innerHTML` must pass through `escHtml()` in `src/js/05-security.js`. Never assign untrusted data directly to `innerHTML`. |
 | **Counter anchor** | `getCurrentTokens()` in `src/js/00-state.js` computes elapsed time from `BASE_DATE_ISO` (exported by the core module), **not** from page-load time. `pageLoadTime` is reserved for the session counter only. |
-| **Build before commit** | After editing any file in `src/js/`, run `npm run build:js`. After editing any file in `styles/`, run `npm run build:css`. Commit both the source file and the rebuilt output file. The CI deploy step also rebuilds automatically. |
+| **Build before commit** | After editing any file in `src/js/`, run `npm run build:js`. After editing any file in `styles/`, run `npm run build:css`. The generated output files (`script.js`, `styles.css`, etc.) are **not committed** — CI rebuilds them automatically at deploy and preview time. Run `npm run build` locally before running E2E tests. |
 
 ---
 
@@ -131,7 +131,7 @@ The current measured coverage is ≈ 96 % statements / 88 % branches — do not 
 Every time an agent makes changes to this repository it **must**:
 
 1. Run `npm run test:ci` and confirm all unit tests pass before finishing.
-2. Run `npm run test:e2e` and confirm all E2E tests pass before finishing.
+2. Run `npm run build && npm run test:e2e` and confirm all E2E tests pass before finishing. (`npm run build` is required first because the generated files are not committed.)
 3. Ensure coverage does **not** decrease — the Codecov status check enforces this on PRs (any negative delta fails the check).
 
 When adding or modifying code, agents **must** write matching tests:
@@ -169,10 +169,10 @@ generated file will always reflect the latest YAML values.
 4. Import it in `src/js/00-state.js` via the destructuring at the top, then run `npm run build:js`.
 
 ### Adding or modifying DOM behaviour
-Edit the relevant file in `src/js/` (see the repository layout for which file covers which feature), then run `npm run build:js` to regenerate `script.js`.
+Edit the relevant file in `src/js/` (see the repository layout for which file covers which feature), then run `npm run build:js` to regenerate `script.js` locally (needed for E2E tests). Do **not** commit `script.js` — it is in `.gitignore`.
 
 ### Changing the visual theme
-Edit `styles/variables.css` for colour tokens, or the relevant component file in `styles/` for layout. CSS custom properties for colours live in `:root[data-theme="dark"]` and `:root[data-theme="light"]` inside `styles/variables.css`. The theme toggle is managed by `applyTheme()` in `src/js/01-theme.js`. After any CSS change, run `npm run build:css` to regenerate `styles.css`.
+Edit `styles/variables.css` for colour tokens, or the relevant component file in `styles/` for layout. CSS custom properties for colours live in `:root[data-theme="dark"]` and `:root[data-theme="light"]` inside `styles/variables.css`. The theme toggle is managed by `applyTheme()` in `src/js/01-theme.js`. After any CSS change, run `npm run build:css` to regenerate `styles.css` locally (needed for E2E tests). Do **not** commit `styles.css` — it is in `.gitignore`.
 
 ### Running a full build
 The `npm run build` convenience script runs all five build steps in sequence:
@@ -329,8 +329,9 @@ feat!: redesign anchor hash scheme (removes legacy ?tab= param)
 - Do **not** use mutable tags (e.g. `@v6`) in `uses:` — always pin to a commit SHA with a full semver comment (e.g. `@abc1234... # v6.0.2`).
 - Do **not** finish a session without running `npm run test:ci` and `npm run test:e2e` to confirm both suites pass.
 - Do **not** let coverage decrease — a negative coverage delta on any PR fails the Codecov status check.
-- Do **not** edit `changelog-data.js`, `milestones-data.js`, or `project-stats-data.js` directly — they are auto-generated; edit `CHANGELOG.md` / `milestones.yaml` / `project-stats.yaml` and run the corresponding build script.
-- Do **not** edit `script.js` directly — it is auto-generated from `src/js/` source files; edit the relevant file in `src/js/` and run `npm run build:js`.
-- Do **not** edit `styles.css` directly — it is auto-generated from `styles/` source files; edit the relevant file in `styles/` and run `npm run build:css`.
+- Do **not** edit `changelog-data.js`, `milestones-data.js`, or `project-stats-data.js` directly — they are auto-generated and in `.gitignore`; edit `CHANGELOG.md` / `milestones.yaml` / `project-stats.yaml` and run the corresponding build script.
+- Do **not** edit `script.js` directly — it is auto-generated from `src/js/` source files, is in `.gitignore`, and must not be committed; edit the relevant file in `src/js/` and run `npm run build:js` to regenerate it locally.
+- Do **not** edit `styles.css` directly — it is auto-generated from `styles/` source files, is in `.gitignore`, and must not be committed; edit the relevant file in `styles/` and run `npm run build:css` to regenerate it locally.
+- Do **not** commit `script.js`, `styles.css`, `changelog-data.js`, `milestones-data.js`, or `project-stats-data.js` — these are all in `.gitignore` and are rebuilt by CI automatically.
 - Do **not** bump the version in `package.json` manually — let release-please handle it via Conventional Commits.
 - Do **not** use free-form commit or PR title messages — always follow the Conventional Commits format described above.
