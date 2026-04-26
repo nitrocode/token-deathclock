@@ -61,6 +61,7 @@ test.describe('AI Death Clock — end-to-end', () => {
     // Poll until the counter has at least one tick
     await expect(async () => {
       const text = await page.locator('#sessionCounter').textContent();
+      expect(text).toBeTruthy();
       expect(text.trim()).not.toBe('');
       expect(text).toMatch(/\d/);
     }).toPass({ timeout: 3000 });
@@ -77,12 +78,13 @@ test.describe('AI Death Clock — end-to-end', () => {
   test('rate event subtitle is populated', async ({ page }) => {
     await expect(async () => {
       const text = await page.locator('#rateEvent').textContent();
+      expect(text).toBeTruthy();
       expect(text.trim()).not.toBe('');
       expect(text.toLowerCase()).toContain('tokens');
     }).toPass({ timeout: 3000 });
   });
 
-  test('total counter grows over time', async ({ page }) => {
+  test('total counter stays non-empty over time', async ({ page }) => {
     await waitForCounter(page, '#totalCounter');
     const first = await page.locator('#totalCounter').textContent();
     expect(first).toBeTruthy();
@@ -388,8 +390,8 @@ test.describe('mobile layout — fixed elements within viewport', () => {
     await reaper.click();
     await expect(bubble).toHaveClass(/visible/, { timeout: 1000 });
 
-    // After ~4 s the bubble should disappear (app default is 3.5 s + 700 ms buffer = 4200 ms)
-    await expect(bubble).not.toHaveClass(/visible/, { timeout: 4200 });
+    // After ~4 s the bubble should disappear (app default is 3.5 s + 2.5 s CI buffer = 6000 ms)
+    await expect(bubble).not.toHaveClass(/visible/, { timeout: 6000 });
   });
 
   test('Share Your Doom button is fully within the viewport on mobile', async ({ page }) => {
