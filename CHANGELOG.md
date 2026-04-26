@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.5.0...ai-death-clock-v1.6.0) (2026-04-26)
+
+
+### Added
+
+* changelog — render markdown links, collapse older releases, fix date parsing ([#83](https://github.com/nitrocode/token-deathclock/issues/83)) ([875f272](https://github.com/nitrocode/token-deathclock/commit/875f2727187afede2ab370cdf42d7a8ca7cd02fe))
+* float-up +N pops on all counters + ×10ⁿ scientific notation ([#85](https://github.com/nitrocode/token-deathclock/issues/85)) ([0495b0d](https://github.com/nitrocode/token-deathclock/commit/0495b0d0e8b507b02c95ded59ed34e6bd75bb2a7))
+* grim reaper scythe swing, speech bubbles, and proximity reactions ([#84](https://github.com/nitrocode/token-deathclock/issues/84)) ([36a0725](https://github.com/nitrocode/token-deathclock/commit/36a0725db822a13305908d1595bd6aa18e97cdfb))
+
+
+### Fixed
+
+* remove 5 min to midnight banner from doomsday strip ([#81](https://github.com/nitrocode/token-deathclock/issues/81)) ([9da8e57](https://github.com/nitrocode/token-deathclock/commit/9da8e57d5bdd8d66547a30c5c1fa59758a65051e))
+* remove doomsday clock strip banner ([#86](https://github.com/nitrocode/token-deathclock/issues/86)) ([e1906bc](https://github.com/nitrocode/token-deathclock/commit/e1906bcf6ef0748bf7732d8474853320d5f95159))
+
 ## [1.5.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.4.0...ai-death-clock-v1.5.0) (2026-04-26)
 
 
