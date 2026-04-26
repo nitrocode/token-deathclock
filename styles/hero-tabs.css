@@ -50,6 +50,13 @@ header::after {
   position: sticky;
   top: 0;
   z-index: 900;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+
+.tab-bar::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
 }
 
 .tab-btn {
@@ -66,6 +73,22 @@ header::after {
   padding: 0.85rem 1.25rem;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
+  flex-shrink: 0; /* prevent tabs from compressing on narrow screens */
+  white-space: nowrap;
+}
+
+/* ---- Tab Bar — Mobile ---- */
+@media (max-width: 600px) {
+  .tab-bar {
+    padding: 0 0.5rem;
+    /* Extra right padding so the last tab clears the fixed theme-toggle button */
+    padding-right: 8rem;
+  }
+
+  .tab-btn {
+    padding: 0.75rem 0.85rem;
+    font-size: 0.7rem;
+  }
 }
 
 .tab-btn:hover {
