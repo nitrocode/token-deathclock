@@ -27,6 +27,12 @@ jobs:
       - name: Build all generated files
         run: npm run build
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Capture desktop and mobile screenshots
+        run: npm run screenshots
+
       - name: Deploy PR preview to gh-pages branch
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
         with:
@@ -45,6 +51,7 @@ jobs:
             const prNumber = context.payload.pull_request.number;
             const sha = context.payload.pull_request.head.sha.slice(0, 7);
             const url = `https://nitrocode.github.io/token-deathclock/previews/pr-${prNumber}/`;
+            const ssBase = `${url}screenshots`;
             const body = [
               '## 👁️ PR Preview',
               '',
@@ -52,6 +59,12 @@ jobs:
               '',
               `> Deployed from commit \`${sha}\` · Updates on every push to this PR`,
               '> _(Preview is removed automatically when the PR is closed.)_',
+              '',
+              '### Screenshots',
+              '',
+              '| Desktop | Mobile |',
+              '|:-------:|:------:|',
+              `| ![Desktop](${ssBase}/desktop.png) | ![Mobile](${ssBase}/mobile.png) |`,
             ].join('\n');
 
             const { data: comments } = await github.rest.issues.listComments({
