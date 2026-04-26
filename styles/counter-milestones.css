@@ -76,6 +76,25 @@
   z-index: 20;
 }
 
+/* Session counter pop — orange */
+.token-pop--session {
+  color: var(--accent-2);
+  text-shadow: 0 0 8px rgba(255,136,0,0.5);
+}
+
+/* Rate counter pop — green */
+.token-pop--rate {
+  color: var(--accent-3);
+  text-shadow: 0 0 8px rgba(0,204,119,0.5);
+}
+
+/* Impact stat pop — teal/cyan */
+.token-pop--stat {
+  color: #4ecdc4;
+  text-shadow: 0 0 8px rgba(78,205,196,0.5);
+  font-size: 0.7rem;
+}
+
 @keyframes token-pop-float {
   0%   { opacity: 0; transform: translateX(-50%) translateY(0); }
   15%  { opacity: 1; }
@@ -96,6 +115,8 @@
   border-radius: 0.5rem;
   padding: 1rem;
   text-align: center;
+  position: relative;
+  overflow: visible;
 }
 
 .impact-stat .stat-icon { font-size: 1.8rem; display: block; margin-bottom: 0.4rem; }

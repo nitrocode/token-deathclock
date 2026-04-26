@@ -3,22 +3,25 @@
   // cloning and reversing on every animation frame in updateCounters).
   const REVERSED_RATE_SCHEDULE = [...RATE_SCHEDULE].reverse();
 
-  let _lastTokenPop = 0;
+  // Per-counter throttle timestamps for the floating +N pop animations.
+  let _lastTokenPop   = 0; // total counter
+  let _lastSessionPop = 0; // session counter
+  let _lastStatPop    = 0; // impact stats
+  let _lastRatePop    = 0; // rate counter (slower cadence)
 
-  function spawnTokenPop(ratePerSec) {
-    const totalEl = document.getElementById('totalCounter');
-    if (!totalEl) return;
-    const container = totalEl.closest('.counter-box');
+  // Spawn a floating "+N" element inside `container` that floats up and fades out.
+  // `cssClass` is appended to 'token-pop ' so colour variants can be applied via CSS.
+  function spawnPop(container, text, cssClass) {
     if (!container) return;
     const el = document.createElement('div');
-    el.className = 'token-pop';
+    el.className = 'token-pop' + (cssClass ? ' ' + cssClass : '');
     el.setAttribute('aria-hidden', 'true');
     // Slight random horizontal spread so successive pops don't overlap perfectly.
     // 42–58 % keeps the pop centred over the number while adding visible variety.
     const POP_LEFT_BASE   = 42; // leftmost starting position (%)
     const POP_LEFT_SPREAD = 16; // random spread width (%)
     el.style.left = (POP_LEFT_BASE + Math.random() * POP_LEFT_SPREAD) + '%';
-    el.textContent = '+' + formatTokenCountShort(ratePerSec);
+    el.textContent = text;
     container.appendChild(el);
     // Clean up the element when the animation ends or is cancelled.
     // A fallback timeout handles cases where neither event fires (e.g. hidden tab).
@@ -48,14 +51,14 @@
     const rateEventEl = document.getElementById('rateEvent');
 
     if (totalEl) totalEl.textContent = numFmt(tokens);
-    if (sessionEl) sessionEl.textContent = formatTokenCount(sessionTokens);
+    if (sessionEl) sessionEl.textContent = appendExp(sessionTokens, formatTokenCount(sessionTokens));
     if (sessionTimeEl) {
       const m = Math.floor(elapsed / 60);
       const s = elapsed % 60;
       const suffix = firstArrivalTime !== pageLoadTime ? 'since first visit' : 'on page';
       sessionTimeEl.textContent = m > 0 ? `${m}m ${s}s ${suffix}` : `${s}s ${suffix}`;
     }
-    if (rateEl) rateEl.textContent = formatTokenCount(currentRate);
+    if (rateEl) rateEl.textContent = appendExp(currentRate, formatTokenCount(currentRate));
     if (rateEventEl) {
       // Beyond BASE_DATE the rate is growing — reflect that in the subtitle
       const baseMs = new Date(BASE_DATE_ISO).getTime();
@@ -69,10 +72,29 @@
       }
     }
 
-    // Spawn a floating "+N" pop on the total counter once per second
+    // Floating "+N" pops — spawned once per second (rate counter: once per minute)
     if (now - _lastTokenPop >= 1000) {
       _lastTokenPop = now;
-      spawnTokenPop(currentRate);
+      const totalBox = totalEl && totalEl.closest('.counter-box');
+      spawnPop(totalBox, '+' + formatTokenCountShort(currentRate));
+    }
+
+    if (now - _lastSessionPop >= 1000) {
+      _lastSessionPop = now;
+      const sessionBox = sessionEl && sessionEl.closest('.counter-box');
+      spawnPop(sessionBox, '+' + formatTokenCountShort(currentRate), 'token-pop--session');
+    }
+
+    // Rate counter: spawn a pop every 60 s showing how much the rate grew that minute.
+    // (The rate grows ~30 %/yr; a per-minute delta is the smallest visible non-zero unit.)
+    if (now - _lastRatePop >= 60000) {
+      _lastRatePop = now;
+      const rateOneMinAgo = getDynamicRate(new Date(now - 60000));
+      const rateDelta = Math.round(currentRate - rateOneMinAgo);
+      if (rateDelta > 0) {
+        const rateBox = rateEl && rateEl.closest('.counter-box');
+        spawnPop(rateBox, '+' + formatTokenCountShort(rateDelta) + '/s', 'token-pop--rate');
+      }
     }
 
     // Impact stats
@@ -81,6 +103,26 @@
     setStatText('statCo2',   formatTokenCountShort(impact.co2Kg));
     setStatText('statWater', formatTokenCountShort(impact.waterL));
     setStatText('statTrees', formatTokenCountShort(impact.treesEquivalent));
+
+    // Floating pops for impact stats — per-second deltas based on current rate
+    if (now - _lastStatPop >= 1000) {
+      _lastStatPop = now;
+      const impactPerSec = calculateEnvironmentalImpact(currentRate);
+      // MIN_STAT_POP_THRESHOLD: skip stats whose per-second increase rounds to zero
+      // (avoids "+0" pops for very slow-growing stats like trees at low rates).
+      const MIN_STAT_POP_THRESHOLD = 0.5;
+      [
+        { id: 'statKwh',   val: impactPerSec.kWh },
+        { id: 'statCo2',   val: impactPerSec.co2Kg },
+        { id: 'statWater', val: impactPerSec.waterL },
+        { id: 'statTrees', val: impactPerSec.treesEquivalent },
+      ].forEach(({ id, val }) => {
+        if (val < MIN_STAT_POP_THRESHOLD) return;
+        const statEl = document.getElementById(id);
+        const statBox = statEl && statEl.closest('.impact-stat');
+        spawnPop(statBox, '+' + formatTokenCountShort(Math.round(val)), 'token-pop--stat');
+      });
+    }
 
     // Update milestone progress bars
     const triggered = getTriggeredMilestones(tokens, MILESTONES);

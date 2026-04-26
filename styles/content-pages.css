@@ -457,4 +457,56 @@
   margin-top: 0.5rem;
 }
 
+.changelog-gh-link {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.changelog-gh-link:hover {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.changelog-item a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.changelog-item a:hover {
+  text-decoration: underline;
+  color: var(--accent-2);
+}
+
+.changelog-show-more {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 0.5rem;
+  color: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  text-align: center;
+}
+
+.changelog-show-more:hover {
+  background: var(--surface);
+  border-color: var(--accent);
+}
+
+.changelog-older {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
 

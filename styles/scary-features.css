@@ -754,9 +754,78 @@
   .grim-reaper { transform: translateX(0); }
 }
 
+/* Scythe swing — pivot near the grip point (≈84% across, 68% down the bounding box) */
+.reaper-scythe-group {
+  transform-box: fill-box;
+  transform-origin: 84% 68%;
+  will-change: transform;
+}
+
+@keyframes reaper-scythe-swing {
+  0%   { transform: rotate(0deg); }
+  15%  { transform: rotate(-26deg); }
+  45%  { transform: rotate(20deg); }
+  70%  { transform: rotate(-8deg); }
+  85%  { transform: rotate(4deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.reaper-swinging .reaper-scythe-group {
+  animation: reaper-scythe-swing 0.75s ease-in-out forwards;
+}
+
+/* Chat / speech bubble */
+.reaper-bubble {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  background: #0d0d0d;
+  border: 1.5px solid var(--accent);
+  color: #eee;
+  border-radius: 10px 10px 10px 2px;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  width: 170px;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+  z-index: 11;
+}
+
+.reaper-bubble.visible { opacity: 1; }
+
+/* Tail pointing down-left toward the reaper */
+.reaper-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 14px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--accent);
+}
+
+:root[data-theme="light"] .reaper-bubble {
+  background: #1a0000;
+  color: #ffe0e0;
+}
+
+/* Proximity highlight — reaper eyes blaze brighter when cursor is near */
+.reaper-proximity .reaper-eye-inner {
+  animation: reaper-eye-pulse 0.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px #ff3333);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .grim-reaper svg,
   .reaper-eye-inner { animation: none; }
   /* transition: none keeps the hover snap instant on reduced-motion devices. */
   .grim-reaper { transition: none; }
+  .reaper-swinging .reaper-scythe-group { animation: none; }
+  .reaper-bubble { transition: none; }
 }

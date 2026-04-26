@@ -58,6 +58,7 @@
     initShame();
     initVillainLeaderboard();
     initIntervention();
+    initGrimReaper();
 
     // Persist accelerator game state every 30 seconds and on page hide
     setInterval(saveAcceleratorState, 30000);

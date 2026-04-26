@@ -80,10 +80,27 @@
     return BASE_TOKENS + (TOKENS_PER_SECOND / continuousGrowthRate) * (Math.exp(continuousGrowthRate * elapsed) - 1);
   }
 
+  // Map each power-of-ten threshold to a Unicode superscript suffix.
+  // Used by appendExp() and numFmt() to annotate large numbers so viewers
+  // can instantly see the order of magnitude without googling "quadrillion".
+  const EXP_SUFFIXES = [
+    { threshold: 1e18, suffix: ' ×10¹⁸' },
+    { threshold: 1e15, suffix: ' ×10¹⁵' },
+    { threshold: 1e12, suffix: ' ×10¹²' },
+    { threshold: 1e9,  suffix: ' ×10⁹'  },
+  ];
+
+  // Append a ×10ⁿ exponent annotation to a formatted string for numbers ≥ 10⁹.
+  // Returns the string unchanged for smaller numbers.
+  function appendExp(n, text) {
+    const entry = EXP_SUFFIXES.find(e => n >= e.threshold);
+    return entry ? text + entry.suffix : text;
+  }
+
   function numFmt(n) {
-    // Compact formatting for the big live counter
-    if (n >= 1e15) return (n / 1e15).toFixed(3) + ' Quadrillion';
-    if (n >= 1e12) return (n / 1e12).toFixed(3) + ' Trillion';
-    return formatTokenCount(n);
+    // Compact formatting for the big live counter, with ×10ⁿ annotation
+    if (n >= 1e15) return (n / 1e15).toFixed(3) + ' Quadrillion' + ' ×10¹⁵';
+    if (n >= 1e12) return (n / 1e12).toFixed(3) + ' Trillion' + ' ×10¹²';
+    return appendExp(n, formatTokenCount(n));
   }
 
