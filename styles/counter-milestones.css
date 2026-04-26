@@ -15,7 +15,8 @@
   padding: 1.5rem;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  /* overflow: visible — required so .token-pop elements can float above the box */
+  overflow: visible;
   transition: box-shadow 0.3s;
 }
 
@@ -54,6 +55,31 @@
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
+}
+
+/* ---- Token pop (+N float-up animation on total counter) ----
+   .counter-box uses overflow: visible (see below) so that these pops
+   can float above the box boundary, giving the impression that tokens
+   are streaming out of the counter into the page. */
+.token-pop {
+  position: absolute;
+  bottom: 55%;
+  font-family: "Orbitron", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--accent-glow);
+  pointer-events: none;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: token-pop-float 1.5s ease-out forwards;
+  z-index: 20;
+}
+
+@keyframes token-pop-float {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(0); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-56px); }
 }
 
 /* ---- Impact Stats Strip ---- */

@@ -362,6 +362,32 @@ function getRateAtDate(date) {
   return RATE_SCHEDULE[0].ratePerSec;
 }
 
+// Fractional annual growth applied to the token rate beyond BASE_DATE_ISO.
+// Sourced from the RATE_SCHEDULE: the rate roughly doubled every 12–18 months
+// between 2023 and 2026 (~100 % → 30 % CAGR as growth moderates post-AGI ramp).
+// This conservative 30 % figure is used for forward projections and the live counter.
+const RATE_GROWTH_PER_YEAR = 0.30;
+
+/**
+ * Return the dynamic (ever-growing) global AI inference rate for a given date.
+ * For historical dates at or before BASE_DATE_ISO the result is identical to
+ * getRateAtDate().  For future dates beyond BASE_DATE_ISO the rate is projected
+ * forward using continuous exponential growth at RATE_GROWTH_PER_YEAR.
+ *
+ * @param {Date} [date] - defaults to now
+ * @returns {number} tokens per second (always a positive integer)
+ */
+function getDynamicRate(date) {
+  const d = (date instanceof Date && !isNaN(date.getTime())) ? date : new Date();
+  const baseMs = new Date(BASE_DATE_ISO).getTime();
+  if (d.getTime() <= baseMs) {
+    return getRateAtDate(d);
+  }
+  const SECS_PER_YEAR = 365.25 * 24 * 3600;
+  const elapsedYears = (d.getTime() - baseMs) / 1000 / SECS_PER_YEAR;
+  return Math.round(TOKENS_PER_SECOND * Math.pow(1 + RATE_GROWTH_PER_YEAR, elapsedYears));
+}
+
 /**
  * Calculate the collective daily environmental impact if a fraction of global users
  * consistently applies a token-saving tip.
@@ -733,6 +759,8 @@ const DeathClockCore = {
   getTimeDelta,
   milestoneProgress,
   getRateAtDate,
+  RATE_GROWTH_PER_YEAR,
+  getDynamicRate,
   calculateTipImpact,
   generateEquivalences,
   calculatePersonalFootprint,

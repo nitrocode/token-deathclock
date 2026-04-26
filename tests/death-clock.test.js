@@ -37,6 +37,8 @@ const {
   BASE_TOKENS,
   TOKENS_PER_SECOND,
   getSimulatedViewerCount,
+  getDynamicRate,
+  RATE_GROWTH_PER_YEAR,
 } = core;
 
 // ============================================================
@@ -570,6 +572,66 @@ describe('getRateAtDate', () => {
       expect(rate).toBeGreaterThanOrEqual(prevRate);
       prevRate = rate;
     }
+  });
+});
+
+// ============================================================
+// getDynamicRate
+// ============================================================
+describe('getDynamicRate', () => {
+  const BASE_DATE = new Date(core.BASE_DATE_ISO);
+
+  test('returns TOKENS_PER_SECOND exactly at BASE_DATE_ISO', () => {
+    expect(getDynamicRate(BASE_DATE)).toBe(TOKENS_PER_SECOND);
+  });
+
+  test('returns more than TOKENS_PER_SECOND for a date one year after BASE_DATE', () => {
+    const oneYearLater = new Date(BASE_DATE.getTime() + 365.25 * 24 * 3600 * 1000);
+    expect(getDynamicRate(oneYearLater)).toBeGreaterThan(TOKENS_PER_SECOND);
+  });
+
+  test('grows by roughly RATE_GROWTH_PER_YEAR after one year', () => {
+    const oneYearLater = new Date(BASE_DATE.getTime() + 365.25 * 24 * 3600 * 1000);
+    const rate = getDynamicRate(oneYearLater);
+    const expected = TOKENS_PER_SECOND * (1 + RATE_GROWTH_PER_YEAR);
+    // Allow ±1 % tolerance for rounding
+    expect(rate).toBeGreaterThanOrEqual(expected * 0.99);
+    expect(rate).toBeLessThanOrEqual(expected * 1.01);
+  });
+
+  test('matches getRateAtDate for a historical date well before BASE_DATE', () => {
+    const historicalDate = new Date('2024-01-01');
+    expect(getDynamicRate(historicalDate)).toBe(getRateAtDate(historicalDate));
+  });
+
+  test('returns a positive number for any date', () => {
+    expect(getDynamicRate(new Date('2020-01-01'))).toBeGreaterThan(0);
+    expect(getDynamicRate(new Date('2028-01-01'))).toBeGreaterThan(0);
+  });
+
+  test('falls back to current time when no date is provided', () => {
+    const rate = getDynamicRate();
+    expect(typeof rate).toBe('number');
+    expect(rate).toBeGreaterThan(0);
+  });
+
+  test('falls back gracefully for an invalid date', () => {
+    const rate = getDynamicRate(new Date('not-a-date'));
+    expect(typeof rate).toBe('number');
+    expect(rate).toBeGreaterThan(0);
+  });
+
+  test('rate at BASE_DATE equals rate two years later times inverse growth factor', () => {
+    const twoYearsLater = new Date(BASE_DATE.getTime() + 2 * 365.25 * 24 * 3600 * 1000);
+    const rateLater = getDynamicRate(twoYearsLater);
+    const expectedFactor = Math.pow(1 + RATE_GROWTH_PER_YEAR, 2);
+    expect(rateLater / TOKENS_PER_SECOND).toBeCloseTo(expectedFactor, 1);
+  });
+
+  test('RATE_GROWTH_PER_YEAR is a positive number less than 1', () => {
+    expect(typeof RATE_GROWTH_PER_YEAR).toBe('number');
+    expect(RATE_GROWTH_PER_YEAR).toBeGreaterThan(0);
+    expect(RATE_GROWTH_PER_YEAR).toBeLessThan(1);
   });
 });
 
