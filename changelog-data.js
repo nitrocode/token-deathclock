@@ -7,7 +7,7 @@ const SITE_VERSION = "1.5.0";
 const CHANGELOG_RELEASES = [
   {
     version: "1.5.0",
-    date: null,
+    date: "2026-04-26",
     sections: [
       { heading: "Added", items: [
         "add anchor links to section headings for easier sharing ([#79](https://github.com/nitrocode/token-deathclock/issues/79)) ([322f8f5](https://github.com/nitrocode/token-deathclock/commit/322f8f51a301c31db754059cdf85fce379bb668e))",
@@ -33,7 +33,7 @@ const CHANGELOG_RELEASES = [
   },
   {
     version: "1.4.0",
-    date: null,
+    date: "2026-04-24",
     sections: [
       { heading: "Added", items: [
         "implement Option B checkJs TypeScript type checking ([#54](https://github.com/nitrocode/token-deathclock/issues/54)) ([7fda3f0](https://github.com/nitrocode/token-deathclock/commit/7fda3f047fae9aaf41dd39981a895d66d9bad0cb))",
@@ -48,7 +48,7 @@ const CHANGELOG_RELEASES = [
   },
   {
     version: "1.3.1",
-    date: null,
+    date: "2026-04-24",
     sections: [
       { heading: "Fixed", items: [
         "HTML entity bug in apology copy label, remove dead userBest variable, simplify villain DP formatting ([#52](https://github.com/nitrocode/token-deathclock/issues/52)) ([3cd91d7](https://github.com/nitrocode/token-deathclock/commit/3cd91d7253b557249ce9dcdd2df775dc2ae42099))",
@@ -57,7 +57,7 @@ const CHANGELOG_RELEASES = [
   },
   {
     version: "1.3.0",
-    date: null,
+    date: "2026-04-23",
     sections: [
       { heading: "Added", items: [
         "add extinctionMarker uniqueness validation in build-milestones.js and unit test ([#50](https://github.com/nitrocode/token-deathclock/issues/50)) ([ffdd684](https://github.com/nitrocode/token-deathclock/commit/ffdd68407739b052e09630030278dfbbe24d8d3f))",
@@ -66,7 +66,7 @@ const CHANGELOG_RELEASES = [
   },
   {
     version: "1.2.0",
-    date: null,
+    date: "2026-04-23",
     sections: [
       { heading: "Added", items: [
         "bring predicted extinction date from year 5174 to ~2030 ([#48](https://github.com/nitrocode/token-deathclock/issues/48)) ([f24e0b5](https://github.com/nitrocode/token-deathclock/commit/f24e0b578eb7f09dfb4b36929a5bd1194809f6d7))",
@@ -78,7 +78,7 @@ const CHANGELOG_RELEASES = [
   },
   {
     version: "1.1.0",
-    date: null,
+    date: "2026-04-23",
     sections: [
       { heading: "Added", items: [
         "Accelerate the Doom — gamified clicker mechanic with upgrades, challenges, and milestone racing ([12b5ab0](https://github.com/nitrocode/token-deathclock/commit/12b5ab0a0c86e776a5148dd36d173d5c02b1201a))",
