@@ -108,13 +108,16 @@
     if (now - _lastStatPop >= 1000) {
       _lastStatPop = now;
       const impactPerSec = calculateEnvironmentalImpact(currentRate);
+      // MIN_STAT_POP_THRESHOLD: skip stats whose per-second increase rounds to zero
+      // (avoids "+0" pops for very slow-growing stats like trees at low rates).
+      const MIN_STAT_POP_THRESHOLD = 0.5;
       [
         { id: 'statKwh',   val: impactPerSec.kWh },
         { id: 'statCo2',   val: impactPerSec.co2Kg },
         { id: 'statWater', val: impactPerSec.waterL },
         { id: 'statTrees', val: impactPerSec.treesEquivalent },
       ].forEach(({ id, val }) => {
-        if (val < 0.5) return; // skip if the per-second increase rounds to zero
+        if (val < MIN_STAT_POP_THRESHOLD) return;
         const statEl = document.getElementById(id);
         const statBox = statEl && statEl.closest('.impact-stat');
         spawnPop(statBox, '+' + formatTokenCountShort(Math.round(val)), 'token-pop--stat');
