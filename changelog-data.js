@@ -2,9 +2,35 @@
 // AUTO-GENERATED from CHANGELOG.md — do not edit directly.
 // Run `npm run build:changelog` to regenerate from CHANGELOG.md.
 
-const SITE_VERSION = "1.4.0";
+const SITE_VERSION = "1.5.0";
 
 const CHANGELOG_RELEASES = [
+  {
+    version: "1.5.0",
+    date: null,
+    sections: [
+      { heading: "Added", items: [
+        "add anchor links to section headings for easier sharing ([#79](https://github.com/nitrocode/token-deathclock/issues/79)) ([322f8f5](https://github.com/nitrocode/token-deathclock/commit/322f8f51a301c31db754059cdf85fce379bb668e))",
+        "esbuild minification, bundler PRD, and CLAUDE.md symlink ([#61](https://github.com/nitrocode/token-deathclock/issues/61)) ([ced79e7](https://github.com/nitrocode/token-deathclock/commit/ced79e7ec7be179c1e89ac8eef95b6c9e0f78b7f))",
+        "growing token rate + floating +N pop animation on total counter ([#76](https://github.com/nitrocode/token-deathclock/issues/76)) ([bce2b8b](https://github.com/nitrocode/token-deathclock/commit/bce2b8bcf68368cca5e78188e8facdfe9904ce4d))",
+        "remove milestone countdown alert banner ([#78](https://github.com/nitrocode/token-deathclock/issues/78)) ([b029701](https://github.com/nitrocode/token-deathclock/commit/b02970114645e8531aa0da7afd9542d708ec286b))",
+      ] },
+      { heading: "Fixed", items: [
+        "**deps:** pin dependencies in package.json ([#63](https://github.com/nitrocode/token-deathclock/issues/63)) ([9176c88](https://github.com/nitrocode/token-deathclock/commit/9176c881b42f34c441dcd2c0f38abd153967cdec))",
+        "**deps:** update codecov/codecov-action action to v6 in .github/workflows/unit-tests.yml ([#70](https://github.com/nitrocode/token-deathclock/issues/70)) ([0596cd3](https://github.com/nitrocode/token-deathclock/commit/0596cd392379ff1b3ce82afed925cb0494a72f12))",
+        "**deps:** update dependency js-yaml to v4.1.1 in package.json ([#68](https://github.com/nitrocode/token-deathclock/issues/68)) ([64db45b](https://github.com/nitrocode/token-deathclock/commit/64db45b0472ad4470d4db96fec4ba35e8ac93f12))",
+        "**deps:** update dorny/paths-filter action to v3.0.3 in .github/workflows/unit-tests.yml ([#64](https://github.com/nitrocode/token-deathclock/issues/64)) ([d301ba1](https://github.com/nitrocode/token-deathclock/commit/d301ba180605f11ff882e6f9e1c64c332a9972d2))",
+        "**deps:** update dorny/paths-filter action to v4 in .github/workflows/unit-tests.yml ([#71](https://github.com/nitrocode/token-deathclock/issues/71)) ([98d0476](https://github.com/nitrocode/token-deathclock/commit/98d0476537e0ba4495106208e4bc09ad4887b2e5))",
+        "**deps:** update googleapis/release-please-action action to v5 in .github/workflows/release-please.yml ([#72](https://github.com/nitrocode/token-deathclock/issues/72)) ([be720f1](https://github.com/nitrocode/token-deathclock/commit/be720f1247e58ab9e6efbf06d57ca2e4567835c4))",
+        "**deps:** update node.js to v22 in .nvmrc ([#73](https://github.com/nitrocode/token-deathclock/issues/73)) ([c9d8857](https://github.com/nitrocode/token-deathclock/commit/c9d885762ac3c87b1c5ce25878bd2aff650e5212))",
+        "fix mobile layout clipping for GitHub corner, Share Doom button, and grim reaper ([#67](https://github.com/nitrocode/token-deathclock/issues/67)) ([f44cf18](https://github.com/nitrocode/token-deathclock/commit/f44cf18097d4d25a4c019fb75f5a52d84d4381c0))",
+        "make tab bar horizontally scrollable on mobile ([#66](https://github.com/nitrocode/token-deathclock/issues/66)) ([f8578c3](https://github.com/nitrocode/token-deathclock/commit/f8578c37820ebe879c2c57b6e969351b95f3f2b2))",
+        "prevent grim reaper from being cut off on mobile ([#75](https://github.com/nitrocode/token-deathclock/issues/75)) ([a0b3ce4](https://github.com/nitrocode/token-deathclock/commit/a0b3ce45b0129aae69cb44afc51c004dd02595c9))",
+        "redesign grim reaper scythe blade and improve arm colors for dark mode ([#77](https://github.com/nitrocode/token-deathclock/issues/77)) ([3db9429](https://github.com/nitrocode/token-deathclock/commit/3db9429ed83706b65a4f65981be1727ceb89d7ca))",
+        "reduce GitHub corner icon size from 80x80 to 60x60 ([#74](https://github.com/nitrocode/token-deathclock/issues/74)) ([23ab8fb](https://github.com/nitrocode/token-deathclock/commit/23ab8fbc9ffa445e9d8dd59d743e15eb29388016))",
+      ] }
+    ],
+  },
   {
     version: "1.4.0",
     date: null,
