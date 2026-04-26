@@ -76,15 +76,6 @@
   min-width: 160px;
 }
 
-.doomsday-time {
-  font-family: 'Orbitron', monospace;
-  font-size: clamp(0.75rem, 2.5vw, 1.1rem);
-  font-weight: 900;
-  color: var(--accent);
-  text-shadow: 0 0 10px var(--accent-glow);
-  letter-spacing: 0.08em;
-}
-
 .doomsday-sub {
   font-size: 0.68rem;
   color: rgba(255,255,255,0.45);
