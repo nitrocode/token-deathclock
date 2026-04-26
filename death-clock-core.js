@@ -363,7 +363,9 @@ function getRateAtDate(date) {
 }
 
 // Fractional annual growth applied to the token rate beyond BASE_DATE_ISO.
-// Matches the observed ~30 % year-over-year acceleration in global AI inference.
+// Sourced from the RATE_SCHEDULE: the rate roughly doubled every 12–18 months
+// between 2023 and 2026 (~100 % → 30 % CAGR as growth moderates post-AGI ramp).
+// This conservative 30 % figure is used for forward projections and the live counter.
 const RATE_GROWTH_PER_YEAR = 0.30;
 
 /**

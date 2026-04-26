@@ -74,10 +74,10 @@
   function getCurrentTokens() {
     const elapsed = (Date.now() - BASE_DATE_MS) / 1000; // seconds since BASE_DATE
     // Integrate the exponentially-growing rate: tokens = BASE_TOKENS + R0/k * (e^(k*t) - 1)
-    // where k = ln(1 + RATE_GROWTH_PER_YEAR) / SECS_PER_YEAR
+    // where k = ln(1 + RATE_GROWTH_PER_YEAR) / SECS_PER_YEAR is the continuous growth rate constant.
     const SECS_PER_YEAR = 365.25 * 24 * 3600;
-    const k = Math.log(1 + RATE_GROWTH_PER_YEAR) / SECS_PER_YEAR;
-    return BASE_TOKENS + (TOKENS_PER_SECOND / k) * (Math.exp(k * elapsed) - 1);
+    const continuousGrowthRate = Math.log(1 + RATE_GROWTH_PER_YEAR) / SECS_PER_YEAR;
+    return BASE_TOKENS + (TOKENS_PER_SECOND / continuousGrowthRate) * (Math.exp(continuousGrowthRate * elapsed) - 1);
   }
 
   function numFmt(n) {

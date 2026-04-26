@@ -9,8 +9,11 @@
     const el = document.createElement('div');
     el.className = 'token-pop';
     el.setAttribute('aria-hidden', 'true');
-    // Slight random horizontal spread so successive pops don't stack perfectly
-    el.style.left = (42 + Math.random() * 16) + '%';
+    // Slight random horizontal spread so successive pops don't overlap perfectly.
+    // 42–58 % keeps the pop centred over the number while adding visible variety.
+    const POP_LEFT_BASE   = 42; // leftmost starting position (%)
+    const POP_LEFT_SPREAD = 16; // random spread width (%)
+    el.style.left = (POP_LEFT_BASE + Math.random() * POP_LEFT_SPREAD) + '%';
     el.textContent = '+' + formatTokenCountShort(ratePerSec);
     container.appendChild(el);
     el.addEventListener('animationend', () => el.remove(), { once: true });

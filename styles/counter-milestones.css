@@ -15,6 +15,7 @@
   padding: 1.5rem;
   text-align: center;
   position: relative;
+  /* overflow: visible — required so .token-pop elements can float above the box */
   overflow: visible;
   transition: box-shadow 0.3s;
 }
@@ -56,7 +57,10 @@
   margin-top: 0.5rem;
 }
 
-/* ---- Token pop (+N float-up animation on total counter) ---- */
+/* ---- Token pop (+N float-up animation on total counter) ----
+   .counter-box uses overflow: visible (see below) so that these pops
+   can float above the box boundary, giving the impression that tokens
+   are streaming out of the counter into the page. */
 .token-pop {
   position: absolute;
   bottom: 55%;
