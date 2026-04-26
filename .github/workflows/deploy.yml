@@ -33,5 +33,10 @@ jobs:
           publish_dir: .
           # Preserve any existing PR preview directories across production deploys
           keep_files: true
-          # Exclude non-site files from the deployment
-          exclude_assets: '.github,node_modules,tests,scripts,package-lock.json,package.json,milestones.yaml,project-stats.yaml'
+          # Exclude non-site files from the deployment.
+          # Keep this list in sync with the exclude_assets in preview.yml
+          # (screenshots is an additional preview-only exclusion).
+          # .gitignore is excluded here too: if it lands in peaceiris's gh-pages temp
+          # clone, `git add --all` would silently skip script.js, styles.css and the
+          # generated data files (all listed in .gitignore).
+          exclude_assets: '.github,.gitignore,node_modules,tests,scripts,package-lock.json,package.json,milestones.yaml,project-stats.yaml'

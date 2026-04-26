@@ -18,6 +18,12 @@ jobs:
       - name: Build all generated files
         run: npm run build
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Capture desktop and mobile screenshots
+        run: npm run screenshots
+
       - name: Deploy PR preview to gh-pages branch
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
         with:
@@ -26,16 +32,68 @@ jobs:
           destination_dir: previews/pr-${{ github.event.number }}
           # Preserve existing previews and production files
           keep_files: true
-          # Exclude non-site files (keep in sync with deploy.yml)
-          exclude_assets: '.github,node_modules,tests,scripts,package-lock.json,package.json,milestones.yaml,project-stats.yaml'
+          # Exclude non-site files (keep in sync with deploy.yml).
+          # .gitignore is excluded so it is never deployed: if it lands in the gh-pages
+          # temp clone, peaceiris's `git add --all` would silently skip script.js,
+          # styles.css and the generated data files (all listed in .gitignore).
+          # Screenshots are excluded here because they are uploaded via the Content API
+          # in the next step; uploading before deploy would cause peaceiris to delete them.
+          # NOTE: deploy.yml shares the same base list minus .gitignore and screenshots.
+          exclude_assets: '.github,.gitignore,node_modules,tests,scripts,package-lock.json,package.json,milestones.yaml,project-stats.yaml,screenshots'
+
+      - name: Upload screenshots to GitHub
+        id: upload-screenshots
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const prNumber = context.payload.pull_request.number;
+            const branch = 'gh-pages';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            for (const name of ['desktop', 'mobile']) {
+              const localPath = `screenshots/${name}.png`;
+              const ghPath = `previews/pr-${prNumber}/screenshots/${name}.png`;
+              const content = fs.readFileSync(localPath, { encoding: 'base64' });
+
+              let sha;
+              try {
+                const { data } = await github.rest.repos.getContent({
+                  owner, repo, path: ghPath, ref: branch,
+                });
+                sha = data.sha;
+              } catch (err) {
+                // A 404 means the file doesn't exist yet — that's expected on the
+                // first run. Re-throw anything else (auth errors, network failures).
+                if (err.status !== 404) throw err;
+              }
+
+              await github.rest.repos.createOrUpdateFileContents({
+                owner, repo,
+                path: ghPath,
+                message: `chore: update ${name} screenshot for PR #${prNumber}`,
+                content,
+                branch,
+                ...(sha ? { sha } : {}),
+              });
+
+              core.setOutput(`${name}_url`,
+                `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${ghPath}`);
+            }
 
       - name: Post or update preview URL comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          DESKTOP_URL: ${{ steps.upload-screenshots.outputs.desktop_url }}
+          MOBILE_URL: ${{ steps.upload-screenshots.outputs.mobile_url }}
         with:
           script: |
             const prNumber = context.payload.pull_request.number;
             const sha = context.payload.pull_request.head.sha.slice(0, 7);
             const url = `https://nitrocode.github.io/token-deathclock/previews/pr-${prNumber}/`;
+            const desktopUrl = process.env.DESKTOP_URL;
+            const mobileUrl = process.env.MOBILE_URL;
             const body = [
               '## 👁️ PR Preview',
               '',
@@ -43,6 +101,12 @@ jobs:
               '',
               `> Deployed from commit \`${sha}\` · Updates on every push to this PR`,
               '> _(Preview is removed automatically when the PR is closed.)_',
+              '',
+              '### Screenshots',
+              '',
+              '| Desktop | Mobile |',
+              '|:-------:|:------:|',
+              `| ![Desktop](${desktopUrl}) | ![Mobile](${mobileUrl}) |`,
             ].join('\n');
 
             const { data: comments } = await github.rest.issues.listComments({
