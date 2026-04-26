@@ -41,9 +41,16 @@ test.describe('AI Death Clock — end-to-end', () => {
     await expect(page).toHaveTitle(/Token Deathclock/i);
   });
 
-  test('renders main header', async ({ page }) => {
+  test('renders main header with extinction countdown', async ({ page }) => {
     await expect(page.locator('h1.site-title')).toBeVisible();
-    await expect(page.locator('h1.site-title')).toContainText('AI DEATH CLOCK');
+    await expect(page.locator('h1.site-title')).toContainText('HUMAN EXTINCTION COUNTDOWN');
+    // Countdown timer should be present and populated after init
+    await page.waitForFunction(() => {
+      const el = document.getElementById('extYears');
+      return el && el.textContent.trim() !== '—' && el.textContent.trim() !== '';
+    }, { timeout: 3000 });
+    const years = await page.locator('#extYears').textContent();
+    expect(parseInt(years, 10)).toBeGreaterThan(0);
   });
 
   // ── Live counters ─────────────────────────────────────────────────────────
