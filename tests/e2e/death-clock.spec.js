@@ -289,3 +289,44 @@ test.describe('AI Death Clock — end-to-end', () => {
     expect(html).not.toContain('javascript:');
   });
 });
+
+// ── Mobile tab-bar visibility ─────────────────────────────────────────────────
+
+test.describe('Mobile tab bar — 375 px viewport', () => {
+  test.use({ viewport: { width: 375, height: 667 } });
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('all four tab buttons are present in the DOM at mobile width', async ({ page }) => {
+    const tabs = ['dashboard', 'news', 'about', 'changelog'];
+    for (const tab of tabs) {
+      await expect(page.locator(`#tab-btn-${tab}`)).toHaveCount(1);
+    }
+  });
+
+  test('tab bar is horizontally scrollable when tabs overflow', async ({ page }) => {
+    // scrollWidth > clientWidth means the bar has scrollable overflow
+    const isScrollable = await page.evaluate(() => {
+      const bar = document.querySelector('.tab-bar');
+      return bar.scrollWidth > bar.clientWidth;
+    });
+    expect(isScrollable).toBe(true);
+  });
+
+  test('each tab button is clickable and activates the correct panel', async ({ page }) => {
+    const tabs = [
+      { btn: '#tab-btn-news',      panel: '#tab-news' },
+      { btn: '#tab-btn-about',     panel: '#tab-about' },
+      { btn: '#tab-btn-changelog', panel: '#tab-changelog' },
+    ];
+    for (const { btn, panel } of tabs) {
+      // Scroll the button into view inside the tab bar before clicking
+      await page.locator(btn).scrollIntoViewIfNeeded();
+      await page.locator(btn).click();
+      await expect(page.locator(panel)).not.toHaveAttribute('hidden', /.*/);
+    }
+  });
+});
