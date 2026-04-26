@@ -39,13 +39,14 @@ let currentRelease = null;
 let currentSection = null;
 
 for (const line of raw.split('\n')) {
-  // Release header: ## [Unreleased] or ## [1.0.0] - 2025-04-14
-  const releaseMatch = line.match(/^## \[([^\]]+)\](?:\s+-\s+(\d{4}-\d{2}-\d{2}))?/);
+  // Release header: ## [Unreleased] or ## [1.0.0] - 2025-04-14 (Keep a Changelog)
+  // Also handles release-please format: ## [1.0.0](url) (2025-04-14)
+  const releaseMatch = line.match(/^## \[([^\]]+)\](?:\([^)]*\))?(?:\s+-\s+(\d{4}-\d{2}-\d{2})|\s+\((\d{4}-\d{2}-\d{2})\))?/);
   if (releaseMatch) {
     if (currentRelease) releases.push(currentRelease);
     currentRelease = {
       version:  releaseMatch[1],
-      date:     releaseMatch[2] || null,
+      date:     releaseMatch[2] || releaseMatch[3] || null,
       sections: [],
     };
     currentSection = null;

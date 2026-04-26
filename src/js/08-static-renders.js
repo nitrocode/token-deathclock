@@ -30,6 +30,76 @@
   }
 
   // ---- Render changelog tab -----------------------------------
+
+  /**
+   * Convert markdown inline links [text](url) in a plain-text string into
+   * safe HTML anchor elements.  All other content is HTML-escaped normally.
+   * Only https?:// URLs are converted; anything else is rendered as escaped text.
+   * @param {string} text
+   * @returns {string}
+   */
+  function mdLinksToHtml(text) {
+    const parts = [];
+    const re = /\[([^\]]+)\]\(([^)]+)\)/g;
+    let last = 0;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      if (m.index > last) {
+        parts.push(escHtml(text.slice(last, m.index)));
+      }
+      const href = m[2].trim();
+      if (/^https?:\/\//i.test(href)) {
+        parts.push(
+          `<a href="${escHtml(href)}" target="_blank" rel="noopener noreferrer">${escHtml(m[1])}</a>`
+        );
+      } else {
+        parts.push(escHtml(m[0]));
+      }
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) {
+      parts.push(escHtml(text.slice(last)));
+    }
+    return parts.join('');
+  }
+
+  /** Build the inner HTML for a single changelog release card.
+   * @param {{ version: string, date: string|null, sections: Array<{heading:string,items:string[]}> }} release
+   * @returns {string}
+   */
+  function buildReleaseHtml(release) {
+    const isUnreleased = release.version === 'Unreleased';
+    const dateStr = release.date
+      ? `<span class="changelog-date">${escHtml(release.date)}</span>`
+      : '';
+    const ghUrl = isUnreleased
+      ? 'https://github.com/nitrocode/token-deathclock/compare/v' +
+        escHtml(SITE_VERSION) + '...HEAD'
+      : 'https://github.com/nitrocode/token-deathclock/releases/tag/v' +
+        escHtml(release.version);
+    let html = `<div class="changelog-release${isUnreleased ? ' changelog-release--unreleased' : ''}">`;
+    html += `<div class="changelog-release-header">`;
+    html += `<a class="changelog-version" href="${ghUrl}" target="_blank" rel="noopener noreferrer">`;
+    html += isUnreleased ? '🔧 Unreleased' : escHtml('v' + release.version);
+    html += `</a>${dateStr}`;
+    html += `<a class="changelog-gh-link" href="${ghUrl}" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a>`;
+    html += `</div>`;
+    if (release.sections.length === 0) {
+      html += `<p class="changelog-empty">No entries yet.</p>`;
+    }
+    release.sections.forEach((sec) => {
+      html += `<div class="changelog-section">`;
+      html += `<h4 class="changelog-section-heading">${escHtml(sec.heading)}</h4>`;
+      html += `<ul class="changelog-items">`;
+      sec.items.forEach((item) => {
+        html += `<li class="changelog-item">${mdLinksToHtml(item)}</li>`;
+      });
+      html += `</ul></div>`;
+    });
+    html += `</div>`;
+    return html;
+  }
+
   function renderChangelog() {
     const list = document.getElementById('changelogList');
     if (!list) return;
@@ -44,39 +114,38 @@
       return;
     }
 
-    let html = '';
-    CHANGELOG_RELEASES.forEach((release) => {
-      const isUnreleased = release.version === 'Unreleased';
-      const dateStr = release.date
-        ? `<span class="changelog-date">${escHtml(release.date)}</span>`
-        : '';
-      const ghUrl = isUnreleased
-        ? 'https://github.com/nitrocode/token-deathclock/compare/v' +
-          escHtml(SITE_VERSION) + '...HEAD'
-        : 'https://github.com/nitrocode/token-deathclock/releases/tag/v' +
-          escHtml(release.version);
-      html += `<div class="changelog-release${isUnreleased ? ' changelog-release--unreleased' : ''}">`;
-      html += `<div class="changelog-release-header">`;
-      html += `<a class="changelog-version" href="${ghUrl}" target="_blank" rel="noopener noreferrer">`;
-      html += isUnreleased ? '🔧 Unreleased' : escHtml('v' + release.version);
-      html += `</a>${dateStr}`;
+    const latest = CHANGELOG_RELEASES[0];
+    const older  = CHANGELOG_RELEASES.slice(1);
+
+    let html = buildReleaseHtml(latest);
+
+    if (older.length > 0) {
+      html += `<button class="changelog-show-more" id="changelogShowMore" aria-expanded="false">` +
+        `Show ${older.length} older release${older.length === 1 ? '' : 's'} ↓</button>`;
+      html += `<div class="changelog-older" id="changelogOlder" hidden>`;
+      older.forEach((r) => { html += buildReleaseHtml(r); });
       html += `</div>`;
-      if (release.sections.length === 0) {
-        html += `<p class="changelog-empty">No entries yet.</p>`;
-      }
-      release.sections.forEach((sec) => {
-        html += `<div class="changelog-section">`;
-        html += `<h4 class="changelog-section-heading">${escHtml(sec.heading)}</h4>`;
-        html += `<ul class="changelog-items">`;
-        sec.items.forEach((item) => {
-          html += `<li class="changelog-item">${escHtml(item)}</li>`;
-        });
-        html += `</ul></div>`;
-      });
-      html += `</div>`;
-    });
+    }
 
     list.innerHTML = html;
+
+    const btn = document.getElementById('changelogShowMore');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const container = document.getElementById('changelogOlder');
+        if (!container) return;
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        if (expanded) {
+          container.hidden = true;
+          btn.setAttribute('aria-expanded', 'false');
+          btn.textContent = `Show ${older.length} older release${older.length === 1 ? '' : 's'} ↓`;
+        } else {
+          container.hidden = false;
+          btn.setAttribute('aria-expanded', 'true');
+          btn.textContent = `Hide older releases ↑`;
+        }
+      });
+    }
   }
 
   // ---- Render footer meta-irony stats -------------------------
