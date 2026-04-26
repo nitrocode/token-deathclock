@@ -40,11 +40,11 @@ function buildBundle(opts) {
     return fs.readFileSync(fullPath, 'utf8');
   });
 
-  // Concatenate — each source file preserves its own trailing blank lines so
-  // no additional separator is needed.
-  let unminified = chunks.join('');
+  // Concatenate with explicit newline separators so files without trailing
+  // newlines don't accidentally merge tokens across boundaries.
+  let unminified = chunks.join('\n');
   if (opts.header) unminified = opts.header + '\n' + unminified;
-  if (opts.footer) unminified = unminified + opts.footer + '\n';
+  if (opts.footer) unminified = unminified + '\n' + opts.footer;
 
   const esbuildOpts = Object.assign(
     { minify: true, loader: opts.loader },
@@ -55,7 +55,9 @@ function buildBundle(opts) {
   fs.writeFileSync(opts.outPath, result.code);
 
   const outName = path.basename(opts.outPath);
-  const ratio   = ((1 - result.code.length / unminified.length) * 100).toFixed(1);
+  const ratio   = unminified.length === 0
+    ? '0.0'
+    : ((1 - result.code.length / unminified.length) * 100).toFixed(1);
   console.log(
     `${outName} rebuilt from ${opts.parts.length} source files ` +
     `(${unminified.split('\n').length - 1} lines → ${result.code.length} bytes, −${ratio}% via esbuild minification)`,

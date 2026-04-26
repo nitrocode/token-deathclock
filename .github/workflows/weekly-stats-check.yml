@@ -28,7 +28,13 @@ jobs:
             // Read the recorded pr_count from project-stats.yaml
             const yaml = fs.readFileSync('project-stats.yaml', 'utf8');
             const match = yaml.match(/^pr_count:\s*(\d+)/m);
-            const recordedCount = match ? parseInt(match[1], 10) : 0;
+            if (!match) {
+              throw new Error('Invalid or missing pr_count in project-stats.yaml');
+            }
+            const recordedCount = parseInt(match[1], 10);
+            if (!Number.isInteger(recordedCount)) {
+              throw new Error('Invalid or missing pr_count in project-stats.yaml');
+            }
 
             // Count actual merged PRs via the GitHub API
             let page = 1;
@@ -71,14 +77,14 @@ jobs:
               'Then run `npm run build:project-stats` to regenerate `project-stats-data.js`, or let the deploy workflow handle it.',
             ].join('\n');
 
-            // Avoid duplicate open issues
-            const { data: openIssues } = await github.rest.issues.listForRepo({
+            // Avoid duplicate open issues (paginate to cover all open items, exclude PRs)
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
             });
             const duplicate = openIssues.find(i =>
-              i.title.startsWith('chore: update project-stats.yaml')
+              i.title.startsWith('chore: update project-stats.yaml') && !i.pull_request
             );
             if (duplicate) {
               console.log(`Reminder issue already open: #${duplicate.number} — skipping.`);
