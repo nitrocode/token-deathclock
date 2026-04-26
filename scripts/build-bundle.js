@@ -60,7 +60,7 @@ function buildBundle(opts) {
     : ((1 - result.code.length / unminified.length) * 100).toFixed(1);
   console.log(
     `${outName} rebuilt from ${opts.parts.length} source files ` +
-    `(${unminified.split('\n').length - 1} lines → ${result.code.length} bytes, −${ratio}% via esbuild minification)`,
+    `(${unminified ? unminified.split('\n').length : 0} lines → ${result.code.length} bytes, −${ratio}% via esbuild minification)`,
   );
 }
 
