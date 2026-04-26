@@ -288,6 +288,30 @@ test.describe('AI Death Clock — end-to-end', () => {
     expect(html).not.toContain('<script>');
     expect(html).not.toContain('javascript:');
   });
+
+  // ── Section anchor links ──────────────────────────────────────────────────
+
+  test('section headings have anchor links rendered', async ({ page }) => {
+    // Each section with an id should have a .section-anchor child in its h2
+    const anchors = await page.locator('section[id] h2 .section-anchor').all();
+    expect(anchors.length).toBeGreaterThan(0);
+  });
+
+  test('section anchor href matches the section id', async ({ page }) => {
+    const sectionId = 'counter-section';
+    const href = await page.locator(`#${sectionId} h2 .section-anchor`).getAttribute('href');
+    expect(href).toBe(`#${sectionId}`);
+  });
+
+  test('navigating to a section anchor deep-link activates the correct tab', async ({ page }) => {
+    await page.goto('/#milestones-section');
+    await page.waitForLoadState('networkidle');
+    // milestones-section lives in the dashboard tab; it should be visible (not hidden)
+    const section = page.locator('#milestones-section');
+    await expect(section).toBeVisible();
+    // The dashboard tab panel should not be hidden
+    await expect(page.locator('#tab-dashboard')).not.toHaveAttribute('hidden', /.*/);
+  });
 });
 
 // ── Mobile layout: fixed elements must stay within the viewport ───────────
