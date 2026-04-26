@@ -158,3 +158,55 @@
     if (el) el.textContent = value;
   }
 
+  // ---- Extinction countdown (header) -----------------------
+  // Finds the milestone flagged `extinctionMarker: true`, computes the
+  // remaining seconds at the current dynamic rate, and updates the header
+  // countdown display once per second.
+  function updateExtinctionCountdown() {
+    const extinctionMilestone = MILESTONES.find(m => m.extinctionMarker);
+    if (!extinctionMilestone) return;
+
+    const tokens = getCurrentTokens();
+    const currentRate = getDynamicRate(new Date());
+    const tokensRemaining = extinctionMilestone.tokens - tokens;
+
+    const pad2 = (n) => String(Math.floor(n)).padStart(2, '0');
+    const pad3 = (n) => String(Math.floor(n)).padStart(3, '0');
+
+    if (tokensRemaining <= 0) {
+      // Extinction threshold reached — show zeroed-out timer
+      ['extYears', 'extDays', 'extHours', 'extMins', 'extSecs'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '00';
+      });
+      return;
+    }
+
+    const SECS_PER_YEAR  = 365.25 * 24 * 3600;
+    const SECS_PER_DAY   = 24 * 3600;
+    const SECS_PER_HOUR  = 3600;
+    const SECS_PER_MIN   = 60;
+
+    const secsRemaining = tokensRemaining / currentRate;
+    const years    = Math.floor(secsRemaining / SECS_PER_YEAR);
+    const remAfterY = secsRemaining % SECS_PER_YEAR;
+    const days     = Math.floor(remAfterY / SECS_PER_DAY);
+    const remAfterD = remAfterY % SECS_PER_DAY;
+    const hours    = Math.floor(remAfterD / SECS_PER_HOUR);
+    const remAfterH = remAfterD % SECS_PER_HOUR;
+    const mins     = Math.floor(remAfterH / SECS_PER_MIN);
+    const secs     = Math.floor(remAfterH % SECS_PER_MIN);
+
+    const yrsEl  = document.getElementById('extYears');
+    const daysEl = document.getElementById('extDays');
+    const hrsEl  = document.getElementById('extHours');
+    const minsEl = document.getElementById('extMins');
+    const secsEl = document.getElementById('extSecs');
+
+    if (yrsEl)  yrsEl.textContent  = String(years);
+    if (daysEl) daysEl.textContent = pad3(days);
+    if (hrsEl)  hrsEl.textContent  = pad2(hours);
+    if (minsEl) minsEl.textContent = pad2(mins);
+    if (secsEl) secsEl.textContent = pad2(secs);
+  }
+
