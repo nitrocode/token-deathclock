@@ -2,119 +2,6 @@
    SCARY & SATIRICAL FEATURES — PRDs 1–7
    ============================================================= */
 
-/* ── PRD 1: Doomsday Clock Strip ──────────────────────────── */
-
-.doomsday-strip {
-  background: #0d0000;
-  border-bottom: 2px solid var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 0.65rem 1.5rem;
-  flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-  z-index: 850;
-  box-shadow: 0 2px 20px rgba(255,51,51,0.25);
-}
-
-:root[data-theme="light"] .doomsday-strip {
-  background: #1a0000;
-}
-
-.doomsday-clock-wrap {
-  flex-shrink: 0;
-}
-
-.doom-clock-svg {
-  width: 56px;
-  height: 56px;
-  overflow: visible;
-}
-
-.doom-clock-face {
-  fill: #0d0000;
-  stroke: var(--accent);
-  stroke-width: 2;
-}
-
-.doom-tick {
-  stroke: rgba(255, 51, 51, 0.5);
-  stroke-width: 1.5;
-  stroke-linecap: round;
-}
-
-.doom-tick-major {
-  stroke: var(--accent);
-  stroke-width: 2.5;
-}
-
-.doom-tick-sm {
-  stroke-width: 1;
-}
-
-.doom-tick-warn {
-  stroke: var(--accent);
-  stroke-width: 2;
-}
-
-.doom-clock-hand {
-  stroke: var(--accent);
-  stroke-width: 3;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 4px var(--accent));
-  transition: none;
-}
-
-.doom-clock-dot {
-  fill: #fff;
-  filter: drop-shadow(0 0 3px var(--accent));
-}
-
-.doomsday-text-wrap {
-  flex: 1;
-  min-width: 160px;
-}
-
-.doomsday-sub {
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.45);
-  margin-top: 0.2rem;
-  letter-spacing: 0.04em;
-}
-
-.doomsday-bar-wrap {
-  flex: 1;
-  min-width: 120px;
-  max-width: 260px;
-}
-
-.doomsday-bar-track {
-  height: 8px;
-  background: rgba(255,51,51,0.12);
-  border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid rgba(255,51,51,0.25);
-}
-
-.doomsday-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #330000, var(--accent));
-  border-radius: 4px;
-  transition: width 1s linear;
-  box-shadow: 0 0 6px var(--accent-glow);
-}
-
-.doomsday-bar-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.58rem;
-  color: rgba(255,255,255,0.3);
-  letter-spacing: 0.08em;
-  margin-top: 0.2rem;
-  text-transform: uppercase;
-}
-
 /* ── PRD 1: Emergency Broadcast Overlay ───────────────────── */
 
 .emergency-broadcast {
@@ -777,9 +664,6 @@
 /* ── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 600px) {
-  .doomsday-strip { padding: 0.5rem 1rem; gap: 0.75rem; }
-  .doomsday-bar-wrap { display: none; }
-  .doom-clock-svg { width: 44px; height: 44px; }
   .session-tab-items { grid-template-columns: 1fr 1fr; }
   .villain-table .villain-rank-cell { display: none; }
 }
@@ -790,8 +674,6 @@
   .apology-quote { animation: none; }
   .shame-entry { animation: none; }
   .villain-congratulations { animation: none; }
-  .doomsday-bar-fill { transition: none; }
-  .doom-clock-hand { transition: none; }
   .intervention-overlay, .intervention-card { animation: none; }
 }
 
