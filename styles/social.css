@@ -124,70 +124,6 @@
   .event-log { scroll-behavior: auto; }
 }
 
-/* ---- Milestone Countdown Alert Banner ---- */
-
-.milestone-alert-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1800;
-  background: linear-gradient(135deg, #2a0505, #1a0000);
-  border-bottom: 2px solid var(--accent);
-  padding: 0.55rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  font-size: 0.88rem;
-  color: var(--text);
-  box-shadow: 0 2px 24px rgba(255, 51, 51, 0.4);
-  animation: alert-slide-down 0.35s ease-out;
-}
-
-:root[data-theme="light"] .milestone-alert-banner {
-  background: linear-gradient(135deg, #5a0000, #3a0000);
-}
-
-@keyframes alert-slide-down {
-  from { transform: translateY(-100%); }
-  to   { transform: translateY(0); }
-}
-
-.milestone-alert-icon {
-  font-size: 1.4rem;
-  line-height: 1;
-}
-
-.milestone-alert-msg {
-  font-size: 0.85rem;
-  color: #ffcccc;
-  flex: 1;
-  min-width: 0;
-  text-align: center;
-}
-
-.milestone-alert-countdown {
-  font-family: 'Orbitron', monospace;
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: var(--accent);
-  min-width: 3.5rem;
-  text-align: right;
-  animation: countdown-tick 1s ease-in-out infinite alternate;
-}
-
-@keyframes countdown-tick {
-  from { text-shadow: 0 0 8px  var(--accent-glow); }
-  to   { text-shadow: 0 0 22px var(--accent-glow); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .milestone-alert-banner { animation: none; }
-  .milestone-alert-countdown { animation: none; }
-}
-
 /* ---- Milestone Crossing Flash Overlay ---- */
 
 .milestone-flash-overlay {
@@ -266,7 +202,6 @@
 
 @media (max-width: 600px) {
   .milestone-flash-content { padding: 1.5rem 1.25rem; }
-  .milestone-alert-msg { font-size: 0.78rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
