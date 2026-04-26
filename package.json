@@ -1,6 +1,6 @@
 {
   "name": "ai-death-clock",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "AI Death Clock — visualising the environmental cost of global AI token consumption",
   "homepage": "https://nitrocode.github.io/token-deathclock/",
   "scripts": {
