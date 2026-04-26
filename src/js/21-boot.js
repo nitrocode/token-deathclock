@@ -69,10 +69,14 @@
     // Kick off the live counter RAF loop
     requestAnimationFrame(updateCounters);
 
+    // Populate extinction countdown immediately, then refresh every second
+    updateExtinctionCountdown();
+
     // Check time-based badges and milestone alert every second
     setInterval(() => {
       checkTimeBadges();
       checkMilestoneAlert();
+      updateExtinctionCountdown();
     }, 1000);
   }
 

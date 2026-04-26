@@ -158,3 +158,57 @@
     if (el) el.textContent = value;
   }
 
+  // ---- Extinction countdown (header) -----------------------
+  // Module-level constants and helpers so they are created once, not on every
+  // call to updateExtinctionCountdown() (which runs every second).
+  const _EXT_SECS_PER_YEAR = 365.25 * 24 * 3600;
+  const _EXT_SECS_PER_DAY  = 24 * 3600;
+  const _EXT_SECS_PER_HOUR = 3600;
+  const _EXT_SECS_PER_MIN  = 60;
+  const _EXT_UNIT_IDS = ['extYears', 'extDays', 'extHours', 'extMins', 'extSecs'];
+  const _extPad2 = (n) => String(Math.floor(n)).padStart(2, '0');
+  const _extPad3 = (n) => String(Math.floor(n)).padStart(3, '0');
+
+  // Finds the milestone flagged `extinctionMarker: true`, computes the
+  // remaining seconds at the current dynamic rate, and updates the header
+  // countdown display once per second.
+  function updateExtinctionCountdown() {
+    const extinctionMilestone = MILESTONES.find(m => m.extinctionMarker);
+    if (!extinctionMilestone) return;
+
+    const tokens = getCurrentTokens();
+    const currentRate = getDynamicRate(new Date());
+    const tokensRemaining = extinctionMilestone.tokens - tokens;
+
+    if (tokensRemaining <= 0) {
+      // Extinction threshold reached — show zeroed-out timer
+      _EXT_UNIT_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '00';
+      });
+      return;
+    }
+
+    const secsRemaining = tokensRemaining / currentRate;
+    const years    = Math.floor(secsRemaining / _EXT_SECS_PER_YEAR);
+    const remAfterY = secsRemaining % _EXT_SECS_PER_YEAR;
+    const days     = Math.floor(remAfterY / _EXT_SECS_PER_DAY);
+    const remAfterD = remAfterY % _EXT_SECS_PER_DAY;
+    const hours    = Math.floor(remAfterD / _EXT_SECS_PER_HOUR);
+    const remAfterH = remAfterD % _EXT_SECS_PER_HOUR;
+    const mins     = Math.floor(remAfterH / _EXT_SECS_PER_MIN);
+    const secs     = Math.floor(remAfterH % _EXT_SECS_PER_MIN);
+
+    const yrsEl  = document.getElementById('extYears');
+    const daysEl = document.getElementById('extDays');
+    const hrsEl  = document.getElementById('extHours');
+    const minsEl = document.getElementById('extMins');
+    const secsEl = document.getElementById('extSecs');
+
+    if (yrsEl)  yrsEl.textContent  = String(years);
+    if (daysEl) daysEl.textContent = _extPad3(days);
+    if (hrsEl)  hrsEl.textContent  = _extPad2(hours);
+    if (minsEl) minsEl.textContent = _extPad2(mins);
+    if (secsEl) secsEl.textContent = _extPad2(secs);
+  }
+
