@@ -91,6 +91,10 @@ section {
   right: 0;
   z-index: 1100;
   color: var(--bg);
+  /* overflow: hidden prevents the element from contributing to the
+     viewport scroll-width on iOS Safari, which can otherwise cause
+     a spurious horizontal scroll on mobile. */
+  overflow: hidden;
 }
 .github-corner svg {
   fill: var(--accent);
