@@ -96,10 +96,11 @@
     document.querySelectorAll('section[id]').forEach((section) => {
       const h2 = section.querySelector('h2');
       if (!h2) return;
+      if (h2.querySelector('.section-anchor')) return;
       const anchor = document.createElement('a');
       anchor.className = 'section-anchor';
       anchor.href = '#' + section.id;
-      anchor.setAttribute('aria-label', 'Link to this section');
+      anchor.setAttribute('aria-label', 'Link to section: ' + section.id);
       anchor.textContent = '#';
       h2.appendChild(anchor);
     });
