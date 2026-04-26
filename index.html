@@ -1636,11 +1636,15 @@
 
 <!-- ── Grim Reaper ──────────────────────────────────────── -->
 <div id="grim-reaper" class="grim-reaper" aria-hidden="true">
+  <div id="reaper-bubble" class="reaper-bubble" aria-live="polite"></div>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 155">
-    <!-- scythe handle -->
-    <line x1="77" y1="16" x2="62" y2="148" class="reaper-scythe-handle" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- scythe blade — large crescent sweeping left over the hood -->
-    <path d="M77,16 C72,6 55,2 38,5 C20,8 6,20 6,32 C6,44 22,48 40,38 C56,28 72,20 77,16 Z" class="reaper-scythe-blade"/>
+    <!-- scythe (handle + blade wrapped for swing animation) -->
+    <g class="reaper-scythe-group">
+      <!-- scythe handle -->
+      <line x1="77" y1="16" x2="62" y2="148" class="reaper-scythe-handle" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- scythe blade — large crescent sweeping left over the hood -->
+      <path d="M77,16 C72,6 55,2 38,5 C20,8 6,20 6,32 C6,44 22,48 40,38 C56,28 72,20 77,16 Z" class="reaper-scythe-blade"/>
+    </g>
     <!-- robe shadow -->
     <ellipse cx="50" cy="151" rx="28" ry="5" fill="#000" opacity="0.4"/>
     <!-- robe body -->
