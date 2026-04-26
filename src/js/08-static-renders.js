@@ -91,6 +91,20 @@
       'adding to the very problem it tracks.';
   }
 
+  // ---- Add anchor links to section headings -------------------
+  function renderSectionAnchors() {
+    document.querySelectorAll('section[id]').forEach((section) => {
+      const h2 = section.querySelector('h2');
+      if (!h2) return;
+      const anchor = document.createElement('a');
+      anchor.className = 'section-anchor';
+      anchor.href = '#' + section.id;
+      anchor.setAttribute('aria-label', 'Link to this section');
+      anchor.textContent = '#';
+      h2.appendChild(anchor);
+    });
+  }
+
   // ============================================================
   // FUN FEATURES
   // ============================================================
