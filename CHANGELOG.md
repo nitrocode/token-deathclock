@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.6.0...ai-death-clock-v1.7.0) (2026-04-26)
+
+
+### Added
+
+* replace header title/subtitle with live human extinction countdown ([#92](https://github.com/nitrocode/token-deathclock/issues/92)) ([e403cd9](https://github.com/nitrocode/token-deathclock/commit/e403cd906dd6c42bd8b311da9f2eb9bc71436bb6))
+* show mobile and desktop screenshots in PR preview comment ([#90](https://github.com/nitrocode/token-deathclock/issues/90)) ([5470bb0](https://github.com/nitrocode/token-deathclock/commit/5470bb078e941c3966f85e98e0045114d1680a6a))
+
+
+### Fixed
+
+* remove horizontal scroll on mobile ([#87](https://github.com/nitrocode/token-deathclock/issues/87)) ([42d4d3f](https://github.com/nitrocode/token-deathclock/commit/42d4d3f5045d89725eadbc4a21c94f2b0d29311b))
+* use overflow-x clip on html to stop fixed icons being cut off on scroll ([#88](https://github.com/nitrocode/token-deathclock/issues/88)) ([6e676fb](https://github.com/nitrocode/token-deathclock/commit/6e676fb0d9c83cf2297507d3afb9e48d91d7c4a0))
+
+
+### Changed
+
+* **tests:** speed up E2E test suite ([#93](https://github.com/nitrocode/token-deathclock/issues/93)) ([b272b7b](https://github.com/nitrocode/token-deathclock/commit/b272b7b8ff9285099a4771660422a20e975535f9))
+
 ## [1.6.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.5.0...ai-death-clock-v1.6.0) (2026-04-26)
 
 
