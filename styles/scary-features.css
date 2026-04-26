@@ -134,6 +134,8 @@
   padding: 0.5rem 0.75rem;
   font-size: 0.78rem;
   color: var(--text-dim);
+  position: relative;
+  overflow: visible;
 }
 
 .sti-icon { font-size: 1.1rem; flex-shrink: 0; }

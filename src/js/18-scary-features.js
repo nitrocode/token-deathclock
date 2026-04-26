@@ -97,6 +97,9 @@
 
   // ── PRD 4: Your Tab (Running) strip ──────────────────────────
 
+  // Per-item throttle timestamp for the floating +N pop animations.
+  let _lastTabPop = 0;
+
   function updateSessionTabStrip() {
     const now     = Date.now();
     const elapsed = Math.max(1, (now - pageLoadTime) / 1000);
@@ -131,6 +134,27 @@
     if (treesEl)  treesEl.textContent  = fmtSmall(trees);
     if (chargeEl) chargeEl.textContent = fmtSmall(charges);
     if (metresEl) metresEl.textContent = fmtSmall(metres);
+
+    // Floating "+N" pops — once per second, showing the per-second increment for each stat.
+    if (now - _lastTabPop >= 1000) {
+      _lastTabPop = now;
+      const impactPerSec = calculateEnvironmentalImpact(rate);
+      const coffeesPerSec = impactPerSec.waterL / 0.2;
+      const treesPerSec   = impactPerSec.treesEquivalent;
+      const chargesPerSec = impactPerSec.kWh / 0.015;
+      const metresPerSec  = impactPerSec.co2Kg / 0.000171;
+      const MIN_TAB_POP_THRESHOLD = 0.005;
+      [
+        { el: waterEl,  val: coffeesPerSec },
+        { el: treesEl,  val: treesPerSec },
+        { el: chargeEl, val: chargesPerSec },
+        { el: metresEl, val: metresPerSec },
+      ].forEach(({ el, val }) => {
+        if (!el || val < MIN_TAB_POP_THRESHOLD) return;
+        const item = el.closest('.session-tab-item');
+        spawnPop(item, '+' + fmtSmall(val), 'token-pop--tab');
+      });
+    }
   }
 
   function initSessionTabStrip() {
