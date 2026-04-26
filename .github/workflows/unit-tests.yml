@@ -48,6 +48,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build generated files needed for tests
+        run: npm run build:milestones && npm run build:js
+
       - name: Run type check
         run: npm run typecheck
 

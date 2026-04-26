@@ -21,8 +21,6 @@ const {
   getTimeDelta,
   milestoneProgress,
   getRateAtDate,
-  getDynamicRate,
-  RATE_GROWTH_PER_YEAR,
   calculateTipImpact,
   TOKEN_TIPS,
   generateEquivalences,
@@ -39,6 +37,8 @@ const {
   BASE_TOKENS,
   TOKENS_PER_SECOND,
   getSimulatedViewerCount,
+  getDynamicRate,
+  RATE_GROWTH_PER_YEAR,
 } = core;
 
 // ============================================================
