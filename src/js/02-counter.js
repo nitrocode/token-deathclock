@@ -124,6 +124,9 @@
       });
     }
 
+    // Update doomsday clock (PRD 1)
+    updateDoomsdayClock(tokens);
+
     // Update milestone progress bars
     const triggered = getTriggeredMilestones(tokens, MILESTONES);
     MILESTONES.forEach((m, idx) => {
