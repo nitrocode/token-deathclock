@@ -6,6 +6,8 @@ module.exports = defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
   retries: 0,
+  fullyParallel: true,
+  workers: process.env.CI ? 4 : undefined,
   use: {
     baseURL: 'http://localhost:3000',
     headless: true,
