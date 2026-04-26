@@ -351,6 +351,40 @@ test.describe('mobile layout — fixed elements within viewport', () => {
     expect(cutOff).toBeLessThan(bbox.width / 2);
   });
 
+  test('grim reaper has a speech bubble element', async ({ page }) => {
+    const bubble = page.locator('#reaper-bubble');
+    await expect(bubble).toBeAttached();
+    // Bubble should start hidden (no "visible" class)
+    await expect(bubble).not.toHaveClass(/visible/);
+  });
+
+  test('grim reaper shows speech bubble and swings scythe when clicked', async ({ page }) => {
+    const reaper = page.locator('#grim-reaper');
+    const bubble = page.locator('#reaper-bubble');
+
+    await reaper.click();
+
+    // Bubble should become visible after click
+    await expect(bubble).toHaveClass(/visible/, { timeout: 1000 });
+    // Bubble text should be non-empty
+    const text = await bubble.textContent();
+    expect(text.trim().length).toBeGreaterThan(0);
+
+    // The scythe-group wrapper must exist in the SVG
+    await expect(reaper.locator('.reaper-scythe-group')).toBeAttached();
+  });
+
+  test('grim reaper speech bubble auto-hides after a few seconds', async ({ page }) => {
+    const reaper = page.locator('#grim-reaper');
+    const bubble = page.locator('#reaper-bubble');
+
+    await reaper.click();
+    await expect(bubble).toHaveClass(/visible/, { timeout: 1000 });
+
+    // After ~4 s the bubble should disappear (default duration is 3.5 s)
+    await expect(bubble).not.toHaveClass(/visible/, { timeout: 5000 });
+  });
+
   test('Share Your Doom button is fully within the viewport on mobile', async ({ page }) => {
     // Reveal the panel immediately via the ?share=true query param
     await page.goto('/?share=true');

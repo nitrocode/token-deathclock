@@ -425,3 +425,130 @@
     });
   }
 
+  // ── Grim Reaper: Scythe Swing, Speech Bubbles, Proximity ─────
+
+  const REAPER_IDLE_QUOTES = [
+    'Tick tock\u2026',
+    'Your queries, my harvest.',
+    'Every token is a breath closer.',
+    'The servers never sleep.',
+    'I have been very busy lately.',
+    'So many tokens\u2026 so little time.',
+    'CO\u2082 says hello.',
+    "I'm not waiting for you. I'm waiting \u2018with\u2019 you.",
+    'Did you really need to ask AI that?',
+    'One more prompt\u2026',
+    "Don\u2019t mind me.",
+    'I go where the tokens flow.',
+    'Another milestone down.',
+    'Carbon is forever.',
+    'Patience is my virtue. Time is not yours.',
+  ];
+
+  const REAPER_CLICK_QUOTES = [
+    'Oh! A visitor. How delightful.',
+    "Please don\u2019t tap the glass.",
+    "I\u2019m working. Could you not?",
+    'Ah, the curious ones. My favourite.',
+    'Touch me again and I swing the scythe.',
+    'Yes, yes. I see you.',
+    'This is not a game. (It is a bit of a game.)',
+    "You\u2019ve earned 100 doom points.",
+    "I\u2019m always watching.",
+    'Boo yourself.',
+    'Still here? Interesting.',
+    'We have so much in common, you and I.',
+    'Every click costs something.',
+    "You're not the first. You won\u2019t be the last.",
+  ];
+
+  const REAPER_HOVER_QUOTES = [
+    'Getting closer\u2026',
+    'I can feel your warmth.',
+    'Are you here to confess?',
+    'Hello there.',
+    'You seem\u2026 familiar.',
+    'Careful now.',
+  ];
+
+  let _reaperBubbleTimer = null;
+  let _reaperHoverActive = false;
+  let _reaperClickIdx    = 0;
+  let _reaperHoverIdx    = 0;
+
+  function _showReaperBubble(text, durationMs) {
+    const bubble = document.getElementById('reaper-bubble');
+    if (!bubble) return;
+    bubble.textContent = text;
+    bubble.classList.add('visible');
+    clearTimeout(_reaperBubbleTimer);
+    _reaperBubbleTimer = setTimeout(() => bubble.classList.remove('visible'), durationMs || 3500);
+  }
+
+  function _swingReaperScythe() {
+    const reaper = document.getElementById('grim-reaper');
+    if (!reaper) return;
+    reaper.classList.remove('reaper-swinging');
+    // Force reflow so re-adding the class retriggers the animation
+    void reaper.offsetWidth;
+    reaper.classList.add('reaper-swinging');
+    setTimeout(() => reaper.classList.remove('reaper-swinging'), 800);
+  }
+
+  function initGrimReaper() {
+    const reaper = document.getElementById('grim-reaper');
+    if (!reaper) return;
+
+    // Click / tap — show a click quote and swing the scythe
+    reaper.addEventListener('click', () => {
+      const quote = REAPER_CLICK_QUOTES[_reaperClickIdx % REAPER_CLICK_QUOTES.length];
+      _reaperClickIdx++;
+      _showReaperBubble(quote, 3500);
+      _swingReaperScythe();
+    });
+
+    // Mouse proximity — react when cursor comes within 140 px of the reaper.
+    // Throttled via rAF to avoid layout thrash on high-poll-rate mice.
+    let _reaperMouseFrame = null;
+    document.addEventListener('mousemove', (e) => {
+      if (_reaperMouseFrame) return;
+      _reaperMouseFrame = requestAnimationFrame(() => {
+        _reaperMouseFrame = null;
+        const bbox  = reaper.getBoundingClientRect();
+        const nearX = e.clientX > bbox.left - 20 && e.clientX < bbox.right + 140;
+        const nearY = e.clientY > bbox.top - 100 && e.clientY < bbox.bottom + 10;
+        const isNear = nearX && nearY;
+
+        if (isNear && !_reaperHoverActive) {
+          _reaperHoverActive = true;
+          reaper.classList.add('reaper-proximity');
+          const quote = REAPER_HOVER_QUOTES[_reaperHoverIdx % REAPER_HOVER_QUOTES.length];
+          _reaperHoverIdx++;
+          _showReaperBubble(quote, 2500);
+          _swingReaperScythe();
+        } else if (!isNear && _reaperHoverActive) {
+          _reaperHoverActive = false;
+          reaper.classList.remove('reaper-proximity');
+        }
+      });
+    });
+
+    // Periodic idle swing + quote every 25–55 seconds.
+    // The timeout ID is kept so we can avoid leaking if the element is removed.
+    let _idleSwingId = null;
+    function _scheduleIdleSwing() {
+      const delay = 25000 + Math.random() * 30000;
+      _idleSwingId = setTimeout(() => {
+        if (!document.getElementById('grim-reaper')) return; // element removed — stop
+        if (!_reaperHoverActive) {
+          const idx = Math.floor(Math.random() * REAPER_IDLE_QUOTES.length);
+          _showReaperBubble(REAPER_IDLE_QUOTES[idx], 4000);
+          _swingReaperScythe();
+        }
+        _scheduleIdleSwing();
+      }, delay);
+    }
+
+    _scheduleIdleSwing();
+  }
+
