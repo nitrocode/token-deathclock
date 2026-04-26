@@ -15,9 +15,8 @@
 
 'use strict';
 
-const fs      = require('fs');
-const path    = require('path');
-const esbuild = require('esbuild');
+const path = require('path');
+const { buildBundle } = require('./build-bundle');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -59,38 +58,17 @@ const HEADER = [
   '(function () {',
 ].join('\n');
 
-const FOOTER = '})();';
-
-const chunks = PARTS.map((file) => {
-  const fullPath = path.join(ROOT, 'src', 'js', file);
-  if (!fs.existsSync(fullPath)) {
-    throw new Error(`Missing source file: src/js/${file}`);
-  }
-  return fs.readFileSync(fullPath, 'utf8');
+buildBundle({
+  parts:  PARTS,
+  srcDir: path.join(ROOT, 'src', 'js'),
+  outPath: path.join(ROOT, 'script.js'),
+  loader: 'js',
+  header: HEADER,
+  footer: '})();',
+  esbuildOptions: {
+    // Preserve the leading banner comment so tools can still identify the file.
+    banner: '/* AI DEATH CLOCK — browser/DOM layer (minified) */',
+    // Target all modern browsers; no transpilation needed.
+    target: ['es2018'],
+  },
 });
-
-// Concatenate inner body directly — each source file preserves its own
-// trailing blank lines so no additional separator is needed.
-const innerBody = chunks.join('');
-
-const unminified = HEADER + '\n' + innerBody + FOOTER + '\n';
-
-const outPath = path.join(ROOT, 'script.js');
-
-// Minify with esbuild (synchronous transform API — no temp files needed).
-const result = esbuild.transformSync(unminified, {
-  minify:       true,
-  // Preserve the leading banner comment so tools can still identify the file.
-  banner:       '/* AI DEATH CLOCK — browser/DOM layer (minified) */',
-  // Target all modern browsers; no transpilation needed.
-  target:       ['es2018'],
-  loader:       'js',
-});
-
-fs.writeFileSync(outPath, result.code);
-
-const ratio = ((1 - result.code.length / unminified.length) * 100).toFixed(1);
-console.log(
-  `script.js rebuilt from ${PARTS.length} source files ` +
-  `(${unminified.split('\n').length - 1} lines → ${result.code.length} bytes, −${ratio}% via esbuild minification)`,
-);
