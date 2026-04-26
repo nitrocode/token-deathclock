@@ -5,7 +5,9 @@
   "homepage": "https://nitrocode.github.io/token-deathclock/",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "pretest": "npm run build:milestones && npm run build:js",
     "test": "jest --coverage",
+    "pretest:ci": "npm run build:milestones && npm run build:js",
     "test:ci": "jest --ci --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
