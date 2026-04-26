@@ -2,9 +2,26 @@
 // AUTO-GENERATED from CHANGELOG.md — do not edit directly.
 // Run `npm run build:changelog` to regenerate from CHANGELOG.md.
 
-const SITE_VERSION = "1.6.0";
+const SITE_VERSION = "1.7.0";
 
 const CHANGELOG_RELEASES = [
+  {
+    version: "1.7.0",
+    date: "2026-04-26",
+    sections: [
+      { heading: "Added", items: [
+        "replace header title/subtitle with live human extinction countdown ([#92](https://github.com/nitrocode/token-deathclock/issues/92)) ([e403cd9](https://github.com/nitrocode/token-deathclock/commit/e403cd906dd6c42bd8b311da9f2eb9bc71436bb6))",
+        "show mobile and desktop screenshots in PR preview comment ([#90](https://github.com/nitrocode/token-deathclock/issues/90)) ([5470bb0](https://github.com/nitrocode/token-deathclock/commit/5470bb078e941c3966f85e98e0045114d1680a6a))",
+      ] },
+      { heading: "Fixed", items: [
+        "remove horizontal scroll on mobile ([#87](https://github.com/nitrocode/token-deathclock/issues/87)) ([42d4d3f](https://github.com/nitrocode/token-deathclock/commit/42d4d3f5045d89725eadbc4a21c94f2b0d29311b))",
+        "use overflow-x clip on html to stop fixed icons being cut off on scroll ([#88](https://github.com/nitrocode/token-deathclock/issues/88)) ([6e676fb](https://github.com/nitrocode/token-deathclock/commit/6e676fb0d9c83cf2297507d3afb9e48d91d7c4a0))",
+      ] },
+      { heading: "Changed", items: [
+        "**tests:** speed up E2E test suite ([#93](https://github.com/nitrocode/token-deathclock/issues/93)) ([b272b7b](https://github.com/nitrocode/token-deathclock/commit/b272b7b8ff9285099a4771660422a20e975535f9))",
+      ] }
+    ],
+  },
   {
     version: "1.6.0",
     date: "2026-04-26",
