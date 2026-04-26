@@ -1,8 +1,42 @@
   // ---- Counter updater -------------------------------------
+  // Pre-computed reversed schedule for rate-event label lookup (avoids
+  // cloning and reversing on every animation frame in updateCounters).
+  const REVERSED_RATE_SCHEDULE = [...RATE_SCHEDULE].reverse();
+
+  let _lastTokenPop = 0;
+
+  function spawnTokenPop(ratePerSec) {
+    const totalEl = document.getElementById('totalCounter');
+    if (!totalEl) return;
+    const container = totalEl.closest('.counter-box');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = 'token-pop';
+    el.setAttribute('aria-hidden', 'true');
+    // Slight random horizontal spread so successive pops don't overlap perfectly.
+    // 42–58 % keeps the pop centred over the number while adding visible variety.
+    const POP_LEFT_BASE   = 42; // leftmost starting position (%)
+    const POP_LEFT_SPREAD = 16; // random spread width (%)
+    el.style.left = (POP_LEFT_BASE + Math.random() * POP_LEFT_SPREAD) + '%';
+    el.textContent = '+' + formatTokenCountShort(ratePerSec);
+    container.appendChild(el);
+    // Clean up the element when the animation ends or is cancelled.
+    // A fallback timeout handles cases where neither event fires (e.g. hidden tab).
+    const POP_ANIM_MS = 1500; // matches animation duration in CSS
+    const POP_CLEANUP_BUFFER_MS = 200;
+    let removed = false;
+    const removeEl = () => {
+      if (!removed) { removed = true; clearTimeout(fallback); el.remove(); }
+    };
+    el.addEventListener('animationend',    removeEl, { once: true });
+    el.addEventListener('animationcancel', removeEl, { once: true });
+    const fallback = setTimeout(removeEl, POP_ANIM_MS + POP_CLEANUP_BUFFER_MS);
+  }
+
   function updateCounters() {
     const now = Date.now();
     const tokens = getCurrentTokens();
-    const currentRate = getRateAtDate(new Date(now));
+    const currentRate = getDynamicRate(new Date(now));
     // Use firstArrivalTime so the counter accumulates across return visits
     const sessionTokens = Math.round((now - firstArrivalTime) / 1000 * currentRate);
     const elapsed = Math.floor((now - firstArrivalTime) / 1000);
@@ -23,11 +57,22 @@
     }
     if (rateEl) rateEl.textContent = formatTokenCount(currentRate);
     if (rateEventEl) {
-      // Show the event that triggered this rate step
-      const rateEntry = [...RATE_SCHEDULE].reverse().find(
-        (r) => now >= new Date(r.date).getTime()
-      );
-      if (rateEntry) rateEventEl.textContent = rateEntry.event + ' · tokens/sec';
+      // Beyond BASE_DATE the rate is growing — reflect that in the subtitle
+      const baseMs = new Date(BASE_DATE_ISO).getTime();
+      if (now > baseMs) {
+        rateEventEl.textContent = 'and growing · tokens/sec';
+      } else {
+        const rateEntry = REVERSED_RATE_SCHEDULE.find(
+          (r) => now >= new Date(r.date).getTime()
+        );
+        if (rateEntry) rateEventEl.textContent = rateEntry.event + ' · tokens/sec';
+      }
+    }
+
+    // Spawn a floating "+N" pop on the total counter once per second
+    if (now - _lastTokenPop >= 1000) {
+      _lastTokenPop = now;
+      spawnTokenPop(currentRate);
     }
 
     // Impact stats
