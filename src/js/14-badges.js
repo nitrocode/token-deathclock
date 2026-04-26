@@ -34,6 +34,13 @@
   const LS_BADGES_KEY = 'tokenDeathclockBadges';
   const LS_VISITS_KEY = 'tokenDeathclockVisits';
 
+  const BADGE_ANIMS    = ['flip-x', 'flip-y', 'zoom-spin', 'bounce', 'glitch'];
+  const ICON_INFO      = '\u2139\uFE0F';  // ℹ️
+  const ICON_SEARCH    = '\uD83D\uDD0D';  // 🔍
+  const T_ANIM_OUT  = 310;   // ms — must be ≥ longest out-animation duration
+  const T_HOLD      = 2600;  // ms — info stays visible
+  const T_ANIM_IN   = 380;   // ms — must be ≥ longest in-animation duration
+
   let earnedBadges = new Set();
   const toastQueue = [];
   let   toastActive = false;
@@ -73,6 +80,66 @@
     if (hour >= 0 && hour < 4) awardBadge('nocturnal_doomer');
   }
 
+  function getBadgeRevealText(def) {
+    const earned = earnedBadges.has(def.id);
+    if (earned) return def.desc;
+    if (def.type === 'time') {
+      const s       = def.threshold;
+      const minutes = Math.round(s / 60);
+      return s < 60
+        ? `Stay on the page for ${s} seconds`
+        : `Stay on the page for ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+    if (def.type === 'easter') return '\uD83E\uDD2B Keep exploring\u2026';
+    return def.desc;
+  }
+
+  function handleBadgeClick(def, el) {
+    if (el.dataset.animating === '1') return;
+    el.dataset.animating = '1';
+
+    const anim   = BADGE_ANIMS[Math.floor(Math.random() * BADGE_ANIMS.length)];
+    el.dataset.anim = anim;
+
+    const earned  = earnedBadges.has(def.id);
+    const iconEl  = el.querySelector('.badge-icon');
+    const nameEl  = el.querySelector('.badge-name');
+    if (!iconEl || !nameEl) { el.dataset.animating = '0'; return; }
+
+    const origIcon = iconEl.textContent;
+    const origName = nameEl.textContent;
+
+    // Phase 1 — animate out
+    el.classList.add('badge-anim-out');
+    setTimeout(() => {
+      // Swap in info content
+      iconEl.textContent = earned ? ICON_INFO : ICON_SEARCH;
+      nameEl.textContent = getBadgeRevealText(def);
+      el.classList.remove('badge-anim-out');
+      el.classList.add('badge-showing-info', 'badge-anim-in');
+
+      setTimeout(() => {
+        // Phase 2 — animate out again before restoring
+        el.classList.remove('badge-anim-in');
+        el.classList.add('badge-anim-out');
+
+        setTimeout(() => {
+          // Restore original content
+          iconEl.textContent = origIcon;
+          nameEl.textContent = origName;
+          el.classList.remove('badge-anim-out', 'badge-showing-info');
+          el.classList.add('badge-anim-in');
+
+          setTimeout(() => {
+            el.classList.remove('badge-anim-in');
+            delete el.dataset.anim;
+            el.dataset.animating = '0';
+          }, T_ANIM_IN);
+        }, T_ANIM_OUT);
+      }, T_HOLD);
+    }, T_ANIM_OUT);
+  }
+
   function renderBadgesGrid() {
     const grid = document.getElementById('badges-grid');
     if (!grid) return;
@@ -90,6 +157,7 @@
       div.innerHTML   = `
         <span class="badge-icon" aria-hidden="true">${earned ? escHtml(def.icon) : '\uD83D\uDD12'}</span>
         <span class="badge-name">${escHtml(def.name)}</span>`;
+      div.addEventListener('click', () => handleBadgeClick(def, div));
       grid.appendChild(div);
     });
   }
@@ -98,6 +166,7 @@
     BADGE_DEFS.forEach((def) => {
       const el = document.getElementById('badge-' + def.id);
       if (!el) return;
+      if (el.dataset.animating === '1') return; // don't interrupt a running animation
       const earned = earnedBadges.has(def.id);
       el.className   = 'badge-item ' + (earned ? 'earned' : 'locked');
       const iconEl   = el.querySelector('.badge-icon');

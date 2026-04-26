@@ -333,7 +333,9 @@
   border-radius: 0.75rem;
   padding: 1rem 0.75rem;
   text-align: center;
+  cursor: pointer;
   transition: transform 0.15s, box-shadow 0.2s;
+  will-change: transform, opacity;
 }
 
 .badge-item.earned {
@@ -365,6 +367,102 @@
   word-break: break-word;
 }
 .badge-item.earned .badge-name { color: var(--accent-2); }
+
+/* ---- Badge click-reveal state ---- */
+.badge-item.badge-showing-info {
+  border-color: var(--accent-3);
+  background: var(--surface-2);
+  box-shadow: 0 0 18px rgba(120, 200, 255, 0.22);
+}
+.badge-item.badge-showing-info .badge-icon {
+  font-size: 1.3rem;
+}
+.badge-item.badge-showing-info .badge-name {
+  font-family: inherit;
+  font-size: 0.6rem;
+  color: var(--text);
+  letter-spacing: 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+.badge-item.badge-anim-out,
+.badge-item.badge-anim-in {
+  pointer-events: none;
+}
+
+/* ---- Badge animation keyframes ---- */
+
+/* flip-x */
+@keyframes bdgFlipXOut {
+  from { transform: perspective(600px) rotateX(0deg);   opacity: 1; }
+  to   { transform: perspective(600px) rotateX(90deg);  opacity: 0; }
+}
+@keyframes bdgFlipXIn {
+  from { transform: perspective(600px) rotateX(-90deg); opacity: 0; }
+  to   { transform: perspective(600px) rotateX(0deg);   opacity: 1; }
+}
+.badge-item[data-anim="flip-x"].badge-anim-out { animation: bdgFlipXOut 0.3s ease forwards; }
+.badge-item[data-anim="flip-x"].badge-anim-in  { animation: bdgFlipXIn  0.35s ease forwards; }
+
+/* flip-y */
+@keyframes bdgFlipYOut {
+  from { transform: perspective(600px) rotateY(0deg);   opacity: 1; }
+  to   { transform: perspective(600px) rotateY(90deg);  opacity: 0; }
+}
+@keyframes bdgFlipYIn {
+  from { transform: perspective(600px) rotateY(-90deg); opacity: 0; }
+  to   { transform: perspective(600px) rotateY(0deg);   opacity: 1; }
+}
+.badge-item[data-anim="flip-y"].badge-anim-out { animation: bdgFlipYOut 0.3s ease forwards; }
+.badge-item[data-anim="flip-y"].badge-anim-in  { animation: bdgFlipYIn  0.35s ease forwards; }
+
+/* zoom-spin */
+@keyframes bdgZoomSpinOut {
+  from { transform: scale(1) rotate(0deg);    opacity: 1; }
+  to   { transform: scale(0) rotate(180deg);  opacity: 0; }
+}
+@keyframes bdgZoomSpinIn {
+  from { transform: scale(0) rotate(-180deg); opacity: 0; }
+  70%  { transform: scale(1.12) rotate(5deg); opacity: 1; }
+  to   { transform: scale(1) rotate(0deg);    opacity: 1; }
+}
+.badge-item[data-anim="zoom-spin"].badge-anim-out { animation: bdgZoomSpinOut 0.3s ease-in  forwards; }
+.badge-item[data-anim="zoom-spin"].badge-anim-in  { animation: bdgZoomSpinIn  0.38s ease-out forwards; }
+
+/* bounce */
+@keyframes bdgBounceOut {
+  0%   { transform: scale(1);   opacity: 1; }
+  35%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0);   opacity: 0; }
+}
+@keyframes bdgBounceIn {
+  0%   { transform: scale(0);    opacity: 0; }
+  55%  { transform: scale(1.15); opacity: 1; }
+  75%  { transform: scale(0.95); }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.badge-item[data-anim="bounce"].badge-anim-out { animation: bdgBounceOut 0.3s ease-in  forwards; }
+.badge-item[data-anim="bounce"].badge-anim-in  { animation: bdgBounceIn  0.38s ease-out forwards; }
+
+/* glitch */
+@keyframes bdgGlitchOut {
+  0%   { transform: translate(0);                         opacity: 1; filter: none; }
+  20%  { transform: translate(-3px,  2px) skewX(-5deg);  opacity: 0.8; filter: hue-rotate(90deg); }
+  40%  { transform: translate( 3px, -1px) skewX( 5deg);  opacity: 0.6; filter: hue-rotate(180deg); }
+  60%  { transform: translate(-2px,  3px);                opacity: 0.4; filter: hue-rotate(270deg); }
+  80%  { transform: translate( 2px, -3px) skewX(-3deg);  opacity: 0.2; }
+  100% { transform: translate(0);                         opacity: 0; filter: none; }
+}
+@keyframes bdgGlitchIn {
+  0%   { transform: translate( 3px, -2px);                opacity: 0;   filter: hue-rotate(270deg); }
+  20%  { transform: translate(-3px,  1px) skewX( 4deg);  opacity: 0.4; filter: hue-rotate(180deg); }
+  40%  { transform: translate( 2px, -3px) skewX(-4deg);  opacity: 0.7; filter: hue-rotate(90deg); }
+  60%  { transform: translate(-1px,  2px);                opacity: 0.9; filter: hue-rotate(20deg); }
+  80%  { transform: translate( 1px, -1px); }
+  100% { transform: translate(0);                         opacity: 1;   filter: none; }
+}
+.badge-item[data-anim="glitch"].badge-anim-out { animation: bdgGlitchOut 0.3s steps(5) forwards; }
+.badge-item[data-anim="glitch"].badge-anim-in  { animation: bdgGlitchIn  0.35s steps(5) forwards; }
 
 /* ---- Share Doom Panel (floating) ---- */
 .share-doom-panel {
@@ -579,5 +677,7 @@
   .modal-overlay, .receipt-card,
   .share-doom-options,
   .ai-ticker-text { transition: none; animation: none; }
+  .badge-item.badge-anim-out,
+  .badge-item.badge-anim-in { animation: none; opacity: 1; transform: none; filter: none; }
 }
 
