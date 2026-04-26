@@ -95,6 +95,13 @@
   font-size: 0.7rem;
 }
 
+/* Your Tab (Running) pop — orange, matches .sti-val colour */
+.token-pop--tab {
+  color: var(--accent-2);
+  text-shadow: 0 0 8px rgba(255,136,0,0.5);
+  font-size: 0.7rem;
+}
+
 @keyframes token-pop-float {
   0%   { opacity: 0; transform: translateX(-50%) translateY(0); }
   15%  { opacity: 1; }

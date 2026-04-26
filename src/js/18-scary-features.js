@@ -97,6 +97,14 @@
 
   // ── PRD 4: Your Tab (Running) strip ──────────────────────────
 
+  // Per-item throttle timestamp for the floating +N pop animations.
+  let _lastTabPop = 0;
+
+  // Conversion constants shared between session totals and per-second pop deltas.
+  const WATER_PER_COFFEE_L  = 0.2;       // litres of water per cup of coffee
+  const KWH_PER_CHARGE      = 0.015;     // kWh per smartphone charge
+  const CO2_PER_METRE_KG    = 0.000171;  // kg CO₂ per metre driven (171 g/km)
+
   function updateSessionTabStrip() {
     const now     = Date.now();
     const elapsed = Math.max(1, (now - pageLoadTime) / 1000);
@@ -105,13 +113,13 @@
     const impact  = calculateEnvironmentalImpact(tokens);
 
     // Cups of coffee (200 mL per cup, water use)
-    const coffees = Math.max(0, impact.waterL / 0.2);
+    const coffees = Math.max(0, impact.waterL / WATER_PER_COFFEE_L);
     // Trees needed for a year
     const trees = Math.max(0, impact.treesEquivalent);
     // Smartphone charges (0.015 kWh per charge)
-    const charges = Math.max(0, impact.kWh / 0.015);
+    const charges = Math.max(0, impact.kWh / KWH_PER_CHARGE);
     // Metres driven (171 g CO2/km = 0.000171 kg/m)
-    const metres = Math.max(0, impact.co2Kg / 0.000171);
+    const metres = Math.max(0, impact.co2Kg / CO2_PER_METRE_KG);
 
     function fmtSmall(n) {
       if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
@@ -131,6 +139,27 @@
     if (treesEl)  treesEl.textContent  = fmtSmall(trees);
     if (chargeEl) chargeEl.textContent = fmtSmall(charges);
     if (metresEl) metresEl.textContent = fmtSmall(metres);
+
+    // Floating "+N" pops — once per second, showing the per-second increment for each stat.
+    if (now - _lastTabPop >= 1000) {
+      _lastTabPop = now;
+      const impactPerSec = calculateEnvironmentalImpact(rate);
+      const coffeesPerSec = impactPerSec.waterL / WATER_PER_COFFEE_L;
+      const treesPerSec   = impactPerSec.treesEquivalent;
+      const chargesPerSec = impactPerSec.kWh / KWH_PER_CHARGE;
+      const metresPerSec  = impactPerSec.co2Kg / CO2_PER_METRE_KG;
+      const MIN_TAB_POP_THRESHOLD = 0.005;
+      [
+        { el: waterEl,  val: coffeesPerSec },
+        { el: treesEl,  val: treesPerSec },
+        { el: chargeEl, val: chargesPerSec },
+        { el: metresEl, val: metresPerSec },
+      ].forEach(({ el, val }) => {
+        if (!el || val < MIN_TAB_POP_THRESHOLD) return;
+        const item = el.closest('.session-tab-item');
+        spawnPop(item, '+' + fmtSmall(val), 'token-pop--tab');
+      });
+    }
   }
 
   function initSessionTabStrip() {
