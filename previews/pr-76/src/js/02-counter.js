@@ -1,4 +1,8 @@
   // ---- Counter updater -------------------------------------
+  // Pre-computed reversed schedule for rate-event label lookup (avoids
+  // cloning and reversing on every animation frame in updateCounters).
+  const REVERSED_RATE_SCHEDULE = [...RATE_SCHEDULE].reverse();
+
   let _lastTokenPop = 0;
 
   function spawnTokenPop(ratePerSec) {
@@ -16,7 +20,17 @@
     el.style.left = (POP_LEFT_BASE + Math.random() * POP_LEFT_SPREAD) + '%';
     el.textContent = '+' + formatTokenCountShort(ratePerSec);
     container.appendChild(el);
-    el.addEventListener('animationend', () => el.remove(), { once: true });
+    // Clean up the element when the animation ends or is cancelled.
+    // A fallback timeout handles cases where neither event fires (e.g. hidden tab).
+    const POP_ANIM_MS = 1500; // matches animation duration in CSS
+    const POP_CLEANUP_BUFFER_MS = 200;
+    let removed = false;
+    const removeEl = () => {
+      if (!removed) { removed = true; clearTimeout(fallback); el.remove(); }
+    };
+    el.addEventListener('animationend',    removeEl, { once: true });
+    el.addEventListener('animationcancel', removeEl, { once: true });
+    const fallback = setTimeout(removeEl, POP_ANIM_MS + POP_CLEANUP_BUFFER_MS);
   }
 
   function updateCounters() {
@@ -48,7 +62,7 @@
       if (now > baseMs) {
         rateEventEl.textContent = 'and growing · tokens/sec';
       } else {
-        const rateEntry = [...RATE_SCHEDULE].reverse().find(
+        const rateEntry = REVERSED_RATE_SCHEDULE.find(
           (r) => now >= new Date(r.date).getTime()
         );
         if (rateEntry) rateEventEl.textContent = rateEntry.event + ' · tokens/sec';
