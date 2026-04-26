@@ -864,6 +864,17 @@
   50%       { opacity: 1; }
 }
 
+/* Scythe — lighter in dark mode so they read against dark backgrounds */
+.reaper-scythe-handle { stroke: #aaa; }
+.reaper-scythe-blade  { fill: #aaa; }
+
+/* Bony arm — bone-white in dark mode, intentionally skeletal */
+.reaper-bone { stroke: #ccc; }
+
+:root[data-theme="light"] .reaper-scythe-handle { stroke: #666; }
+:root[data-theme="light"] .reaper-scythe-blade  { fill: #666; }
+:root[data-theme="light"] .reaper-bone          { stroke: #999; }
+
 @media (max-width: 480px) {
   .grim-reaper svg { width: 55px; }
   /* On small screens show the reaper fully — no peek offset so neither side is cut off */
