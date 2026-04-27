@@ -44,7 +44,8 @@ const PARTS = [
   '19-milestone-alert.js',
   '20-tabs.js',
   '21-horoscope.js',
-  '22-boot.js',
+  '22-guilt-meter.js',
+  '23-boot.js',
 ];
 
 const HEADER = [

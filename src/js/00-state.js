@@ -36,6 +36,8 @@
     getSimulatedViewerCount,
     HOROSCOPE_TEMPLATES,
     getDailyHoroscope,
+    GUILT_LABELS,
+    getGuiltLabel,
   } = window.DeathClockCore;
 
   // ---- Unpack changelog data ----------------------------------

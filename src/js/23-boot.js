@@ -49,6 +49,7 @@
     initCalculator();
     initAccelerator();
     initHoroscope();
+    initGuiltMeter();
     // Engagement features
     initPresenceStrip();
     initEventLog();
@@ -78,6 +79,7 @@
       checkTimeBadges();
       checkMilestoneAlert();
       updateExtinctionCountdown();
+      updateGuiltMeter();
     }, 1000);
   }
 
