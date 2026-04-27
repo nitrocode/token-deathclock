@@ -73,7 +73,7 @@ mkdir -p "${DEST}"
 # so deleted files don't linger.  Root deployments always preserve other content
 # (e.g. the previews/ directory) regardless of keep_files.
 if [[ "${KEEP_FILES}" != "true" && -n "${DESTINATION_DIR}" ]]; then
-  rm -rf "${DEST:?}/"* 2>/dev/null || true
+  find "${DEST}" -mindepth 1 -delete 2>/dev/null || true
 fi
 
 # Ensure Jekyll processing is disabled (unless explicitly opted out)

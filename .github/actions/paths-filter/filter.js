@@ -45,8 +45,8 @@ function parseFilters(yaml) {
   let current = null;
   for (const rawLine of (yaml || '').split('\n')) {
     const line = rawLine.replace(/\r$/, '');
-    // Filter name: starts at column 0, no leading whitespace, ends with colon
-    const nameMatch = line.match(/^([\w][\w-]*):\s*$/);
+    // Filter name: starts at column 0 with a letter, no leading whitespace, ends with colon
+    const nameMatch = line.match(/^([a-zA-Z][\w-]*):\s*$/);
     // List item: leading whitespace + '- ' + value
     const itemMatch = line.match(/^\s+-\s+(.+?)\s*$/);
     if (nameMatch) {

@@ -102,7 +102,8 @@ Every PR description (written by a human or agent) must follow this structure:
 | A2 | Enable TypeScript type-checking via `checkJs: true` in `tsconfig.json` with JSDoc annotations. This catches type errors in plain `.js` files without requiring a full TS migration. | #54 |
 | A3 | `death-clock-core.js` must never reference the DOM (`document`, `window`, `getElementById`, etc.). All DOM wiring belongs in `src/js/`. This boundary keeps the core unit-testable. | AGENTS.md |
 | A4 | The CommonJS + browser dual-export pattern (`module.exports` for Jest, `window.DeathClockCore` for the browser) must be maintained. Do not convert to ES modules without updating all consumers. | AGENTS.md |
-| A5 | Composite action outputs must be declared statically in `action.yml`. For dynamic per-filter outputs, expose a `changes` JSON blob output so callers can read any filter name. `git worktree remove --force` must be called at the end of any script that opens a worktree — otherwise a second call in the same job fails with "already checked out". | #— |
+| A5 | Composite action outputs must be declared statically in `action.yml`. For dynamic per-filter outputs (filter names unknown at authoring time), expose a `changes` JSON blob output so callers can read any filter name without needing static declarations for each. | #— |
+| A6 | `git worktree remove --force` must be called at the end of any deploy script that opens a worktree. Without cleanup, a second call in the same job fails with "already checked out at path". In tests, use different-length file content when writing to the same path twice within a second — rsync's quick-check uses mtime+size and will skip a same-size same-mtime file. | #— |
 
 ---
 

@@ -470,9 +470,6 @@ describe('main', () => {
 
     main();
 
-    const written = process.stdout.write.mock
-      ? process.stdout.write.mock.calls.map(c => c[0]).join('')
-      : '';
     // Verify GITHUB_OUTPUT was written
     expect(fs.appendFileSync).toHaveBeenCalledWith(
       '/tmp/test-output',
