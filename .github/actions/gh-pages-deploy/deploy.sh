@@ -45,6 +45,9 @@ if [[ -n "${INPUT_GITHUB_TOKEN:-}" ]]; then
   # Inject the token as credentials in the HTTPS URL
   AUTHED_URL="${REPO_URL/#https:\/\//https://x-access-token:${INPUT_GITHUB_TOKEN}@}"
   git remote set-url origin "${AUTHED_URL}"
+  # Note: the SSH-to-HTTPS conversion above assumes the standard github.com SSH
+  # URL format (git@github.com:owner/repo.git).  GitHub Enterprise instances with
+  # custom hostnames will need to set an HTTPS origin URL before calling this action.
 fi
 
 # Fetch the existing publish branch (silently skip if it doesn't exist yet)
@@ -73,6 +76,9 @@ mkdir -p "${DEST}"
 # so deleted files don't linger.  Root deployments always preserve other content
 # (e.g. the previews/ directory) regardless of keep_files.
 if [[ "${KEEP_FILES}" != "true" && -n "${DESTINATION_DIR}" ]]; then
+  # Suppress errors (|| true): a non-zero exit here means DEST is already empty
+  # or a file is already gone — both are harmless.  Genuine failures (e.g.
+  # permission errors on the runner) will surface at the rsync or git-add step.
   find "${DEST}" -mindepth 1 -delete 2>/dev/null || true
 fi
 

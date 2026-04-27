@@ -20,6 +20,12 @@ jobs:
         env:
           PR_NUMBER: ${{ github.event.number }}
         run: |
+          # Validate PR_NUMBER is a positive integer to guard against malformed
+          # context values that could produce an unexpected directory path.
+          if [[ ! "${PR_NUMBER}" =~ ^[0-9]+$ ]]; then
+            echo "Unexpected PR_NUMBER value: '${PR_NUMBER}' — aborting cleanup" >&2
+            exit 1
+          fi
           PR_DIR="previews/pr-${PR_NUMBER}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

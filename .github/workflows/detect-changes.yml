@@ -86,6 +86,13 @@ jobs:
           if [[ "${ALWAYS_RUN}" == "true" ]]; then
             echo "code=true" >> "$GITHUB_OUTPUT"
           else
-            echo "code=${FILTER_CODE}" >> "$GITHUB_OUTPUT"
+            # Validate that FILTER_CODE is exactly 'true' or 'false' so an
+            # unexpected value from the filter step never silently propagates.
+            if [[ "${FILTER_CODE}" != "true" && "${FILTER_CODE}" != "false" ]]; then
+              echo "Unexpected FILTER_CODE value: '${FILTER_CODE}' — defaulting to true" >&2
+              echo "code=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "code=${FILTER_CODE}" >> "$GITHUB_OUTPUT"
+            fi
           fi
 

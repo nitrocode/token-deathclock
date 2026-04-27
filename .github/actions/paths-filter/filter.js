@@ -298,6 +298,8 @@ function main() {
 }
 
 // Run main when executed directly; export everything for testing
+// istanbul ignore next — standard Node.js direct-run guard; cannot be
+// reached from inside Jest (require.main is the jest runner, not this file)
 /* istanbul ignore next */
 if (require.main === module) {
   main();
