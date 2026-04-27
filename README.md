@@ -3,7 +3,7 @@
 [![Unit Tests](https://github.com/nitrocode/token-deathclock/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/nitrocode/token-deathclock/actions/workflows/unit-tests.yml)
 [![E2E Tests](https://github.com/nitrocode/token-deathclock/actions/workflows/e2e-tests.yml/badge.svg)](https://github.com/nitrocode/token-deathclock/actions/workflows/e2e-tests.yml)
 [![Deploy](https://github.com/nitrocode/token-deathclock/actions/workflows/deploy.yml/badge.svg)](https://github.com/nitrocode/token-deathclock/actions/workflows/deploy.yml)
-[![codecov](https://codecov.io/gh/nitrocode/token-deathclock/branch/main/graph/badge.svg)](https://codecov.io/gh/nitrocode/token-deathclock)
+[![codecov](https://codecov.io/gh/nitrocode/token-deathclock/graph/badge.svg)](https://codecov.io/gh/nitrocode/token-deathclock)
 
 > 🌐 **Live site:** [nitrocode.github.io/token-deathclock](https://nitrocode.github.io/token-deathclock/)
 
@@ -66,7 +66,7 @@ Unit-test coverage is tracked by [Codecov](https://codecov.io/gh/nitrocode/token
 
 | Unit test coverage | Coverage breakdown |
 |---|---|
-| [![Codecov icicle](https://codecov.io/gh/nitrocode/token-deathclock/branch/main/graphs/icicle.svg)](https://codecov.io/gh/nitrocode/token-deathclock) | [![Codecov sunburst](https://codecov.io/gh/nitrocode/token-deathclock/branch/main/graphs/sunburst.svg)](https://codecov.io/gh/nitrocode/token-deathclock) |
+| [![Codecov icicle](https://codecov.io/gh/nitrocode/token-deathclock/graphs/icicle.svg)](https://codecov.io/gh/nitrocode/token-deathclock) | [![Codecov sunburst](https://codecov.io/gh/nitrocode/token-deathclock/graphs/sunburst.svg)](https://codecov.io/gh/nitrocode/token-deathclock) |
 
 E2E tests run in CI via Playwright (Chromium). Their pass/fail status is shown by the **E2E Tests** badge above.
 
