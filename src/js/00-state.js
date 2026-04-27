@@ -23,6 +23,7 @@
     getRateAtDate,
     RATE_GROWTH_PER_YEAR,
     getDynamicRate,
+    computeExtinctionSecsRemaining,
     calculateTipImpact,
     generateEquivalences,
     calculatePersonalFootprint,
