@@ -34,6 +34,8 @@
     computePassiveRate,
     getCompanyStage,
     getSimulatedViewerCount,
+    HOROSCOPE_TEMPLATES,
+    getDailyHoroscope,
   } = window.DeathClockCore;
 
   // ---- Unpack changelog data ----------------------------------

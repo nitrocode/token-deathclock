@@ -734,6 +734,65 @@ function getSimulatedViewerCount(dateMs) {
 }
 
 // ============================================================
+// TOKEN HOROSCOPE
+// ============================================================
+
+/**
+ * Pool of satirical daily horoscope templates.
+ * All 30 entries follow the pattern: astrological opener → AI sin → dramatic
+ * consequence → satirical advice.  The pool is deliberately larger than 7 so
+ * that weekly visitors see fresh content.
+ */
+const HOROSCOPE_TEMPLATES = [
+  'Mercury is in retrograde and so is your judgment. Today you will ask AI to rewrite a perfectly good email four times. The data centres hum approvingly. Consider a typewriter.',
+  'The alignment of Jupiter and your idle fingers portends a reckless afternoon. You will use AI to summarise a Wikipedia article you could have read in 90 seconds. Three cooling towers exhale in unison.',
+  'Venus rises in your browser history. You will prompt an image generator for 45 variations of \'a cat wearing sunglasses\' before choosing the first one. The oceans do not forget.',
+  'Your lunar node suggests creative avoidance. You will ask AI to write a birthday card for your own parent. The glaciers note this.',
+  'Saturn\'s gaze falls upon your clipboard. You will run the same prompt five times with minor wording changes to see if the answer improves. It will not. The servers will not forget.',
+  'Mars enters your productivity suite. You will spend forty minutes crafting the perfect system prompt for a task that would have taken six minutes to do yourself. A polar ice sheet sighs.',
+  'The moon is waxing and so is your token budget. You will ask four different AI models the same question and then average their answers. The data centres add a shift.',
+  'Neptune\'s fog blankets your decision-making. You will use AI to proofread a single-sentence Slack message. Somewhere, a glacier retreats another centimetre.',
+  'Pluto looms in your house of procrastination. You will generate seventeen logo variations at midnight, pick none of them, and try again tomorrow. The cooling fans never sleep.',
+  'The stars align in your browser tabs. You will ask AI to explain a concept, then ask it to simplify, then ask it to use an analogy involving sandwiches. A power grid somewhere flickers.',
+  'Uranus transits your todo list. You will automate a two-minute task using an AI workflow that takes four hours to configure and still breaks on Tuesdays. The irony is 100 % renewable-free.',
+  'Your rising sign is \'Perpetually Online\'. You will re-generate the same cover letter template for the eleventh time this month. The carbon credit markets remain unmoved.',
+  'Chiron wounds your judgment. You will ask an AI chatbot for medical advice and then spend the next hour asking it to clarify the advice it just gave. Three data centres log the session.',
+  'The sun conjuncts your API key. You will iterate on an AI-generated poem for ninety minutes before concluding the original draft was better. The atmosphere notes the irony.',
+  'Mercury stations direct into your calendar. You will use AI to schedule a meeting that could have been resolved with one reply-all email. The GPU cluster does not judge you. It simply bills.',
+  'The north node crosses your workflow. You will ask AI to translate a two-word phrase you already know. A server farm in the desert does not blink.',
+  'Venus sextiles your clipboard. You will generate a recipe for a dish you have made weekly for ten years. The ocean temperature rises an imperceptible fraction of a degree.',
+  'Your descendant is in Generative AI. You will use AI to name a project, reject all thirty suggestions, and name it what you were already going to call it. The data centre logs this as a success.',
+  'Jupiter retrogrades into your browser history. You will ask an AI to debate both sides of an argument and then agree with whichever side it presented last. A glacier does not take sides.',
+  'The full moon illuminates your rubber duck. You will explain a coding problem to an AI chatbot and solve it yourself in the process of typing the question. You used 40,000 tokens to find this out.',
+  'Neptune squares your attention span. You will open an AI chat, type \'so\', stare at it for three minutes, and close the tab. The servers charged the session as active compute.',
+  'Mars trines your deployment pipeline. You will ask AI to write unit tests for a function, then ask it to fix the tests it wrote, then ask it to explain why the tests are wrong. The cycle is complete.',
+  'Your midheaven is in Large Language Model. You will prompt AI to generate a motivational quote about productivity, read it, and feel no more productive. The irony consumes 8,000 tokens.',
+  'The waning crescent of common sense grows thin. You will ask AI to write a disclaimer for a disclaimer. Legal fees are offset; carbon costs are not.',
+  'Saturn conjuncts your delete key. You will use AI to draft an out-of-office message, iterate on the tone for twenty minutes, and then change it back to your previous one. The servers had opinions.',
+  'The cosmic tides favour bold copy-pastes. You will copy an AI response directly into a document, and then ask AI to polish the document it just created. The recursion is not lost on the power grid.',
+  'Your sun sign is \'Needs More Context\'. Today you will spend six prompts establishing context that you could have provided in the first message. A server rack quietly judges your token efficiency.',
+  'Retrograde season begins in your prompt history. You will ask AI to be more concise, then ask it to elaborate, then ask it to be concise again. A wind turbine that could have powered this sits idle.',
+  'The ascendant whispers of lost afternoons. You will use AI to generate a packing list for a trip you have taken a dozen times. The data centre does not know you own seven pairs of socks already.',
+  'Cosmic rays align with your refresh button. You will regenerate the same AI image with imperceptibly different seeds, select the third result, and tell no one. The planet absorbs the lesson silently.',
+];
+
+/**
+ * Return the horoscope template for a given UTC day.
+ *
+ * All visitors on the same UTC day receive the same text, creating a shared
+ * cultural moment and a reason to compare notes.
+ *
+ * @param {number} nowMs       - current epoch milliseconds
+ * @param {string[]} templates - array of horoscope template strings
+ * @returns {string}             today's horoscope text
+ */
+function getDailyHoroscope(nowMs, templates) {
+  if (!Array.isArray(templates) || templates.length === 0) return '';
+  const day = Math.floor(nowMs / 86400000); // UTC day index
+  return templates[day % templates.length];
+}
+
+// ============================================================
 // EXPORTS — CommonJS for Jest; window global for the browser
 // ============================================================
 const DeathClockCore = {
@@ -772,6 +831,8 @@ const DeathClockCore = {
   computePassiveRate,
   getCompanyStage,
   getSimulatedViewerCount,
+  HOROSCOPE_TEMPLATES,
+  getDailyHoroscope,
 };
 
 /* istanbul ignore else */

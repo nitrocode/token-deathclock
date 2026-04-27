@@ -43,6 +43,7 @@ const PARTS = [
   '18-scary-features.js',
   '19-milestone-alert.js',
   '20-tabs.js',
+  '22-horoscope.js',
   '21-boot.js',
 ];
 
