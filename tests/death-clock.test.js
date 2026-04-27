@@ -1686,3 +1686,90 @@ describe('getDailyHoroscope', () => {
     expect(HOROSCOPE_TEMPLATES).toContain(result);
   });
 });
+
+// ============================================================
+// GUILT_LABELS
+// ============================================================
+const { GUILT_LABELS, getGuiltLabel } = core;
+
+describe('GUILT_LABELS', () => {
+  test('is a non-empty array', () => {
+    expect(Array.isArray(GUILT_LABELS)).toBe(true);
+    expect(GUILT_LABELS.length).toBeGreaterThan(0);
+  });
+
+  test('every entry has min, icon, and text properties', () => {
+    GUILT_LABELS.forEach((label) => {
+      expect(typeof label.min).toBe('number');
+      expect(typeof label.icon).toBe('string');
+      expect(label.icon.length).toBeGreaterThan(0);
+      expect(typeof label.text).toBe('string');
+      expect(label.text.length).toBeGreaterThan(0);
+    });
+  });
+
+  test('first entry has min === 0', () => {
+    expect(GUILT_LABELS[0].min).toBe(0);
+  });
+
+  test('entries are sorted ascending by min', () => {
+    for (let i = 1; i < GUILT_LABELS.length; i++) {
+      expect(GUILT_LABELS[i].min).toBeGreaterThan(GUILT_LABELS[i - 1].min);
+    }
+  });
+
+  test('includes a 100% Certified Hypocrite entry', () => {
+    const full = GUILT_LABELS.find((l) => l.min === 100);
+    expect(full).toBeDefined();
+    expect(full.text).toContain('Certified Hypocrite');
+  });
+});
+
+// ============================================================
+// getGuiltLabel
+// ============================================================
+describe('getGuiltLabel', () => {
+  test('returns the first label for pct === 0', () => {
+    const result = getGuiltLabel(0);
+    expect(result).toBe(GUILT_LABELS[0]);
+  });
+
+  test('returns the correct label at each threshold boundary', () => {
+    GUILT_LABELS.forEach((label) => {
+      const result = getGuiltLabel(label.min);
+      expect(result).toBe(label);
+    });
+  });
+
+  test('returns the last label for pct === 100', () => {
+    const last = GUILT_LABELS[GUILT_LABELS.length - 1];
+    expect(getGuiltLabel(100)).toBe(last);
+  });
+
+  test('returns the Certified Hypocrite label for pct > 100 (clamped)', () => {
+    const last = GUILT_LABELS[GUILT_LABELS.length - 1];
+    expect(getGuiltLabel(200)).toBe(last);
+  });
+
+  test('returns the first label for negative pct (clamped)', () => {
+    expect(getGuiltLabel(-10)).toBe(GUILT_LABELS[0]);
+  });
+
+  test('returns the correct label for mid-range values', () => {
+    // pct = 50 should be 'Full Doomscroller' (min 40) but not 'Carbon Hypocrite in Training' (min 60)
+    const result = getGuiltLabel(50);
+    expect(result.text).toBe('Full Doomscroller');
+  });
+
+  test('returns an object with icon and text properties', () => {
+    const result = getGuiltLabel(30);
+    expect(typeof result.icon).toBe('string');
+    expect(typeof result.text).toBe('string');
+  });
+
+  test('boundary just below a threshold returns the previous label', () => {
+    // pct = 39 should be 'Mild Regret' (min 20), not 'Full Doomscroller' (min 40)
+    const result = getGuiltLabel(39);
+    expect(result.text).toBe('Mild Regret');
+  });
+});
