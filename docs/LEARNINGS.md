@@ -113,6 +113,7 @@ Every PR description (written by a human or agent) must follow this structure:
 | S2 | GitHub Actions `uses:` references must be pinned to a full commit SHA with the semver tag as an inline comment (`@abc1234 # v3.1.0`). Mutable tags (`@v3`) can be silently redirected, creating a supply-chain risk. | AGENTS.md |
 | S3 | Dependabot is configured to open weekly PRs for GitHub Actions SHA bumps. Do not skip or dismiss those PRs. | AGENTS.md |
 | S4 | Prefer `actions/` (GitHub's official org) over third-party organisations for GitHub Actions steps. `peaceiris/actions-gh-pages` can be replaced with native `git worktree` + `rsync` shell commands; `dorny/paths-filter` can be replaced with a `git diff --name-only` shell step. | #— |
+| S5 | Always pass GitHub context values to shell scripts via `env:` vars (e.g. `GH_SHA: ${{ github.sha }}`), never by interpolating `${{ }}` directly inside `run:`. Inline interpolation allows expression injection if an attacker controls the context value. | #— |
 
 ---
 
@@ -144,7 +145,16 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR #— chore: replace peaceiris/actions-gh-pages and dorny/paths-filter with native git/shell
+#### PR #— refactor: extract reusable detect-changes workflow + fix injection + shell tests
+
+- **Problem:** The `git diff` path-filter logic was duplicated verbatim in both `unit-tests.yml` and `e2e-tests.yml`, and each copy interpolated GitHub context values (`${{ github.event_name }}`, `${{ github.sha }}`, etc.) directly into `run:` scripts — an expression-injection anti-pattern.
+- **Approach:** Extracted the logic into `.github/scripts/detect-changes.sh` (reads all GitHub context from env vars, never from `${{ }}` interpolation). Wrapped it in a reusable `workflow_call` workflow (`.github/workflows/detect-changes.yml`) with `event_name` and `always_run` inputs and a `code` output. Both callers now use `uses: ./.github/workflows/detect-changes.yml`. Added 19 bash unit tests in `tests/detect-changes.test.sh` and an `npm run test:shell` script. The `test` job in `unit-tests.yml` runs shell tests in CI. The git failure fallback now outputs `code=true` (safe: run CI) rather than `code=false` (unsafe: silently skip CI).
+- **Learning:** Pass `event_name` as an explicit `string` input to reusable workflows because `github.event_name` inside a `workflow_call` callee is always `"workflow_call"`, not the original triggering event. The `github.event` payload and `github.sha` are inherited correctly. Always default to the "run CI" safe side when git diff fails on an unresolvable ref. (→ S4, S5)
+- **Key files:** `.github/scripts/detect-changes.sh`, `.github/workflows/detect-changes.yml`, `tests/detect-changes.test.sh`, `package.json`, `.github/workflows/unit-tests.yml`, `.github/workflows/e2e-tests.yml`
+
+---
+
+
 
 - **Problem:** Two third-party GitHub Actions (`peaceiris/actions-gh-pages` and `dorny/paths-filter`) added supply-chain risk from less-known organisations when native equivalents exist.
 - **Approach:** Replaced `peaceiris/actions-gh-pages` in `deploy.yml` and `preview.yml` with native `git worktree` + `rsync` shell steps that replicate `keep_files: true`, `destination_dir`, and `exclude_assets`. Replaced `dorny/paths-filter` in `unit-tests.yml` and `e2e-tests.yml` with a native `git diff --name-only` shell step and `fetch-depth: 0` checkout. Also added a per-PR `concurrency` group to `preview.yml` to serialize gh-pages pushes.

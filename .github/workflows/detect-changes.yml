@@ -1,0 +1,84 @@
+name: Detect Relevant Changes
+
+# Reusable workflow — determines whether relevant source files (JS/TS/CSS, tests,
+# package manifests) were modified between the base and HEAD commits.
+#
+# Usage in a calling workflow:
+#
+#   jobs:
+#     changes:
+#       uses: ./.github/workflows/detect-changes.yml
+#       with:
+#         event_name: ${{ github.event_name }}
+#         always_run: ${{ github.event_name == 'schedule' }}   # optional
+#
+#   test:
+#     needs: changes
+#     if: needs.changes.outputs.code == 'true'
+#
+# Why event_name is a required input:
+#   Inside a reusable workflow triggered via workflow_call, github.event_name is
+#   always "workflow_call", not the original triggering event (push/pull_request/…).
+#   The caller must pass the real event name so the script can resolve the correct
+#   base SHA from the inherited github.event payload.
+
+on:
+  workflow_call:
+    inputs:
+      event_name:
+        description: >
+          The event name from the calling workflow (github.event_name).
+          Required because github.event_name is always "workflow_call" inside a
+          reusable workflow, not the original triggering event.
+        required: true
+        type: string
+      always_run:
+        description: >
+          When true, skip the diff check and unconditionally output code=true.
+          Use this for scheduled runs where there is no diff to compare against.
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      code:
+        description: >
+          "true" when relevant source files changed (or always_run is set);
+          "false" when no relevant changes were detected.
+        value: ${{ jobs.detect.outputs.code }}
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.result.outputs.code }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # Full history is required so the base commit is reachable for git diff.
+          fetch-depth: 0
+
+      - name: Detect relevant file changes
+        id: result
+        # GitHub context values are set as env vars here in the env: block.
+        # ${{ }} expressions in env: are evaluated by the GitHub Actions runner
+        # before the shell starts, so they are never interpreted as shell code.
+        # This is the correct pattern for passing context to shell scripts; by
+        # contrast, interpolating ${{ }} directly inside run: text would allow
+        # a malicious value to break out of quotes and execute arbitrary commands.
+        env:
+          ALWAYS_RUN: ${{ inputs.always_run }}
+          GH_EVENT_NAME: ${{ inputs.event_name }}
+          GH_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GH_PUSH_BEFORE: ${{ github.event.before }}
+          GH_MERGE_BASE_SHA: ${{ github.event.merge_group.base_sha }}
+          GH_SHA: ${{ github.sha }}
+        run: |
+          if [[ "${ALWAYS_RUN}" == "true" ]]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            bash .github/scripts/detect-changes.sh
+          fi
