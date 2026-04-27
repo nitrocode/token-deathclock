@@ -3,6 +3,13 @@
 This file gives AI coding agents (GitHub Copilot, Claude, ChatGPT, etc.) the context
 they need to work effectively on this repository.
 
+**Companion documents — read these too:**
+
+| File | Purpose |
+|------|---------|
+| [`docs/LEARNINGS.md`](docs/LEARNINGS.md) | Living log of lessons learned from past PRs, organised by category (mobile/CSS, build, testing, architecture, security, features). Add an entry after every merged PR. |
+| [`.github/pull_request_template.md`](.github/pull_request_template.md) | Standard PR description template. Every PR (human or agent) must follow this structure: Summary, Changes checklist, Agent Checklist. |
+
 ---
 
 ## Project Purpose
@@ -148,6 +155,13 @@ When adding or modifying code, agents **must** write matching tests:
 Edit the `MILESTONES` array in `death-clock-core.js`. Each object requires:
 `id`, `name`, `icon`, `tokens`, `shortDesc`, `description`, `consequence`, `followingEvent`, `color`, `darkColor`.
 Keep the array sorted in ascending `tokens` order — the constants test enforces this.
+
+### Documenting PR learnings
+After merging a PR, add a brief entry to [`docs/LEARNINGS.md`](docs/LEARNINGS.md)
+under the current release block using the template at the top of that file. If
+the PR reveals a new recurring pattern (e.g., a mobile layout gotcha, a build
+quirk), also add a row to the relevant table in the **Categorised Learnings**
+section so future agents can find it by topic.
 
 ### Updating project token consumption stats (footer)
 The footer shows how many tokens this project has consumed building itself.
@@ -327,6 +341,7 @@ feat!: redesign anchor hash scheme (removes legacy ?tab= param)
 - Do **not** skip tests when adding new pure functions to the core module.
 - Do **not** change `BASE_TOKENS` / `TOKENS_PER_SECOND` / `BASE_DATE_ISO` independently — update all three as a set with a comment explaining the source.
 - Do **not** use mutable tags (e.g. `@v6`) in `uses:` — always pin to a commit SHA with a full semver comment (e.g. `@abc1234... # v6.0.2`).
+- Do **not** finish a session without adding a learning entry to `docs/LEARNINGS.md` for any PR merged in that session.
 - Do **not** finish a session without running `npm run test:ci` and `npm run test:e2e` to confirm both suites pass.
 - Do **not** let coverage decrease — a negative coverage delta on any PR fails the Codecov status check.
 - Do **not** edit `changelog-data.js`, `milestones-data.js`, or `project-stats-data.js` directly — they are auto-generated and in `.gitignore`; edit `CHANGELOG.md` / `milestones.yaml` / `project-stats.yaml` and run the corresponding build script.
