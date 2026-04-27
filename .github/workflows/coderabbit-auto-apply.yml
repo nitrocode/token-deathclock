@@ -11,7 +11,7 @@ jobs:
   auto-apply:
     # Only run when CodeRabbit posts a comment that contains a suggestion block.
     if: |
-      github.event.comment.user.login == 'coderabbit-ai[bot]' &&
+      github.event.comment.user.login == 'coderabbitai[bot]' &&
       contains(github.event.comment.body, '```suggestion')
     runs-on: ubuntu-latest
     steps:
