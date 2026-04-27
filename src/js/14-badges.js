@@ -29,6 +29,8 @@
     { id: 'lights_out',           icon: '☠️',           name: 'Lights Out',               desc: 'Replaced every human worker. Fully automated.',      type: 'manual' },
     // Witness badges
     { id: 'witness',              icon: '👁️',           name: 'Witness',                  desc: 'Stayed to watch a milestone get crossed in real time.', type: 'manual' },
+    // Guilt-O-Meter badge
+    { id: 'certified_hypocrite',  icon: '\uD83D\uDE2C', name: 'Certified Hypocrite',       desc: 'Watched the apocalypse for 5 minutes without doing anything about it.', type: 'manual' },
   ];
 
   const LS_BADGES_KEY = 'tokenDeathclockBadges';

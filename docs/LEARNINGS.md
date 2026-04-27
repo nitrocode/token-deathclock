@@ -144,6 +144,15 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
+#### PR #106 — feat: implement AI Guilt-O-Meter (Phase 3 PRD #2)
+
+- **Problem:** Phase 3 PRD #2 (AI Guilt-O-Meter) was the next unimplemented low-effort high-impact feature; the site lacked a persistent emotional hook to keep sessions engaged past the initial counter shock.
+- **Approach:** Added `GUILT_LABELS` constant and `getGuiltLabel(pct)` pure function to `death-clock-core.js` for unit-testability; created `src/js/22-guilt-meter.js` with `initGuiltMeter()` / `updateGuiltMeter()` updating on the existing 1s interval; added HTML `<progress>` element with ARIA attributes and a share button; renamed `22-boot.js` → `23-boot.js` to maintain strict sequential file ordering; added the `certified_hypocrite` badge to `BADGE_DEFS`.
+- **Learning:** Progress bar fill transitions in CSS require `appearance: none` plus browser-prefixed pseudo-elements (`::-webkit-progress-value`, `::-moz-progress-bar`) to render correctly across Chromium and Firefox. Always add both. (→ CSS)
+- **Key files:** `death-clock-core.js`, `src/js/22-guilt-meter.js`, `src/js/23-boot.js`, `src/js/14-badges.js`, `scripts/build-js.js`, `index.html`, `styles/features.css`, `tests/death-clock.test.js`
+
+---
+
 #### PR #107 — fix: extinction countdown ticks down by 2 seconds instead of 1
 
 - **Problem:** The extinction countdown header displayed the seconds decreasing by ~2 per tick instead of 1, because `updateExtinctionCountdown` used `tokensRemaining / currentRate` (linear approximation) while `getCurrentTokens` uses an exponentially-growing integral model.
@@ -153,7 +162,7 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ---
 
-
+#### PR #103 — feat: implement Token Horoscope daily satirical AI horoscope (Phase 3 PRD #1)
 
 - **Problem:** The site had no daily-rotating content to drive return visits; Phase 3 PRD #1 (Token Horoscope) was the highest-impact lowest-effort unimplemented feature.
 - **Approach:** Added `HOROSCOPE_TEMPLATES` (30 entries) and `getDailyHoroscope(nowMs, templates)` pure function to `death-clock-core.js`; wired up a new `src/js/21-horoscope.js` DOM module with `<details>/<summary>` collapse, localStorage date tracking, and a share button reusing `openSharePopup()`.
