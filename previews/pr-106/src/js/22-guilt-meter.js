@@ -10,7 +10,7 @@
     const shareBtn = document.getElementById('guiltShareBtn');
     if (!bar || !labelEl) return;
 
-    const elapsed = Date.now() - pageLoadTime;
+    const elapsed = Math.max(0, Date.now() - pageLoadTime);
     const pct     = Math.min(100, Math.floor((elapsed / GUILT_DURATION_MS) * 100));
     const label   = getGuiltLabel(pct);
     const labelText = label.icon + '\u00A0' + label.text;
@@ -33,7 +33,7 @@
     if (!shareBtn) return;
 
     shareBtn.addEventListener('click', () => {
-      const elapsed = Date.now() - pageLoadTime;
+      const elapsed = Math.max(0, Date.now() - pageLoadTime);
       const mins    = Math.floor(elapsed / 60000) || 1;
       const labelEl = document.getElementById('guiltMeterLabel');
       const labelText = labelEl ? labelEl.textContent : '';
