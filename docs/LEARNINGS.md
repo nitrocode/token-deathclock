@@ -112,6 +112,7 @@ Every PR description (written by a human or agent) must follow this structure:
 | S1 | All dynamic strings inserted via `innerHTML` must be escaped with `escHtml()` in `src/js/05-security.js`. Never assign untrusted data directly to `innerHTML`. | AGENTS.md |
 | S2 | GitHub Actions `uses:` references must be pinned to a full commit SHA with the semver tag as an inline comment (`@abc1234 # v3.1.0`). Mutable tags (`@v3`) can be silently redirected, creating a supply-chain risk. | AGENTS.md |
 | S3 | Dependabot is configured to open weekly PRs for GitHub Actions SHA bumps. Do not skip or dismiss those PRs. | AGENTS.md |
+| S4 | Prefer `actions/` (GitHub's official org) over third-party organisations for GitHub Actions steps. `peaceiris/actions-gh-pages` can be replaced with native `git worktree` + `rsync` shell commands; `dorny/paths-filter` can be replaced with a `git diff --name-only` shell step. | #— |
 
 ---
 
@@ -142,6 +143,15 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 ---
 
 ### v1.7.x
+
+#### PR #— chore: replace peaceiris/actions-gh-pages and dorny/paths-filter with native git/shell
+
+- **Problem:** Two third-party GitHub Actions (`peaceiris/actions-gh-pages` and `dorny/paths-filter`) added supply-chain risk from less-known organisations when native equivalents exist.
+- **Approach:** Replaced `peaceiris/actions-gh-pages` in `deploy.yml` and `preview.yml` with native `git worktree` + `rsync` shell steps that replicate `keep_files: true`, `destination_dir`, and `exclude_assets`. Replaced `dorny/paths-filter` in `unit-tests.yml` and `e2e-tests.yml` with a native `git diff --name-only` shell step and `fetch-depth: 0` checkout. Also added a per-PR `concurrency` group to `preview.yml` to serialize gh-pages pushes.
+- **Learning:** `git worktree add` is the cleanest way to check out a second branch (e.g. `gh-pages`) alongside the current checkout without a separate clone. Use `git branch --force <name> refs/remotes/origin/<name>` first so the worktree has a local tracking branch to push from. Always use `touch .nojekyll` in the gh-pages worktree to prevent Jekyll processing — peaceiris did this automatically. (→ S4)
+- **Key files:** `.github/workflows/deploy.yml`, `.github/workflows/preview.yml`, `.github/workflows/unit-tests.yml`, `.github/workflows/e2e-tests.yml`
+
+---
 
 #### PR #103 — feat: implement Token Horoscope daily satirical AI horoscope (Phase 3 PRD #1)
 
