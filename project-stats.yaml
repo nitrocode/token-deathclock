@@ -8,5 +8,5 @@
 # Run `npm run build:project-stats` (or let the deploy workflow do it) to
 # regenerate project-stats-data.js from this file.
 
-pr_count: 48
-total_tokens: 7200000
+pr_count: 49
+total_tokens: 7400000

@@ -1549,3 +1549,85 @@ describe('getSimulatedViewerCount', () => {
     expect(count).toBeGreaterThanOrEqual(12);
   });
 });
+
+// ============================================================
+// HOROSCOPE_TEMPLATES
+// ============================================================
+const { HOROSCOPE_TEMPLATES, getDailyHoroscope } = core;
+
+describe('HOROSCOPE_TEMPLATES', () => {
+  test('is a non-empty array', () => {
+    expect(Array.isArray(HOROSCOPE_TEMPLATES)).toBe(true);
+    expect(HOROSCOPE_TEMPLATES.length).toBeGreaterThan(0);
+  });
+
+  test('has at least 30 entries', () => {
+    expect(HOROSCOPE_TEMPLATES.length).toBeGreaterThanOrEqual(30);
+  });
+
+  test('every entry is a non-empty string', () => {
+    HOROSCOPE_TEMPLATES.forEach((t) => {
+      expect(typeof t).toBe('string');
+      expect(t.length).toBeGreaterThan(0);
+    });
+  });
+
+  test('all entries are unique', () => {
+    const unique = new Set(HOROSCOPE_TEMPLATES);
+    expect(unique.size).toBe(HOROSCOPE_TEMPLATES.length);
+  });
+});
+
+// ============================================================
+// getDailyHoroscope
+// ============================================================
+describe('getDailyHoroscope', () => {
+  const templates = ['Alpha', 'Beta', 'Gamma'];
+
+  test('returns a string from the templates array', () => {
+    const result = getDailyHoroscope(0, templates);
+    expect(templates).toContain(result);
+  });
+
+  test('cycles through templates by UTC day index', () => {
+    // Day 0 → templates[0], day 1 → templates[1], day 3 → templates[0] (wraps)
+    expect(getDailyHoroscope(0, templates)).toBe('Alpha');
+    expect(getDailyHoroscope(86400000, templates)).toBe('Beta');
+    expect(getDailyHoroscope(172800000, templates)).toBe('Gamma');
+    expect(getDailyHoroscope(259200000, templates)).toBe('Alpha');
+  });
+
+  test('same UTC day always returns the same horoscope', () => {
+    const dayMs = new Date('2026-04-27T00:00:00Z').getTime();
+    const midMs = new Date('2026-04-27T12:00:00Z').getTime();
+    expect(getDailyHoroscope(dayMs, templates)).toBe(
+      getDailyHoroscope(midMs, templates),
+    );
+  });
+
+  test('different UTC days return different results when pool is large enough', () => {
+    const day1 = new Date('2026-04-27T00:00:00Z').getTime();
+    const day2 = new Date('2026-04-28T00:00:00Z').getTime();
+    // With a 3-entry pool consecutive days are guaranteed to differ
+    expect(getDailyHoroscope(day1, templates)).not.toBe(
+      getDailyHoroscope(day2, templates),
+    );
+  });
+
+  test('returns empty string for an empty templates array', () => {
+    expect(getDailyHoroscope(0, [])).toBe('');
+  });
+
+  test('returns empty string for non-array templates', () => {
+    expect(getDailyHoroscope(0, null)).toBe('');
+    expect(getDailyHoroscope(0, undefined)).toBe('');
+    expect(getDailyHoroscope(0, 'oops')).toBe('');
+  });
+
+  test('works correctly with the real HOROSCOPE_TEMPLATES pool', () => {
+    const result = getDailyHoroscope(Date.now(), HOROSCOPE_TEMPLATES);
+    expect(typeof result).toBe('string');
+    expect(result.length).toBeGreaterThan(0);
+    expect(HOROSCOPE_TEMPLATES).toContain(result);
+  });
+});

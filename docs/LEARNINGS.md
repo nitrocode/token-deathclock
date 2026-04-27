@@ -143,6 +143,15 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
+#### PR #103 — feat: implement Token Horoscope daily satirical AI horoscope (Phase 3 PRD #1)
+
+- **Problem:** The site had no daily-rotating content to drive return visits; Phase 3 PRD #1 (Token Horoscope) was the highest-impact lowest-effort unimplemented feature.
+- **Approach:** Added `HOROSCOPE_TEMPLATES` (30 entries) and `getDailyHoroscope(nowMs, templates)` pure function to `death-clock-core.js`; wired up a new `src/js/21-horoscope.js` DOM module with `<details>/<summary>` collapse, localStorage date tracking, and a share button reusing `openSharePopup()`.
+- **Learning:** When inserting a new numbered source file between two existing ones, renumber to maintain strict sequential order in both the filename and the `PARTS` array in `build-js.js` — out-of-order names confuse future agents. (→ A1)
+- **Key files:** `death-clock-core.js`, `src/js/21-horoscope.js`, `src/js/22-boot.js`, `scripts/build-js.js`, `index.html`, `styles/features.css`, `tests/death-clock.test.js`
+
+---
+
 #### PR #94 — docs: add Phase 3 PRDs — 8 satirical engagement features
 
 - **Problem:** No PRDs existed for the planned Phase 3 virality features.

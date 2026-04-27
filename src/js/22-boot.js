@@ -48,6 +48,7 @@
     initReceiptModal();
     initCalculator();
     initAccelerator();
+    initHoroscope();
     // Engagement features
     initPresenceStrip();
     initEventLog();
