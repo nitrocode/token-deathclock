@@ -906,7 +906,7 @@ describe('computeExtinctionSecsRemaining', () => {
 
   test('handles non-numeric nowMs by defaulting to Date.now()', () => {
     // Should not throw; result will be a finite number
-    const secs = computeExtinctionSecsRemaining(TARGET);
+    const secs = computeExtinctionSecsRemaining(TARGET, 'abc');
     expect(typeof secs).toBe('number');
     expect(isFinite(secs)).toBe(true);
   });
