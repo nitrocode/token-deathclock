@@ -143,7 +143,7 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR — feat: implement AI Guilt-O-Meter (Phase 3 PRD #2)
+#### PR #106 — feat: implement AI Guilt-O-Meter (Phase 3 PRD #2)
 
 - **Problem:** Phase 3 PRD #2 (AI Guilt-O-Meter) was the next unimplemented low-effort high-impact feature; the site lacked a persistent emotional hook to keep sessions engaged past the initial counter shock.
 - **Approach:** Added `GUILT_LABELS` constant and `getGuiltLabel(pct)` pure function to `death-clock-core.js` for unit-testability; created `src/js/22-guilt-meter.js` with `initGuiltMeter()` / `updateGuiltMeter()` updating on the existing 1s interval; added HTML `<progress>` element with ARIA attributes and a share button; renamed `22-boot.js` → `23-boot.js` to maintain strict sequential file ordering; added the `certified_hypocrite` badge to `BADGE_DEFS`.
