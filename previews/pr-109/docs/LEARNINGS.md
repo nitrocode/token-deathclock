@@ -102,6 +102,8 @@ Every PR description (written by a human or agent) must follow this structure:
 | A2 | Enable TypeScript type-checking via `checkJs: true` in `tsconfig.json` with JSDoc annotations. This catches type errors in plain `.js` files without requiring a full TS migration. | #54 |
 | A3 | `death-clock-core.js` must never reference the DOM (`document`, `window`, `getElementById`, etc.). All DOM wiring belongs in `src/js/`. This boundary keeps the core unit-testable. | AGENTS.md |
 | A4 | The CommonJS + browser dual-export pattern (`module.exports` for Jest, `window.DeathClockCore` for the browser) must be maintained. Do not convert to ES modules without updating all consumers. | AGENTS.md |
+| A5 | Composite action outputs must be declared statically in `action.yml`. For dynamic per-filter outputs (filter names unknown at authoring time), expose a `changes` JSON blob output so callers can read any filter name without needing static declarations for each. | #— |
+| A6 | `git worktree remove --force` must be called at the end of any deploy script that opens a worktree. Without cleanup, a second call in the same job fails with "already checked out at path". In tests, use different-length file content when writing to the same path twice within a second — rsync's quick-check uses mtime+size and will skip a same-size same-mtime file. | #— |
 
 ---
 
@@ -113,6 +115,7 @@ Every PR description (written by a human or agent) must follow this structure:
 | S2 | GitHub Actions `uses:` references must be pinned to a full commit SHA with the semver tag as an inline comment (`@abc1234 # v3.1.0`). Mutable tags (`@v3`) can be silently redirected, creating a supply-chain risk. | AGENTS.md |
 | S3 | Dependabot is configured to open weekly PRs for GitHub Actions SHA bumps. Do not skip or dismiss those PRs. | AGENTS.md |
 | S4 | Prefer `actions/` (GitHub's official org) over third-party organisations for GitHub Actions steps. `peaceiris/actions-gh-pages` can be replaced with native `git worktree` + `rsync` shell commands; `dorny/paths-filter` can be replaced with a `git diff --name-only` shell step. | #— |
+| S5 | Always pass GitHub context values to shell scripts via `env:` vars (e.g. `GH_SHA: ${{ github.sha }}`), never by interpolating `${{ }}` directly inside `run:`. Inline interpolation allows expression injection if an attacker controls the context value. | #— |
 
 ---
 
@@ -144,7 +147,25 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR #— chore: replace peaceiris/actions-gh-pages and dorny/paths-filter with native git/shell
+#### PR #— feat: composite actions for gh-pages-deploy and paths-filter with full test coverage
+
+- **Problem:** The `peaceiris/actions-gh-pages` and `dorny/paths-filter` replacements were implemented as inline shell scripts without a clean reusable-action interface, and `filter.js` was not tracked by codecov.
+- **Approach:** Created two composite actions (`.github/actions/paths-filter/` and `.github/actions/gh-pages-deploy/`) with inputs matching the original third-party actions. `detect-changes.yml` now uses `paths-filter` action. `deploy.yml` and `preview.yml` now use `gh-pages-deploy` action. `filter.js` exports all pure functions (injection-safe via env vars) and is added to `collectCoverageFrom` with per-file thresholds. 67 Jest tests cover `filter.js` at 99%/90% stmt/branch. 19 bash tests cover `deploy.sh`. Fixed injection in `preview-cleanup.yml` (moved `${{ github.event.number }}` to `env:`).
+- **Learning:** Composite actions must declare outputs statically; use `changes` (JSON) as a catch-all output for dynamic filter names. `git worktree remove --force` must be called at the end of any deploy script that creates a worktree, otherwise subsequent calls in the same job fail with "already checked out" errors. rsync's quick-check uses mtime+size — tests that write the same file twice in < 1 second must use different-length content to force detection. (→ A1, S5)
+- **Key files:** `.github/actions/paths-filter/action.yml`, `.github/actions/paths-filter/filter.js`, `.github/actions/gh-pages-deploy/action.yml`, `.github/actions/gh-pages-deploy/deploy.sh`, `tests/paths-filter.test.js`, `tests/gh-pages-deploy.test.sh`, `package.json`
+
+---
+
+
+
+- **Problem:** The `git diff` path-filter logic was duplicated verbatim in both `unit-tests.yml` and `e2e-tests.yml`, and each copy interpolated GitHub context values (`${{ github.event_name }}`, `${{ github.sha }}`, etc.) directly into `run:` scripts — an expression-injection anti-pattern.
+- **Approach:** Extracted the logic into `.github/scripts/detect-changes.sh` (reads all GitHub context from env vars, never from `${{ }}` interpolation). Wrapped it in a reusable `workflow_call` workflow (`.github/workflows/detect-changes.yml`) with `event_name` and `always_run` inputs and a `code` output. Both callers now use `uses: ./.github/workflows/detect-changes.yml`. Added 19 bash unit tests in `tests/detect-changes.test.sh` and an `npm run test:shell` script. The `test` job in `unit-tests.yml` runs shell tests in CI. The git failure fallback now outputs `code=true` (safe: run CI) rather than `code=false` (unsafe: silently skip CI).
+- **Learning:** Pass `event_name` as an explicit `string` input to reusable workflows because `github.event_name` inside a `workflow_call` callee is always `"workflow_call"`, not the original triggering event. The `github.event` payload and `github.sha` are inherited correctly. Always default to the "run CI" safe side when git diff fails on an unresolvable ref. (→ S4, S5)
+- **Key files:** `.github/scripts/detect-changes.sh`, `.github/workflows/detect-changes.yml`, `tests/detect-changes.test.sh`, `package.json`, `.github/workflows/unit-tests.yml`, `.github/workflows/e2e-tests.yml`
+
+---
+
+
 
 - **Problem:** Two third-party GitHub Actions (`peaceiris/actions-gh-pages` and `dorny/paths-filter`) added supply-chain risk from less-known organisations when native equivalents exist.
 - **Approach:** Replaced `peaceiris/actions-gh-pages` in `deploy.yml` and `preview.yml` with native `git worktree` + `rsync` shell steps that replicate `keep_files: true`, `destination_dir`, and `exclude_assets`. Replaced `dorny/paths-filter` in `unit-tests.yml` and `e2e-tests.yml` with a native `git diff --name-only` shell step and `fetch-depth: 0` checkout. Also added a per-PR `concurrency` group to `preview.yml` to serialize gh-pages pushes.
