@@ -102,6 +102,7 @@ Every PR description (written by a human or agent) must follow this structure:
 | A2 | Enable TypeScript type-checking via `checkJs: true` in `tsconfig.json` with JSDoc annotations. This catches type errors in plain `.js` files without requiring a full TS migration. | #54 |
 | A3 | `death-clock-core.js` must never reference the DOM (`document`, `window`, `getElementById`, etc.). All DOM wiring belongs in `src/js/`. This boundary keeps the core unit-testable. | AGENTS.md |
 | A4 | The CommonJS + browser dual-export pattern (`module.exports` for Jest, `window.DeathClockCore` for the browser) must be maintained. Do not convert to ES modules without updating all consumers. | AGENTS.md |
+| A5 | When displaying a countdown to a future token threshold, invert the integral accumulation formula (`tExtinction = ln(1+(target-BASE_TOKENS)*k/R0)/k`) rather than using `tokensRemaining / currentRate`. The naïve linear formula ticks down by `1 + secsRemaining*k` per second (~2 at typical extinction distances). | #104 |
 
 ---
 
@@ -143,7 +144,16 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR #103 — feat: implement Token Horoscope daily satirical AI horoscope (Phase 3 PRD #1)
+#### PR #104 — fix: extinction countdown ticks down by 2 seconds instead of 1
+
+- **Problem:** The extinction countdown header displayed the seconds decreasing by ~2 per tick instead of 1, because `updateExtinctionCountdown` used `tokensRemaining / currentRate` (linear approximation) while `getCurrentTokens` uses an exponentially-growing integral model.
+- **Approach:** Added `computeExtinctionSecsRemaining(targetTokens, nowMs)` pure function to `death-clock-core.js` that solves the inverse of the cumulative-token integral (`tExtinction = ln(1 + (target - BASE_TOKENS)*k/R0)/k`). Since `tExtinction` is a constant and `tNow` advances by 1 s/s, the result decreases by exactly 1 per second. Updated `updateExtinctionCountdown` to use it. Added 6 unit tests including the key 1-second-per-tick invariant.
+- **Learning:** When displaying a countdown to a future token threshold, always invert the integral accumulation formula rather than using `tokensRemaining / currentRate`. The naïve linear formula ticks down by `(1 + secsRemaining * k)` per second, which is ~2× at typical extinction distances. (→ A3)
+- **Key files:** `death-clock-core.js`, `src/js/02-counter.js`, `src/js/00-state.js`, `tests/death-clock.test.js`
+
+---
+
+
 
 - **Problem:** The site had no daily-rotating content to drive return visits; Phase 3 PRD #1 (Token Horoscope) was the highest-impact lowest-effort unimplemented feature.
 - **Approach:** Added `HOROSCOPE_TEMPLATES` (30 entries) and `getDailyHoroscope(nowMs, templates)` pure function to `death-clock-core.js`; wired up a new `src/js/21-horoscope.js` DOM module with `<details>/<summary>` collapse, localStorage date tracking, and a share button reusing `openSharePopup()`.

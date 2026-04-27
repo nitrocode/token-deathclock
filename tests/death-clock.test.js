@@ -36,9 +36,11 @@ const {
   SESSION_CHALLENGE_DEFS,
   BASE_TOKENS,
   TOKENS_PER_SECOND,
+  BASE_DATE_ISO,
   getSimulatedViewerCount,
   getDynamicRate,
   RATE_GROWTH_PER_YEAR,
+  computeExtinctionSecsRemaining,
 } = core;
 
 // ============================================================
@@ -857,6 +859,59 @@ describe('calculateTipImpact', () => {
     expect(rDefault.tokensPerDay).toBeCloseTo(rExplicit.tokensPerDay, 0);
   });
 });
+
+// ============================================================
+// computeExtinctionSecsRemaining — 1-second-per-tick invariant
+// ============================================================
+describe('computeExtinctionSecsRemaining', () => {
+  // A token target safely beyond BASE_TOKENS (10 quadrillion above baseline)
+  const TARGET = BASE_TOKENS + 10_000_000_000_000_000; // 10 quadrillion above base
+  // Anchor "now" to BASE_DATE_ISO so results are deterministic
+  const baseMs = new Date(BASE_DATE_ISO).getTime();
+
+  test('returns a positive number when target is in the future', () => {
+    const secs = computeExtinctionSecsRemaining(TARGET, baseMs);
+    expect(secs).toBeGreaterThan(0);
+  });
+
+  test('decreases by exactly 1 for every 1 second that elapses', () => {
+    // This is the core invariant — the old linear approximation fails this test
+    // because it ticked down by ~2 seconds per second when the rate was growing.
+    const t0 = baseMs;
+    const t1 = baseMs + 1000;
+    const secs0 = computeExtinctionSecsRemaining(TARGET, t0);
+    const secs1 = computeExtinctionSecsRemaining(TARGET, t1);
+    expect(secs0 - secs1).toBeCloseTo(1, 9);
+  });
+
+  test('decreases by exactly 60 over a 60-second window', () => {
+    const t0 = baseMs;
+    const t1 = baseMs + 60_000;
+    const secs0 = computeExtinctionSecsRemaining(TARGET, t0);
+    const secs1 = computeExtinctionSecsRemaining(TARGET, t1);
+    expect(secs0 - secs1).toBeCloseTo(60, 9);
+  });
+
+  test('returns 0 or negative when target equals or is below BASE_TOKENS', () => {
+    expect(computeExtinctionSecsRemaining(BASE_TOKENS, baseMs)).toBe(0);
+    expect(computeExtinctionSecsRemaining(BASE_TOKENS - 1, baseMs)).toBe(0);
+  });
+
+  test('returns a negative number when target was passed in the past', () => {
+    // Advance far into the future so that target has already been passed
+    const farFuture = baseMs + 1_000_000_000 * 1000; // ~31 years from base
+    const secs = computeExtinctionSecsRemaining(TARGET, farFuture);
+    expect(secs).toBeLessThan(0);
+  });
+
+  test('handles non-numeric nowMs by defaulting to Date.now()', () => {
+    // Should not throw; result will be a finite number
+    const secs = computeExtinctionSecsRemaining(TARGET);
+    expect(typeof secs).toBe('number');
+    expect(isFinite(secs)).toBe(true);
+  });
+});
+
 
 // ============================================================
 // TOKEN_TIPS
