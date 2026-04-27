@@ -115,8 +115,8 @@ Every PR description (written by a human or agent) must follow this structure:
 | S1 | All dynamic strings inserted via `innerHTML` must be escaped with `escHtml()` in `src/js/05-security.js`. Never assign untrusted data directly to `innerHTML`. | AGENTS.md |
 | S2 | GitHub Actions `uses:` references must be pinned to a full commit SHA with the semver tag as an inline comment (`@abc1234 # v3.1.0`). Mutable tags (`@v3`) can be silently redirected, creating a supply-chain risk. | AGENTS.md |
 | S3 | Dependabot is configured to open weekly PRs for GitHub Actions SHA bumps. Do not skip or dismiss those PRs. | AGENTS.md |
-| S4 | Prefer `actions/` (GitHub's official org) over third-party organisations for GitHub Actions steps. `peaceiris/actions-gh-pages` can be replaced with native `git worktree` + `rsync` shell commands; `dorny/paths-filter` can be replaced with a `git diff --name-only` shell step. | #— |
-| S5 | Always pass GitHub context values to shell scripts via `env:` vars (e.g. `GH_SHA: ${{ github.sha }}`), never by interpolating `${{ }}` directly inside `run:`. Inline interpolation allows expression injection if an attacker controls the context value. | #— |
+| S4 | Prefer `actions/` (GitHub's official org) over third-party organisations for GitHub Actions steps. `peaceiris/actions-gh-pages` can be replaced with native `git worktree` + `rsync` shell commands; `dorny/paths-filter` can be replaced with a `git diff --name-only` shell step. | #109 |
+| S5 | Always pass GitHub context values to shell scripts via `env:` vars (e.g. `GH_SHA: ${{ github.sha }}`), never by interpolating `${{ }}` directly inside `run:`. Inline interpolation allows expression injection if an attacker controls the context value. | #109 |
 
 ---
 
