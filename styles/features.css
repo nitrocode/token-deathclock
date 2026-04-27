@@ -2,6 +2,60 @@
    NEW FUN FEATURES
    ============================================================= */
 
+/* ---- Daily AI Horoscope ---- */
+.horoscope-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.horoscope-card[open] {
+  border-color: var(--accent-2);
+}
+
+.horoscope-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.horoscope-summary::-webkit-details-marker { display: none; }
+
+.horoscope-summary-title {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  font-weight: 700;
+}
+
+.horoscope-date {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.horoscope-text {
+  margin: 0.9rem 0 1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  font-style: italic;
+}
+
+.horoscope-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 /* ---- Equivalences Strip ---- */
 .equiv-wrap {
   margin-top: 1.5rem;
