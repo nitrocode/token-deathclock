@@ -18,11 +18,15 @@ jobs:
       - name: Reply with @coderabbit apply
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
+          # Must use a human-user PAT (repo scope). GITHUB_TOKEN posts as
+          # github-actions[bot], which CodeRabbit silently ignores.
+          # Store a classic PAT with `repo` scope as secret CR_APPLY_PAT.
+          github-token: ${{ secrets.CR_APPLY_PAT }}
           script: |
             await github.rest.pulls.createReplyForReviewComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
               comment_id: context.payload.comment.id,
-              body: '@coderabbit apply',
+              body: '@coderabbitai apply',
             });

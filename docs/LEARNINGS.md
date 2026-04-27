@@ -112,6 +112,7 @@ Every PR description (written by a human or agent) must follow this structure:
 | S1 | All dynamic strings inserted via `innerHTML` must be escaped with `escHtml()` in `src/js/05-security.js`. Never assign untrusted data directly to `innerHTML`. | AGENTS.md |
 | S2 | GitHub Actions `uses:` references must be pinned to a full commit SHA with the semver tag as an inline comment (`@abc1234 # v3.1.0`). Mutable tags (`@v3`) can be silently redirected, creating a supply-chain risk. | AGENTS.md |
 | S3 | Dependabot is configured to open weekly PRs for GitHub Actions SHA bumps. Do not skip or dismiss those PRs. | AGENTS.md |
+| S4 | CodeRabbit silently ignores `@coderabbitai apply` commands posted by `github-actions[bot]` (or any other bot). The apply comment must be posted using a human user's PAT (secret `CR_APPLY_PAT`, classic, `repo` scope). `auto_apply_suggestions` in `.coderabbit.yaml` is a paid-only feature and is not available on the free tier. | #N/A |
 
 ---
 
@@ -143,7 +144,16 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR #103 — feat: implement Token Horoscope daily satirical AI horoscope (Phase 3 PRD #1)
+#### PR — fix: use PAT for coderabbit-auto-apply to avoid bot-skip
+
+- **Problem:** `coderabbit-auto-apply.yml` posted `@coderabbitai apply` via the default `GITHUB_TOKEN`, so the comment appeared as `github-actions[bot]`; CodeRabbit silently skips commands from other bots.
+- **Approach:** Passed the `CR_APPLY_PAT` secret (human-user classic PAT, `repo` scope) as `github-token` to `actions/github-script`. The comment now posts as the PAT owner (a real GitHub user), which CodeRabbit accepts. `auto_apply_suggestions` in `.coderabbit.yaml` was considered but requires the paid Pro plan.
+- **Learning:** CodeRabbit ignores bot-authored `@coderabbitai` commands. Any automated apply workflow must use a human-user PAT. See S4 in Categorised Learnings. (→ S4)
+- **Key files:** `.github/workflows/coderabbit-auto-apply.yml`, `docs/LEARNINGS.md`
+
+---
+
+
 
 - **Problem:** The site had no daily-rotating content to drive return visits; Phase 3 PRD #1 (Token Horoscope) was the highest-impact lowest-effort unimplemented feature.
 - **Approach:** Added `HOROSCOPE_TEMPLATES` (30 entries) and `getDailyHoroscope(nowMs, templates)` pure function to `death-clock-core.js`; wired up a new `src/js/21-horoscope.js` DOM module with `<details>/<summary>` collapse, localStorage date tracking, and a share button reusing `openSharePopup()`.
