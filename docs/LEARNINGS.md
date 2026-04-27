@@ -148,7 +148,7 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR `#109` refactor: replace third-party actions with native git worktree and diff
+#### PR #109 — chore: replace peaceiris/actions-gh-pages and dorny/paths-filter with native git/shell
 
 - **Problem:** Two third-party GitHub Actions (`peaceiris/actions-gh-pages` and `dorny/paths-filter`) added supply-chain risk from less-known organisations when native equivalents exist.
 - **Approach:** Replaced `peaceiris/actions-gh-pages` in `deploy.yml` and `preview.yml` with native `git worktree` + `rsync` shell steps that replicate `keep_files: true`, `destination_dir`, and `exclude_assets`. Replaced `dorny/paths-filter` in `unit-tests.yml` and `e2e-tests.yml` with a native `git diff --name-only` shell step and `fetch-depth: 0` checkout. Also added a per-PR `concurrency` group to `preview.yml` to serialize gh-pages pushes.
