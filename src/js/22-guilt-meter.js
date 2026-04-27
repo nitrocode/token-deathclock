@@ -30,23 +30,24 @@
 
   function initGuiltMeter() {
     const shareBtn = document.getElementById('guiltShareBtn');
-    if (!shareBtn) return;
 
-    shareBtn.addEventListener('click', () => {
-      const elapsed = Math.max(0, Date.now() - pageLoadTime);
-      const mins    = Math.floor(elapsed / 60000) || 1;
-      const labelEl = document.getElementById('guiltMeterLabel');
-      const labelText = labelEl ? labelEl.textContent : '';
-      const shareText =
-        '\uD83D\uDE2C I\u2019ve been watching AI consume tokens for ' +
-        mins + ' minute' + (mins !== 1 ? 's' : '') +
-        ' and done absolutely nothing about it.' +
-        ' My guilt level: ' + labelText +
-        '. Are you as bad as me?\n\u2192 ' + SITE_URL +
-        ' #TokenDeathClock #CertifiedHypocrite';
-      openSharePopup(shareText);
-      awardBadge('spreading_doom');
-    });
+    if (shareBtn) {
+      shareBtn.addEventListener('click', () => {
+        const elapsed = Math.max(0, Date.now() - pageLoadTime);
+        const mins    = Math.floor(elapsed / 60000) || 1;
+        const labelEl = document.getElementById('guiltMeterLabel');
+        const labelText = labelEl ? labelEl.textContent : '';
+        const shareText =
+          '\uD83D\uDE2C I\u2019ve been watching AI consume tokens for ' +
+          mins + ' minute' + (mins !== 1 ? 's' : '') +
+          ' and done absolutely nothing about it.' +
+          ' My guilt level: ' + labelText +
+          '. Are you as bad as me?\n\u2192 ' + SITE_URL +
+          ' #TokenDeathClock #CertifiedHypocrite';
+        openSharePopup(shareText);
+        awardBadge('spreading_doom');
+      });
+    }
 
     // Render initial state
     updateGuiltMeter();
