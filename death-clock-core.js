@@ -389,6 +389,37 @@ function getDynamicRate(date) {
 }
 
 /**
+ * Compute the seconds remaining until a target token count will be reached,
+ * using the same exponentially-growing integral model that drives the live
+ * counter (getCurrentTokens in 00-state.js).
+ *
+ * This is the inverse of the cumulative-token integral:
+ *   getCurrentTokens(t) = BASE_TOKENS + (R0/k) * (e^(k*t) - 1)
+ * Solving for t gives:
+ *   tExtinction = ln(1 + (targetTokens − BASE_TOKENS) * k / R0) / k
+ * and secsRemaining = tExtinction − tNow.
+ *
+ * Because tExtinction is a constant and tNow advances by 1 each second,
+ * the returned value decreases by EXACTLY 1 per second — unlike the
+ * naïve linear approximation (tokensRemaining / currentRate) which ticks
+ * down by ~2 per second when the extinction milestone is several years away.
+ *
+ * @param {number} targetTokens - token count to reach
+ * @param {number} [nowMs]      - epoch milliseconds (defaults to Date.now())
+ * @returns {number}            - seconds remaining; negative if already passed
+ */
+function computeExtinctionSecsRemaining(targetTokens, nowMs) {
+  if (typeof targetTokens !== 'number' || targetTokens <= BASE_TOKENS) return 0;
+  const now = typeof nowMs === 'number' ? nowMs : Date.now();
+  const baseMs = new Date(BASE_DATE_ISO).getTime();
+  const SECS_PER_YEAR = 365.25 * 24 * 3600;
+  const k = Math.log(1 + RATE_GROWTH_PER_YEAR) / SECS_PER_YEAR;
+  const tExtinction = Math.log(1 + (targetTokens - BASE_TOKENS) * k / TOKENS_PER_SECOND) / k;
+  const tNow = (now - baseMs) / 1000;
+  return tExtinction - tNow;
+}
+
+/**
  * Calculate the collective daily environmental impact if a fraction of global users
  * consistently applies a token-saving tip.
  *
@@ -820,6 +851,7 @@ const DeathClockCore = {
   getRateAtDate,
   RATE_GROWTH_PER_YEAR,
   getDynamicRate,
+  computeExtinctionSecsRemaining,
   calculateTipImpact,
   generateEquivalences,
   calculatePersonalFootprint,
