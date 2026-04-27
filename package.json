@@ -39,7 +39,7 @@
     "collectCoverageFrom": [
       "death-clock-core.js",
       "script.js",
-      ".github/actions/paths-filter/filter.js"
+      ".github/actions/**/*.js"
     ],
     "coverageThreshold": {
       "global": {

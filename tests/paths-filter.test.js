@@ -193,6 +193,31 @@ describe('globToRegex', () => {
   test('** alone matches any path', () => {
     expect(match('**', 'anything/deep/path.js')).toBe(true);
   });
+
+  // Trailing slash — directory patterns
+  test('trailing slash matches all files inside a directory', () => {
+    expect(match('src/', 'src/app.js')).toBe(true);
+    expect(match('src/', 'src/deep/util.ts')).toBe(true);
+    // Does NOT match a file literally named 'src' (no slash in path)
+    expect(match('src/', 'src')).toBe(false);
+    // Does NOT match an unrelated sibling directory
+    expect(match('src/', 'other/src/app.js')).toBe(false);
+  });
+
+  test('trailing slash distinguishes directory from same-name file', () => {
+    // 'src' matches only a file literally named 'src'
+    expect(match('src', 'src')).toBe(true);
+    expect(match('src', 'src/app.js')).toBe(false);
+    // 'src/' matches files inside the src/ directory, not the bare file 'src'
+    expect(match('src/', 'src')).toBe(false);
+    expect(match('src/', 'src/app.js')).toBe(true);
+  });
+
+  test('nested directory trailing slash works', () => {
+    expect(match('tests/e2e/', 'tests/e2e/spec.js')).toBe(true);
+    expect(match('tests/e2e/', 'tests/e2e/deep/more.js')).toBe(true);
+    expect(match('tests/e2e/', 'tests/unit/spec.js')).toBe(false);
+  });
 });
 
 // ============================================================================
@@ -226,6 +251,11 @@ describe('computeBase', () => {
 
   test('returns empty string for pull_request with empty sha', () => {
     expect(computeBase('pull_request', '', 'before', 'merge')).toBe('');
+  });
+
+  test('default case returns empty string when mergeBaseSha is empty', () => {
+    // Covers the falsy branch of `mergeBaseSha || ''` in the default case
+    expect(computeBase('workflow_dispatch', '', '', '')).toBe('');
   });
 });
 
@@ -279,6 +309,19 @@ describe('matchFiles', () => {
 
   test('returns empty array for empty file list', () => {
     expect(matchFiles([], ['**/*.js'])).toEqual([]);
+  });
+
+  test('trailing slash pattern matches files inside the directory', () => {
+    const result = matchFiles(files, ['src/']);
+    expect(result).toContain('src/app.js');
+    expect(result).toContain('src/lib.ts');
+    expect(result).not.toContain('README.md');
+    expect(result).not.toContain('tests/foo.test.js');
+  });
+
+  test('trailing slash does not match a file with the same name as a directory', () => {
+    // 'config.yaml' is a file; 'config/' should not match it
+    expect(matchFiles(['config.yaml', 'config/settings.yaml'], ['config/'])).toEqual(['config/settings.yaml']);
   });
 });
 
@@ -387,6 +430,13 @@ describe('runFilter', () => {
     expect(changes).toEqual({});
     expect(lines).toEqual(['changes={}']);
   });
+
+  test('undefined listFiles defaults to none (no file list output)', () => {
+    // Covers the falsy branch of `listFiles || 'none'`
+    const { lines } = runFilter(['src/app.js'], { code: ['**/*.js'] }, undefined);
+    expect(lines).toContain('code=true');
+    expect(lines.some(l => l.startsWith('code_files='))).toBe(false);
+  });
 });
 
 // ============================================================================
@@ -425,11 +475,25 @@ describe('getChangedFiles', () => {
     expect(error).toContain('git ls-files failed');
   });
 
+  test('returns error message with fallback text when ls-files stderr is empty', () => {
+    // Covers the falsy branch of `r.stderr || '(no stderr)'`
+    spawnSync.mockReturnValue({ status: 1, stdout: '', stderr: '' });
+    const { error } = getChangedFiles('', 'HEAD');
+    expect(error).toContain('(no stderr)');
+  });
+
   test('returns error when git diff fails (bad base SHA)', () => {
     spawnSync.mockReturnValue({ status: 128, stdout: '', stderr: 'unknown revision' });
     const { files, error } = getChangedFiles('badref', 'HEAD');
     expect(files).toEqual([]);
     expect(error).toContain("git diff failed for base 'badref'");
+  });
+
+  test('returns error message with fallback text when diff stderr is empty', () => {
+    // Covers the falsy branch of `r.stderr || '(no stderr)'` for the diff path
+    spawnSync.mockReturnValue({ status: 128, stdout: '', stderr: '' });
+    const { error } = getChangedFiles('badref', 'HEAD');
+    expect(error).toContain('(no stderr)');
   });
 
   test('filters out empty lines from output', () => {
@@ -569,5 +633,67 @@ describe('main', () => {
 
     // Should not throw
     expect(() => main()).not.toThrow();
+  });
+
+  test('INPUT_SHA defaults to HEAD when not set', () => {
+    // Covers the falsy branch of `process.env.INPUT_SHA || 'HEAD'`
+    setEnv({
+      INPUT_FILTERS: FILTERS_YAML,
+      INPUT_EVENT_NAME: 'push',
+      GH_PUSH_BEFORE: 'before-sha',
+      GH_PR_BASE_SHA: '',
+      GH_MERGE_BASE_SHA: '',
+      GITHUB_OUTPUT: '/tmp/test-output',
+      // INPUT_SHA intentionally omitted → defaults to 'HEAD'
+    });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'app.ts\n', stderr: '' });
+
+    main();
+
+    expect(spawnSync).toHaveBeenCalledWith(
+      'git', ['diff', '--name-only', 'before-sha', 'HEAD'], { encoding: 'utf8' },
+    );
+  });
+
+  test('INPUT_EVENT_NAME defaults to empty string when not set', () => {
+    // Covers the falsy branch of `process.env.INPUT_EVENT_NAME || ''`
+    setEnv({
+      INPUT_FILTERS: FILTERS_YAML,
+      // INPUT_EVENT_NAME intentionally omitted → defaults to ''
+      GH_PR_BASE_SHA: '',
+      GH_PUSH_BEFORE: '',
+      GH_MERGE_BASE_SHA: '',
+      INPUT_SHA: 'HEAD',
+      GITHUB_OUTPUT: '/tmp/test-output',
+    });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\n', stderr: '' });
+
+    main();
+
+    // With no event name, computeBase defaults to mergeBaseSha (empty) →
+    // getChangedFiles uses git ls-files (empty base)
+    expect(spawnSync).toHaveBeenCalledWith('git', ['ls-files'], { encoding: 'utf8' });
+  });
+
+  test('INPUT_FILTERS defaults to empty string when not set, producing empty output', () => {
+    // Covers the falsy branch of `process.env.INPUT_FILTERS || ''`
+    setEnv({
+      // INPUT_FILTERS intentionally omitted → defaults to ''
+      INPUT_EVENT_NAME: 'push',
+      GH_PUSH_BEFORE: '',
+      GH_PR_BASE_SHA: '',
+      GH_MERGE_BASE_SHA: '',
+      INPUT_SHA: 'HEAD',
+      GITHUB_OUTPUT: '/tmp/test-output',
+    });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\n', stderr: '' });
+
+    main();
+
+    // Empty filters → output is just the changes JSON with no filter groups
+    expect(fs.appendFileSync).toHaveBeenCalledWith(
+      '/tmp/test-output',
+      expect.stringContaining('changes={}'),
+    );
   });
 });

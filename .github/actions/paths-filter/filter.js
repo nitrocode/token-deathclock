@@ -70,25 +70,33 @@ function parseFilters(yaml) {
 /**
  * Convert a glob pattern to a regular expression string (without anchors).
  * Handles:
+ *   foo/  — trailing slash means "all files inside directory foo/" (equiv. to foo/**)
  *   **   — matches any path including slashes
  *   *    — matches any characters within a single path segment
  *   ?    — matches a single non-slash character
  *   rest — literals, with regex-special chars escaped
  *
+ * The trailing-slash convention lets filter lists unambiguously refer to
+ * directories: 'src/' matches every file inside src/, while 'src' matches
+ * only a file literally named 'src' (since git diff --name-only never
+ * outputs bare directory names).
+ *
  * @param {string} glob
  * @returns {string}
  */
 function globToRegex(glob) {
+  // A trailing '/' means "all files inside this directory" — treat as dir/**
+  const pattern = (glob || '').endsWith('/') ? glob + '**' : (glob || '');
   const regexSpecial = new Set(['.', '+', '^', '$', '{', '}', '(', ')', '|', '[', ']', '\\']);
   let re = '';
   let i = 0;
-  while (i < glob.length) {
-    const ch = glob[i];
-    if (ch === '*' && i + 1 < glob.length && glob[i + 1] === '*') {
+  while (i < pattern.length) {
+    const ch = pattern[i];
+    if (ch === '*' && i + 1 < pattern.length && pattern[i + 1] === '*') {
       re += '.*';
       i += 2;
       // Skip the optional trailing slash after ** (e.g. "tests/**/")
-      if (i < glob.length && glob[i] === '/') i++;
+      if (i < pattern.length && pattern[i] === '/') i++;
     } else if (ch === '*') {
       re += '[^/]*';
       i++;
@@ -290,6 +298,7 @@ function main() {
 }
 
 // Run main when executed directly; export everything for testing
+/* istanbul ignore next */
 if (require.main === module) {
   main();
 }

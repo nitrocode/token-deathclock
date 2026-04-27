@@ -147,7 +147,16 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR #— feat: composite actions for gh-pages-deploy and paths-filter with full test coverage
+#### PR #— fix: codecov line coverage restored, trailing-slash directory patterns, keep_files and glob coverage
+
+- **Problem:** Adding `filter.js` to Jest coverage dropped project-wide line coverage below 100% (line 294 — the `if (require.main === module)` guard — was uncovered), triggering codecov's zero-tolerance threshold. `deploy.yml` didn't explicitly set `keep_files: true`. Filter patterns had no way to unambiguously target a directory vs a file with the same name.
+- **Approach:** (1) Added `/* istanbul ignore next */` to the main-module guard (standard Node.js pattern; impossible to cover without spawning a subprocess); (2) added 12 targeted tests to cover all remaining uncovered branches — `computeBase` default case with empty SHA, `runFilter` with `undefined` listFiles, `getChangedFiles` error paths with empty stderr, and three `main()` env-var fallback paths; (3) implemented trailing-slash directory pattern support directly in `globToRegex` (`src/` → internally treated as `src/**`), with disambiguation vs a same-name file guaranteed because git diff only returns file paths, never bare directory names; (4) widened `collectCoverageFrom` from a specific path to `.github/actions/**/*.js` so any future action scripts are auto-tracked; (5) added `keep_files: true` to `deploy.yml`.
+- **Learning:** Adding a new file to `collectCoverageFrom` that has even one uncovered line can drop project-wide LINE coverage, triggering codecov's `threshold: 100%` zero-tolerance check. Use `/* istanbul ignore next */` on `if (require.main === module)` in every Node.js action script — it's a standard guard that can only run outside a test context. `||` operators create Istanbul "binary-expr" branches; both sides must be exercised. Use a glob (`.github/actions/**/*.js`) in `collectCoverageFrom` so new action scripts are automatically tracked. Trailing `/` on a filter pattern is unambiguous in git-diff context: `src/` matches files inside `src/`; `src` matches only a file literally named `src` at that path. (→ T5, A5)
+- **Key files:** `.github/actions/paths-filter/filter.js`, `package.json`, `.github/workflows/deploy.yml`, `tests/paths-filter.test.js`, `docs/LEARNINGS.md`
+
+---
+
+
 
 - **Problem:** The `peaceiris/actions-gh-pages` and `dorny/paths-filter` replacements were implemented as inline shell scripts without a clean reusable-action interface, and `filter.js` was not tracked by codecov.
 - **Approach:** Created two composite actions (`.github/actions/paths-filter/` and `.github/actions/gh-pages-deploy/`) with inputs matching the original third-party actions. `detect-changes.yml` now uses `paths-filter` action. `deploy.yml` and `preview.yml` now use `gh-pages-deploy` action. `filter.js` exports all pure functions (injection-safe via env vars) and is added to `collectCoverageFrom` with per-file thresholds. 67 Jest tests cover `filter.js` at 99%/90% stmt/branch. 19 bash tests cover `deploy.sh`. Fixed injection in `preview-cleanup.yml` (moved `${{ github.event.number }}` to `env:`).
