@@ -19,8 +19,8 @@ name: Detect Relevant Changes
 # Why event_name is a required input:
 #   Inside a reusable workflow triggered via workflow_call, github.event_name is
 #   always "workflow_call", not the original triggering event (push/pull_request/…).
-#   The caller must pass the real event name so the script can resolve the correct
-#   base SHA from the inherited github.event payload.
+#   The caller must pass the real event name so the paths-filter action can resolve
+#   the correct base SHA from the inherited github.event payload.
 
 on:
   workflow_call:
@@ -61,24 +61,31 @@ jobs:
           # Full history is required so the base commit is reachable for git diff.
           fetch-depth: 0
 
-      - name: Detect relevant file changes
+      - name: Filter changed paths
+        if: ${{ !inputs.always_run }}
+        id: filter
+        uses: ./.github/actions/paths-filter
+        with:
+          event_name: ${{ inputs.event_name }}
+          filters: |
+            code:
+              - '**/*.js'
+              - '**/*.ts'
+              - '**/*.css'
+              - 'tests/**'
+              - 'package*.json'
+
+      - name: Set result
         id: result
-        # GitHub context values are set as env vars here in the env: block.
-        # ${{ }} expressions in env: are evaluated by the GitHub Actions runner
-        # before the shell starts, so they are never interpreted as shell code.
-        # This is the correct pattern for passing context to shell scripts; by
-        # contrast, interpolating ${{ }} directly inside run: text would allow
-        # a malicious value to break out of quotes and execute arbitrary commands.
+        # Use env: to pass outputs safely — avoids any interpolation concern
+        # on the always_run boolean and the filter output string.
         env:
           ALWAYS_RUN: ${{ inputs.always_run }}
-          GH_EVENT_NAME: ${{ inputs.event_name }}
-          GH_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          GH_PUSH_BEFORE: ${{ github.event.before }}
-          GH_MERGE_BASE_SHA: ${{ github.event.merge_group.base_sha }}
-          GH_SHA: ${{ github.sha }}
+          FILTER_CODE: ${{ steps.filter.outputs.code }}
         run: |
           if [[ "${ALWAYS_RUN}" == "true" ]]; then
             echo "code=true" >> "$GITHUB_OUTPUT"
           else
-            bash .github/scripts/detect-changes.sh
+            echo "code=${FILTER_CODE}" >> "$GITHUB_OUTPUT"
           fi
+

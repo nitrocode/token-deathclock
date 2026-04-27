@@ -30,54 +30,24 @@ jobs:
         run: npm run screenshots
 
       - name: Deploy PR preview to gh-pages branch
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Fetch the existing gh-pages branch (silently skip if it doesn't exist yet)
-          git fetch origin gh-pages:refs/remotes/origin/gh-pages 2>/dev/null || true
-
-          # Check out gh-pages into a worktree so we can update it in-place.
-          # This preserves production files and other previews — equivalent to keep_files: true.
-          if git rev-parse --verify refs/remotes/origin/gh-pages >/dev/null 2>&1; then
-            git branch --force gh-pages refs/remotes/origin/gh-pages
-            git worktree add /tmp/gh-pages gh-pages
-          else
-            git worktree add --orphan -b gh-pages /tmp/gh-pages
-          fi
-
-          DEST="/tmp/gh-pages/previews/pr-${{ github.event.number }}"
-          mkdir -p "$DEST"
-
-          # Sync built files into the preview subdirectory.
-          # Keep the exclude list in sync with deploy.yml (screenshots is an additional
-          # preview-only exclusion: they are uploaded via the Content API in the next step,
-          # so rsync must not overwrite them before that step runs).
-          # .gitignore is excluded so it never lands in gh-pages; if it did,
-          # `git add -A` would silently skip script.js, styles.css and the
-          # generated data files (all listed in .gitignore).
-          rsync -a \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='.gitignore' \
-            --exclude='node_modules' \
-            --exclude='tests' \
-            --exclude='scripts' \
-            --exclude='package-lock.json' \
-            --exclude='package.json' \
-            --exclude='milestones.yaml' \
-            --exclude='project-stats.yaml' \
-            --exclude='screenshots' \
-            ./ "$DEST/"
-
-          cd /tmp/gh-pages
-          git add -A
-          if git diff --cached --quiet; then
-            echo "Nothing to deploy — preview is already up to date"
-          else
-            git commit -m "chore: deploy preview for PR #${{ github.event.number }}"
-            git push origin gh-pages
-          fi
+        uses: ./.github/actions/gh-pages-deploy
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          destination_dir: previews/pr-${{ github.event.number }}
+          commit_message: "chore: deploy preview for PR #${{ github.event.number }}"
+          exclude_assets: |
+            .git
+            .github
+            .gitignore
+            node_modules
+            tests
+            scripts
+            package-lock.json
+            package.json
+            milestones.yaml
+            project-stats.yaml
+            screenshots
 
       - name: Upload screenshots to GitHub
         id: upload-screenshots

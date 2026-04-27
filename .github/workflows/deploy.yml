@@ -27,51 +27,19 @@ jobs:
         run: npm run build
 
       - name: Deploy to GitHub Pages (gh-pages branch)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Fetch the existing gh-pages branch (silently skip if it doesn't exist yet)
-          git fetch origin gh-pages:refs/remotes/origin/gh-pages 2>/dev/null || true
-
-          # Check out gh-pages into a worktree so we can update it in-place.
-          # This preserves any existing content (e.g. previews/) — equivalent to keep_files: true.
-          if git rev-parse --verify refs/remotes/origin/gh-pages >/dev/null 2>&1; then
-            git branch --force gh-pages refs/remotes/origin/gh-pages
-            git worktree add /tmp/gh-pages gh-pages
-          else
-            # First-ever deploy: create an orphan gh-pages branch
-            git worktree add --orphan -b gh-pages /tmp/gh-pages
-          fi
-
-          # Ensure Jekyll processing is disabled
-          touch /tmp/gh-pages/.nojekyll
-
-          # Sync the built site into the worktree root.
-          # Excluded paths keep non-site files out of the deployment.
-          # Keep this list in sync with the exclude list in preview.yml
-          # (screenshots is an additional preview-only exclusion).
-          # .gitignore is excluded so it never lands in gh-pages; if it did,
-          # `git add -A` would silently skip script.js, styles.css and the
-          # generated data files (all listed in .gitignore).
-          rsync -a \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='.gitignore' \
-            --exclude='node_modules' \
-            --exclude='tests' \
-            --exclude='scripts' \
-            --exclude='package-lock.json' \
-            --exclude='package.json' \
-            --exclude='milestones.yaml' \
-            --exclude='project-stats.yaml' \
-            ./ /tmp/gh-pages/
-
-          cd /tmp/gh-pages
-          git add -A
-          if git diff --cached --quiet; then
-            echo "Nothing to deploy — gh-pages is already up to date"
-          else
-            git commit -m "chore: deploy $(git rev-parse --short HEAD) to gh-pages"
-            git push origin gh-pages
-          fi
+        uses: ./.github/actions/gh-pages-deploy
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          commit_message: "chore: deploy ${{ github.sha }} to gh-pages"
+          exclude_assets: |
+            .git
+            .github
+            .gitignore
+            node_modules
+            tests
+            scripts
+            package-lock.json
+            package.json
+            milestones.yaml
+            project-stats.yaml

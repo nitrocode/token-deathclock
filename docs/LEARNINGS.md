@@ -102,6 +102,7 @@ Every PR description (written by a human or agent) must follow this structure:
 | A2 | Enable TypeScript type-checking via `checkJs: true` in `tsconfig.json` with JSDoc annotations. This catches type errors in plain `.js` files without requiring a full TS migration. | #54 |
 | A3 | `death-clock-core.js` must never reference the DOM (`document`, `window`, `getElementById`, etc.). All DOM wiring belongs in `src/js/`. This boundary keeps the core unit-testable. | AGENTS.md |
 | A4 | The CommonJS + browser dual-export pattern (`module.exports` for Jest, `window.DeathClockCore` for the browser) must be maintained. Do not convert to ES modules without updating all consumers. | AGENTS.md |
+| A5 | Composite action outputs must be declared statically in `action.yml`. For dynamic per-filter outputs, expose a `changes` JSON blob output so callers can read any filter name. `git worktree remove --force` must be called at the end of any script that opens a worktree — otherwise a second call in the same job fails with "already checked out". | #— |
 
 ---
 
@@ -145,7 +146,16 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR #— refactor: extract reusable detect-changes workflow + fix injection + shell tests
+#### PR #— feat: composite actions for gh-pages-deploy and paths-filter with full test coverage
+
+- **Problem:** The `peaceiris/actions-gh-pages` and `dorny/paths-filter` replacements were implemented as inline shell scripts without a clean reusable-action interface, and `filter.js` was not tracked by codecov.
+- **Approach:** Created two composite actions (`.github/actions/paths-filter/` and `.github/actions/gh-pages-deploy/`) with inputs matching the original third-party actions. `detect-changes.yml` now uses `paths-filter` action. `deploy.yml` and `preview.yml` now use `gh-pages-deploy` action. `filter.js` exports all pure functions (injection-safe via env vars) and is added to `collectCoverageFrom` with per-file thresholds. 67 Jest tests cover `filter.js` at 99%/90% stmt/branch. 19 bash tests cover `deploy.sh`. Fixed injection in `preview-cleanup.yml` (moved `${{ github.event.number }}` to `env:`).
+- **Learning:** Composite actions must declare outputs statically; use `changes` (JSON) as a catch-all output for dynamic filter names. `git worktree remove --force` must be called at the end of any deploy script that creates a worktree, otherwise subsequent calls in the same job fail with "already checked out" errors. rsync's quick-check uses mtime+size — tests that write the same file twice in < 1 second must use different-length content to force detection. (→ A1, S5)
+- **Key files:** `.github/actions/paths-filter/action.yml`, `.github/actions/paths-filter/filter.js`, `.github/actions/gh-pages-deploy/action.yml`, `.github/actions/gh-pages-deploy/deploy.sh`, `tests/paths-filter.test.js`, `tests/gh-pages-deploy.test.sh`, `package.json`
+
+---
+
+
 
 - **Problem:** The `git diff` path-filter logic was duplicated verbatim in both `unit-tests.yml` and `e2e-tests.yml`, and each copy interpolated GitHub context values (`${{ github.event_name }}`, `${{ github.sha }}`, etc.) directly into `run:` scripts — an expression-injection anti-pattern.
 - **Approach:** Extracted the logic into `.github/scripts/detect-changes.sh` (reads all GitHub context from env vars, never from `${{ }}` interpolation). Wrapped it in a reusable `workflow_call` workflow (`.github/workflows/detect-changes.yml`) with `event_name` and `always_run` inputs and a `code` output. Both callers now use `uses: ./.github/workflows/detect-changes.yml`. Added 19 bash unit tests in `tests/detect-changes.test.sh` and an `npm run test:shell` script. The `test` job in `unit-tests.yml` runs shell tests in CI. The git failure fallback now outputs `code=true` (safe: run CI) rather than `code=false` (unsafe: silently skip CI).
