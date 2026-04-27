@@ -1,5 +1,7 @@
   // ---- Share Your Doom ----------------------------------------
 
+  const REDDIT_SHARE_TITLE = 'There\'s a live counter showing how much energy AI burns every second — the numbers are wild';
+
   function buildShareText() {
     const now     = Date.now();
     const elapsed = Math.floor((now - pageLoadTime) / 1000);
@@ -12,11 +14,20 @@
     const m = Math.floor(elapsed / 60);
     const s = elapsed % 60;
     const timeStr = m > 0 ? `${m}m ${s}s` : `${s}s`;
-    let text =
-      `💀 I just watched AI consume ${formatTokenCount(sessionTokens)} tokens ` +
-      `in the ${timeStr} I spent on this site.`;
-    if (equiv) text += `\nThat's ${equiv}.`;
-    text += `\nAnd it never stops.\n→ ${SITE_URL} #AIDeathClock #TokenDeathClock`;
+
+    // Friendly, jargon-free hooks — rotated randomly so repeated shares feel fresh.
+    // Avoid "tokens" (too technical) and spammy hashtags.
+    const hooks = [
+      `🤖 I just spent ${timeStr} watching a live counter of how much energy AI is burning. It's a lot.`,
+      `😬 There's a website that tracks AI's real-time energy use and I've been staring at it for ${timeStr}.`,
+      `💡 Spent ${timeStr} on a site showing AI's environmental cost ticking up live. You might want to see this.`,
+      `🌍 AI is quietly burning through enormous amounts of energy. Someone made a live counter. I've been watching for ${timeStr}.`,
+    ];
+    const hook = hooks[Math.floor(Math.random() * hooks.length)];
+
+    let text = hook;
+    if (equiv) text += `\nIn that time alone: ${equiv}.`;
+    text += `\n👉 ${SITE_URL}`;
     return text;
   }
 
@@ -113,8 +124,7 @@
     const redditBtn = document.getElementById('shareRedditBtn');
     if (redditBtn) {
       redditBtn.addEventListener('click', () => {
-        const title = 'I watched AI consume millions of tokens in real time — the numbers are terrifying';
-        openRedditShare(title);
+        openRedditShare(REDDIT_SHARE_TITLE);
         awardBadge('spreading_doom');
         if (options) options.hidden = true;
       });
@@ -173,7 +183,7 @@
 
   function initFooterShare() {
     const shareText = () => buildShareText();
-    const redditTitle = 'I watched AI consume millions of tokens in real time — the numbers are terrifying';
+    const redditTitle = REDDIT_SHARE_TITLE;
 
     const map = [
       { id: 'footerShareTwitter',  fn: () => openTwitterShare(shareText()) },
