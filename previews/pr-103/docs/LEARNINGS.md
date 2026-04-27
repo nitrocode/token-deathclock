@@ -143,7 +143,7 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR #95 — feat: implement Token Horoscope daily satirical AI horoscope (Phase 3 PRD #1)
+#### PR #103 — feat: implement Token Horoscope daily satirical AI horoscope (Phase 3 PRD #1)
 
 - **Problem:** The site had no daily-rotating content to drive return visits; Phase 3 PRD #1 (Token Horoscope) was the highest-impact lowest-effort unimplemented feature.
 - **Approach:** Added `HOROSCOPE_TEMPLATES` (30 entries) and `getDailyHoroscope(nowMs, templates)` pure function to `death-clock-core.js`; wired up a new `src/js/21-horoscope.js` DOM module with `<details>/<summary>` collapse, localStorage date tracking, and a share button reusing `openSharePopup()`.
