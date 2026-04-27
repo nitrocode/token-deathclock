@@ -36,13 +36,26 @@
       "/tests/e2e/"
     ],
     "collectCoverageFrom": [
-      "death-clock-core.js"
+      "death-clock-core.js",
+      "script.js"
     ],
     "coverageThreshold": {
       "global": {
         "lines": 80,
         "functions": 80,
         "branches": 70
+      },
+      "./death-clock-core.js": {
+        "statements": 80,
+        "functions": 80,
+        "branches": 70,
+        "lines": 80
+      },
+      "./script.js": {
+        "statements": 60,
+        "functions": 60,
+        "branches": 50,
+        "lines": 90
       }
     }
   }

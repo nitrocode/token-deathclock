@@ -1,4 +1,4 @@
-name: CI
+name: Unit Tests
 
 on:
   schedule:
@@ -61,23 +61,6 @@ jobs:
           verbose: true
           fail_ci_if_error: false
 
-  test-e2e:
-    needs: changes
-    if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: ./.github/actions/setup
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
-      - name: Build generated files
-        run: npm run build
-
-      - name: Run E2E tests
-        run: npm run test:e2e
-
   unit-test-status:
     needs: [changes, test]
     if: always()
@@ -90,16 +73,3 @@ jobs:
             exit 1
           fi
           echo "Unit tests passed or were skipped (no relevant files changed)"
-
-  e2e-test-status:
-    needs: [changes, test-e2e]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Report status
-        run: |
-          if [[ "${{ needs.test-e2e.result }}" == "failure" ]]; then
-            echo "E2E tests failed"
-            exit 1
-          fi
-          echo "E2E tests passed or were skipped (no relevant files changed)"
