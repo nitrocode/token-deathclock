@@ -176,11 +176,9 @@
     const extinctionMilestone = MILESTONES.find(m => m.extinctionMarker);
     if (!extinctionMilestone) return;
 
-    const tokens = getCurrentTokens();
-    const currentRate = getDynamicRate(new Date());
-    const tokensRemaining = extinctionMilestone.tokens - tokens;
+    const secsRemaining = computeExtinctionSecsRemaining(extinctionMilestone.tokens, Date.now());
 
-    if (tokensRemaining <= 0) {
+    if (secsRemaining <= 0) {
       // Extinction threshold reached — show zeroed-out timer
       _EXT_UNIT_IDS.forEach(id => {
         const el = document.getElementById(id);
@@ -189,7 +187,6 @@
       return;
     }
 
-    const secsRemaining = tokensRemaining / currentRate;
     const years    = Math.floor(secsRemaining / _EXT_SECS_PER_YEAR);
     const remAfterY = secsRemaining % _EXT_SECS_PER_YEAR;
     const days     = Math.floor(remAfterY / _EXT_SECS_PER_DAY);
