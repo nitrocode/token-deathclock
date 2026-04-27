@@ -1,0 +1,28 @@
+name: CodeRabbit Auto-Apply Suggestions
+
+on:
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  auto-apply:
+    # Only run when CodeRabbit posts a comment that contains a suggestion block.
+    if: |
+      github.event.comment.user.login == 'coderabbit-ai[bot]' &&
+      contains(github.event.comment.body, '```suggestion')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reply with @coderabbit apply
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            await github.rest.pulls.createReplyForReviewComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              comment_id: context.payload.comment.id,
+              body: '@coderabbit apply',
+            });
