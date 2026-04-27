@@ -148,7 +148,7 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 - **Problem:** The extinction countdown header displayed the seconds decreasing by ~2 per tick instead of 1, because `updateExtinctionCountdown` used `tokensRemaining / currentRate` (linear approximation) while `getCurrentTokens` uses an exponentially-growing integral model.
 - **Approach:** Added `computeExtinctionSecsRemaining(targetTokens, nowMs)` pure function to `death-clock-core.js` that solves the inverse of the cumulative-token integral (`tExtinction = ln(1 + (target - BASE_TOKENS)*k/R0)/k`). Since `tExtinction` is a constant and `tNow` advances by 1 s/s, the result decreases by exactly 1 per second. Updated `updateExtinctionCountdown` to use it. Added 6 unit tests including the key 1-second-per-tick invariant.
-- **Learning:** When displaying a countdown to a future token threshold, always invert the integral accumulation formula rather than using `tokensRemaining / currentRate`. The naïve linear formula ticks down by `(1 + secsRemaining * k)` per second, which is ~2× at typical extinction distances. (→ A3)
+- **Learning:** When displaying a countdown to a future token threshold, always invert the integral accumulation formula rather than using `tokensRemaining / currentRate`. The naïve linear formula ticks down by `(1 + secsRemaining * k)` per second, which is ~2× at typical extinction distances. (→ A5)
 - **Key files:** `death-clock-core.js`, `src/js/02-counter.js`, `src/js/00-state.js`, `tests/death-clock.test.js`
 
 ---
