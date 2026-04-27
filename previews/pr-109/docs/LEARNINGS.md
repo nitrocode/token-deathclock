@@ -115,8 +115,8 @@ Every PR description (written by a human or agent) must follow this structure:
 | S1 | All dynamic strings inserted via `innerHTML` must be escaped with `escHtml()` in `src/js/05-security.js`. Never assign untrusted data directly to `innerHTML`. | AGENTS.md |
 | S2 | GitHub Actions `uses:` references must be pinned to a full commit SHA with the semver tag as an inline comment (`@abc1234 # v3.1.0`). Mutable tags (`@v3`) can be silently redirected, creating a supply-chain risk. | AGENTS.md |
 | S3 | Dependabot is configured to open weekly PRs for GitHub Actions SHA bumps. Do not skip or dismiss those PRs. | AGENTS.md |
-| S4 | Prefer `actions/` (GitHub's official org) over third-party organisations for GitHub Actions steps. `peaceiris/actions-gh-pages` can be replaced with native `git worktree` + `rsync` shell commands; `dorny/paths-filter` can be replaced with a `git diff --name-only` shell step. | #— |
-| S5 | Always pass GitHub context values to shell scripts via `env:` vars (e.g. `GH_SHA: ${{ github.sha }}`), never by interpolating `${{ }}` directly inside `run:`. Inline interpolation allows expression injection if an attacker controls the context value. | #— |
+| S4 | Prefer `actions/` (GitHub's official org) over third-party organisations for GitHub Actions steps. `peaceiris/actions-gh-pages` can be replaced with native `git worktree` + `rsync` shell commands; `dorny/paths-filter` can be replaced with a `git diff --name-only` shell step. | #109 |
+| S5 | Always pass GitHub context values to shell scripts via `env:` vars (e.g. `GH_SHA: ${{ github.sha }}`), never by interpolating `${{ }}` directly inside `run:`. Inline interpolation allows expression injection if an attacker controls the context value. | #109 |
 
 ---
 
@@ -154,6 +154,15 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 - **Approach:** Replaced `peaceiris/actions-gh-pages` in `deploy.yml` and `preview.yml` with native `git worktree` + `rsync` shell steps that replicate `keep_files: true`, `destination_dir`, and `exclude_assets`. Replaced `dorny/paths-filter` in `unit-tests.yml` and `e2e-tests.yml` with a native `git diff --name-only` shell step and `fetch-depth: 0` checkout. Also added a per-PR `concurrency` group to `preview.yml` to serialize gh-pages pushes.
 - **Learning:** `git worktree add` is the cleanest way to check out a second branch (e.g. `gh-pages`) alongside the current checkout without a separate clone. Use `git branch --force <name> refs/remotes/origin/<name>` first so the worktree has a local tracking branch to push from. Always use `touch .nojekyll` in the gh-pages worktree to prevent Jekyll processing — peaceiris did this automatically. (→ S4)
 - **Key files:** `.github/workflows/deploy.yml`, `.github/workflows/preview.yml`, `.github/workflows/unit-tests.yml`, `.github/workflows/e2e-tests.yml`
+
+---
+
+#### PR #106 — feat: implement AI Guilt-O-Meter (Phase 3 PRD #2)
+
+- **Problem:** Phase 3 PRD #2 (AI Guilt-O-Meter) was the next unimplemented low-effort high-impact feature; the site lacked a persistent emotional hook to keep sessions engaged past the initial counter shock.
+- **Approach:** Added `GUILT_LABELS` constant and `getGuiltLabel(pct)` pure function to `death-clock-core.js` for unit-testability; created `src/js/22-guilt-meter.js` with `initGuiltMeter()` / `updateGuiltMeter()` updating on the existing 1s interval; added HTML `<progress>` element with ARIA attributes and a share button; renamed `22-boot.js` → `23-boot.js` to maintain strict sequential file ordering; added the `certified_hypocrite` badge to `BADGE_DEFS`.
+- **Learning:** Progress bar fill transitions in CSS require `appearance: none` plus browser-prefixed pseudo-elements (`::-webkit-progress-value`, `::-moz-progress-bar`) to render correctly across Chromium and Firefox. Always add both. (→ CSS)
+- **Key files:** `death-clock-core.js`, `src/js/22-guilt-meter.js`, `src/js/23-boot.js`, `src/js/14-badges.js`, `scripts/build-js.js`, `index.html`, `styles/features.css`, `tests/death-clock.test.js`
 
 ---
 
