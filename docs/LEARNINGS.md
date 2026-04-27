@@ -102,8 +102,9 @@ Every PR description (written by a human or agent) must follow this structure:
 | A2 | Enable TypeScript type-checking via `checkJs: true` in `tsconfig.json` with JSDoc annotations. This catches type errors in plain `.js` files without requiring a full TS migration. | #54 |
 | A3 | `death-clock-core.js` must never reference the DOM (`document`, `window`, `getElementById`, etc.). All DOM wiring belongs in `src/js/`. This boundary keeps the core unit-testable. | AGENTS.md |
 | A4 | The CommonJS + browser dual-export pattern (`module.exports` for Jest, `window.DeathClockCore` for the browser) must be maintained. Do not convert to ES modules without updating all consumers. | AGENTS.md |
-| A5 | Composite action outputs must be declared statically in `action.yml`. For dynamic per-filter outputs (filter names unknown at authoring time), expose a `changes` JSON blob output so callers can read any filter name without needing static declarations for each. | #109 |
-| A6 | `git worktree remove --force` must be called at the end of any deploy script that opens a worktree. Without cleanup, a second call in the same job fails with "already checked out at path". In tests, use different-length file content when writing to the same path twice within a second — rsync's quick-check uses mtime+size and will skip a same-size same-mtime file. | #109 |
+| A5 | When displaying a countdown to a future token threshold, invert the integral accumulation formula (`tExtinction = ln(1+(target-BASE_TOKENS)*k/R0)/k`) rather than using `tokensRemaining / currentRate`. The naïve linear formula ticks down by `1 + secsRemaining*k` per second (~2 at typical extinction distances). | #107 |
+| A6 | Composite action outputs must be declared statically in `action.yml`. For dynamic per-filter outputs (filter names unknown at authoring time), expose a `changes` JSON blob output so callers can read any filter name without needing static declarations for each. | #109 |
+| A7 | `git worktree remove --force` must be called at the end of any deploy script that opens a worktree. Without cleanup, a second call in the same job fails with "already checked out at path". In tests, use different-length file content when writing to the same path twice within a second — rsync's quick-check uses mtime+size and will skip a same-size same-mtime file. | #109 |
 
 ---
 
@@ -147,45 +148,21 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
-#### PR `#109` fix: codecov line coverage restored, trailing-slash directory patterns, keep_files and glob coverage
-
-- **Problem:** Adding `filter.js` to Jest coverage dropped project-wide line coverage below 100% (line 294 — the `if (require.main === module)` guard — was uncovered), triggering codecov's zero-tolerance threshold. `deploy.yml` didn't explicitly set `keep_files: true`. Filter patterns had no way to unambiguously target a directory vs a file with the same name.
-- **Approach:** (1) Added `/* istanbul ignore next */` to the main-module guard (standard Node.js pattern; impossible to cover without spawning a subprocess); (2) added 12 targeted tests to cover all remaining uncovered branches — `computeBase` default case with empty SHA, `runFilter` with `undefined` listFiles, `getChangedFiles` error paths with empty stderr, and three `main()` env-var fallback paths; (3) implemented trailing-slash directory pattern support directly in `globToRegex` (`src/` → internally treated as `src/**`), with disambiguation vs a same-name file guaranteed because git diff only returns file paths, never bare directory names; (4) widened `collectCoverageFrom` from a specific path to `.github/actions/**/*.js` so any future action scripts are auto-tracked; (5) added `keep_files: true` to `deploy.yml`.
-- **Learning:** Adding a new file to `collectCoverageFrom` that has even one uncovered line can drop project-wide LINE coverage, triggering codecov's `threshold: 100%` zero-tolerance check. Use `/* istanbul ignore next */` on `if (require.main === module)` in every Node.js action script — it's a standard guard that can only run outside a test context. `||` operators create Istanbul "binary-expr" branches; both sides must be exercised. Use a glob (`.github/actions/**/*.js`) in `collectCoverageFrom` so new action scripts are automatically tracked. Trailing `/` on a filter pattern is unambiguous in git-diff context: `src/` matches files inside `src/`; `src` matches only a file literally named `src` at that path. (→ T5, A5)
-- **Key files:** `.github/actions/paths-filter/filter.js`, `package.json`, `.github/workflows/deploy.yml`, `tests/paths-filter.test.js`, `docs/LEARNINGS.md`
-
----
-
-
-
-#### PR `#109` feat: convert shell scripts to composite actions with full test coverage
-
-- **Problem:** The `peaceiris/actions-gh-pages` and `dorny/paths-filter` replacements were implemented as inline shell scripts without a clean reusable-action interface, and `filter.js` was not tracked by codecov.
-- **Approach:** Created two composite actions (`.github/actions/paths-filter/` and `.github/actions/gh-pages-deploy/`) with inputs matching the original third-party actions. `detect-changes.yml` now uses `paths-filter` action. `deploy.yml` and `preview.yml` now use `gh-pages-deploy` action. `filter.js` exports all pure functions (injection-safe via env vars) and is added to `collectCoverageFrom` with per-file thresholds. 67 Jest tests cover `filter.js` at 99%/90% stmt/branch. 19 bash tests cover `deploy.sh`. Fixed injection in `preview-cleanup.yml` (moved `${{ github.event.number }}` to `env:`).
-- **Learning:** Composite actions must declare outputs statically; use `changes` (JSON) as a catch-all output for dynamic filter names. `git worktree remove --force` must be called at the end of any deploy script that creates a worktree, otherwise subsequent calls in the same job fail with "already checked out" errors. rsync's quick-check uses mtime+size — tests that write the same file twice in < 1 second must use different-length content to force detection. (→ A5, A6)
-- **Key files:** `.github/actions/paths-filter/action.yml`, `.github/actions/paths-filter/filter.js`, `.github/actions/gh-pages-deploy/action.yml`, `.github/actions/gh-pages-deploy/deploy.sh`, `tests/paths-filter.test.js`, `tests/gh-pages-deploy.test.sh`, `package.json`
-
----
-
-
-
-#### PR `#109` refactor: deduplicate git diff logic with reusable workflow and shell tests
-
-- **Problem:** The `git diff` path-filter logic was duplicated verbatim in both `unit-tests.yml` and `e2e-tests.yml`, and each copy interpolated GitHub context values (`${{ github.event_name }}`, `${{ github.sha }}`, etc.) directly into `run:` scripts — an expression-injection anti-pattern.
-- **Approach:** Extracted the logic into `.github/scripts/detect-changes.sh` (reads all GitHub context from env vars, never from `${{ }}` interpolation). Wrapped it in a reusable `workflow_call` workflow (`.github/workflows/detect-changes.yml`) with `event_name` and `always_run` inputs and a `code` output. Both callers now use `uses: ./.github/workflows/detect-changes.yml`. Added 19 bash unit tests in `tests/detect-changes.test.sh` and an `npm run test:shell` script. The `test` job in `unit-tests.yml` runs shell tests in CI. The git failure fallback now outputs `code=true` (safe: run CI) rather than `code=false` (unsafe: silently skip CI).
-- **Learning:** Pass `event_name` as an explicit `string` input to reusable workflows because `github.event_name` inside a `workflow_call` callee is always `"workflow_call"`, not the original triggering event. The `github.event` payload and `github.sha` are inherited correctly. Always default to the "run CI" safe side when git diff fails on an unresolvable ref. (→ S4, S5)
-- **Key files:** `.github/scripts/detect-changes.sh`, `.github/workflows/detect-changes.yml`, `tests/detect-changes.test.sh`, `package.json`, `.github/workflows/unit-tests.yml`, `.github/workflows/e2e-tests.yml`
-
----
-
-
-
 #### PR `#109` refactor: replace third-party actions with native git worktree and diff
 
 - **Problem:** Two third-party GitHub Actions (`peaceiris/actions-gh-pages` and `dorny/paths-filter`) added supply-chain risk from less-known organisations when native equivalents exist.
 - **Approach:** Replaced `peaceiris/actions-gh-pages` in `deploy.yml` and `preview.yml` with native `git worktree` + `rsync` shell steps that replicate `keep_files: true`, `destination_dir`, and `exclude_assets`. Replaced `dorny/paths-filter` in `unit-tests.yml` and `e2e-tests.yml` with a native `git diff --name-only` shell step and `fetch-depth: 0` checkout. Also added a per-PR `concurrency` group to `preview.yml` to serialize gh-pages pushes.
 - **Learning:** `git worktree add` is the cleanest way to check out a second branch (e.g. `gh-pages`) alongside the current checkout without a separate clone. Use `git branch --force <name> refs/remotes/origin/<name>` first so the worktree has a local tracking branch to push from. Always use `touch .nojekyll` in the gh-pages worktree to prevent Jekyll processing — peaceiris did this automatically. (→ S4)
 - **Key files:** `.github/workflows/deploy.yml`, `.github/workflows/preview.yml`, `.github/workflows/unit-tests.yml`, `.github/workflows/e2e-tests.yml`
+
+---
+
+#### PR #107 — fix: extinction countdown ticks down by 2 seconds instead of 1
+
+- **Problem:** The extinction countdown header displayed the seconds decreasing by ~2 per tick instead of 1, because `updateExtinctionCountdown` used `tokensRemaining / currentRate` (linear approximation) while `getCurrentTokens` uses an exponentially-growing integral model.
+- **Approach:** Added `computeExtinctionSecsRemaining(targetTokens, nowMs)` pure function to `death-clock-core.js` that solves the inverse of the cumulative-token integral (`tExtinction = ln(1 + (target - BASE_TOKENS)*k/R0)/k`). Since `tExtinction` is a constant and `tNow` advances by 1 s/s, the result decreases by exactly 1 per second. Updated `updateExtinctionCountdown` to use it. Added 6 unit tests including the key 1-second-per-tick invariant.
+- **Learning:** When displaying a countdown to a future token threshold, always invert the integral accumulation formula rather than using `tokensRemaining / currentRate`. The naïve linear formula ticks down by `(1 + secsRemaining * k)` per second, which is ~2× at typical extinction distances. (→ A5)
+- **Key files:** `death-clock-core.js`, `src/js/02-counter.js`, `src/js/00-state.js`, `tests/death-clock.test.js`
 
 ---
 
