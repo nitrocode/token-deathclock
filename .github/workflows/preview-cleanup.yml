@@ -17,13 +17,21 @@ jobs:
           ref: gh-pages
 
       - name: Remove PR preview directory
+        env:
+          PR_NUMBER: ${{ github.event.number }}
         run: |
-          PR_DIR="previews/pr-${{ github.event.number }}"
+          # Validate PR_NUMBER is a positive integer to guard against malformed
+          # context values that could produce an unexpected directory path.
+          if [[ ! "${PR_NUMBER}" =~ ^[0-9]+$ ]]; then
+            echo "Unexpected PR_NUMBER value: '${PR_NUMBER}' — aborting cleanup" >&2
+            exit 1
+          fi
+          PR_DIR="previews/pr-${PR_NUMBER}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -d "$PR_DIR" ]; then
             git rm -rf "$PR_DIR"
-            git commit -m "chore: remove preview for PR #${{ github.event.number }}"
+            git commit -m "chore: remove preview for PR #${PR_NUMBER}"
             git push
             echo "Removed $PR_DIR"
           else

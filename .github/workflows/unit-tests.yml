@@ -14,27 +14,12 @@ permissions:
 
 jobs:
   changes:
-    runs-on: ubuntu-latest
-    outputs:
+    uses: ./.github/workflows/detect-changes.yml
+    with:
+      event_name: ${{ github.event_name }}
       # On scheduled runs there is no diff to compare — always run tests.
       # On push/PR, only run when relevant files changed.
-      code: ${{ github.event_name == 'schedule' || steps.filter.outputs.code == 'true' }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Detect relevant file changes
-        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
-        if: github.event_name != 'schedule'
-        id: filter
-        with:
-          filters: |
-            code:
-              - '**/*.js'
-              - '**/*.ts'
-              - '**/*.css'
-              - 'tests/**'
-              - 'package*.json'
+      always_run: ${{ github.event_name == 'schedule' }}
 
   test:
     needs: changes
@@ -53,6 +38,9 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:ci
 
+      - name: Run shell script tests
+        run: npm run test:shell
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
@@ -68,8 +56,9 @@ jobs:
     steps:
       - name: Report status
         run: |
-          if [[ "${{ needs.test.result }}" == "failure" ]]; then
+          if [[ "${{ needs.test.result }}" == "failure" || "${{ needs.changes.result }}" == "failure" ]]; then
             echo "Unit tests failed"
             exit 1
           fi
           echo "Unit tests passed or were skipped (no relevant files changed)"
+
