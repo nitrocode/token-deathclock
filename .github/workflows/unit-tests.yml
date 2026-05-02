@@ -56,7 +56,7 @@ jobs:
     steps:
       - name: Report status
         run: |
-          if [[ "${{ needs.test.result }}" == "failure" ]]; then
+          if [[ "${{ needs.test.result }}" == "failure" || "${{ needs.changes.result }}" == "failure" ]]; then
             echo "Unit tests failed"
             exit 1
           fi

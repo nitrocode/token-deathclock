@@ -31,6 +31,12 @@ EXCLUDE_ASSETS="${INPUT_EXCLUDE_ASSETS:-.github}"
 
 WORKTREE_DIR="$(mktemp -d)"
 
+# Ensure the worktree is always removed on exit, even if the script fails midway.
+cleanup() {
+  git worktree remove --force "${WORKTREE_DIR}" 2>/dev/null || rm -rf "${WORKTREE_DIR}"
+}
+trap cleanup EXIT
+
 git config user.name "${USER_NAME}"
 git config user.email "${USER_EMAIL}"
 
@@ -72,9 +78,8 @@ fi
 
 mkdir -p "${DEST}"
 
-# When keep_files is false and deploying to a subdirectory, clear stale content
-# so deleted files don't linger.  Root deployments always preserve other content
-# (e.g. the previews/ directory) regardless of keep_files.
+# When keep_files is false and deploying to a subdirectory, pre-clear the
+# destination so deleted files don't linger before rsync runs.
 if [[ "${KEEP_FILES}" != "true" && -n "${DESTINATION_DIR}" ]]; then
   # Suppress errors (|| true): a non-zero exit here means DEST is already empty
   # or a file is already gone — both are harmless.  Genuine failures (e.g.
@@ -82,14 +87,18 @@ if [[ "${KEEP_FILES}" != "true" && -n "${DESTINATION_DIR}" ]]; then
   find "${DEST}" -mindepth 1 -delete 2>/dev/null || true
 fi
 
-# Ensure Jekyll processing is disabled (unless explicitly opted out)
-if [[ "${DISABLE_NOJEKYLL}" != "true" ]]; then
-  touch "${WORKTREE_DIR}/.nojekyll"
-fi
-
 # Build rsync --exclude flags from EXCLUDE_ASSETS.
 # Supports both newline-separated and comma-separated values.
 RSYNC_EXCLUDES=()
+# Always protect the .git worktree reference file so rsync --delete never
+# removes it (it only exists in DEST, not in PUBLISH_DIR, so without this
+# exclude the --delete flag would wipe it and break subsequent git commands).
+RSYNC_EXCLUDES+=("--exclude=.git")
+# For root deploys with keep_files=false, protect previews/ so rsync --delete
+# doesn't remove preview directories that live alongside the production content.
+if [[ -z "${DESTINATION_DIR}" && "${KEEP_FILES}" != "true" ]]; then
+  RSYNC_EXCLUDES+=("--exclude=previews/")
+fi
 while IFS= read -r item; do
   # Trim leading and trailing whitespace
   item="${item#"${item%%[![:space:]]*}"}"
@@ -97,8 +106,18 @@ while IFS= read -r item; do
   [[ -n "${item}" ]] && RSYNC_EXCLUDES+=("--exclude=${item}")
 done < <(printf '%s\n' "${EXCLUDE_ASSETS}" | tr ',' '\n')
 
-# Sync source into destination
-rsync -a ${RSYNC_EXCLUDES[@]+"${RSYNC_EXCLUDES[@]}"} "${PUBLISH_DIR%/}/" "${DEST}/"
+# Sync source into destination.
+# Pass --delete when keep_files is false so stale files are removed — for root
+# deploys this is the only mechanism (the find-based clear above is skipped).
+DELETE_FLAG=()
+[[ "${KEEP_FILES}" != "true" ]] && DELETE_FLAG=("--delete")
+rsync -a "${DELETE_FLAG[@]}" ${RSYNC_EXCLUDES[@]+"${RSYNC_EXCLUDES[@]}"} "${PUBLISH_DIR%/}/" "${DEST}/"
+
+# Ensure Jekyll processing is disabled after rsync (so rsync --delete cannot
+# remove it — we create it after the sync, not before).
+if [[ "${DISABLE_NOJEKYLL}" != "true" ]]; then
+  touch "${WORKTREE_DIR}/.nojekyll"
+fi
 
 cd "${WORKTREE_DIR}"
 git add -A
@@ -110,8 +129,6 @@ else
   echo "Deployed to ${PUBLISH_BRANCH}${DESTINATION_DIR:+/${DESTINATION_DIR}}"
 fi
 
-# Unregister and remove the worktree to avoid conflicts when the action is
-# called multiple times within the same job (e.g. a preview workflow that
-# deploys the site and then uploads screenshots).
+# Return to the main working directory so the EXIT trap's `git worktree remove`
+# does not fail with "is the current directory" when the script exits.
 cd -
-git worktree remove --force "${WORKTREE_DIR}" 2>/dev/null || rm -rf "${WORKTREE_DIR}"

@@ -228,20 +228,20 @@ function runFilter(changedFiles, filtersMap, listFiles) {
 function getChangedFiles(base, sha) {
   const isEmpty = !base || base === '0000000000000000000000000000000000000000';
   if (isEmpty) {
-    const r = spawnSync('git', ['ls-files'], { encoding: 'utf8' });
+    const r = spawnSync('git', ['ls-files', '-z'], { encoding: 'utf8' });
     if (r.status !== 0) {
       return { files: [], error: `git ls-files failed: ${r.stderr || '(no stderr)'}` };
     }
-    return { files: r.stdout.trim().split('\n').filter(Boolean), error: null };
+    return { files: r.stdout.split('\0').filter(Boolean), error: null };
   }
-  const r = spawnSync('git', ['diff', '--name-only', base, sha], { encoding: 'utf8' });
+  const r = spawnSync('git', ['diff', '--name-only', '-z', base, sha], { encoding: 'utf8' });
   if (r.status !== 0) {
     return {
       files: [],
       error: `git diff failed for base '${base}': ${r.stderr || '(no stderr)'}`,
     };
   }
-  return { files: r.stdout.trim().split('\n').filter(Boolean), error: null };
+  return { files: r.stdout.split('\0').filter(Boolean), error: null };
 }
 
 // ---------------------------------------------------------------------------
@@ -270,6 +270,13 @@ function main() {
   const { files, error } = getChangedFiles(base, sha);
 
   const filtersMap = parseFilters(filtersYaml);
+
+  if (Object.keys(filtersMap).length === 0) {
+    process.stderr.write('paths-filter: no valid filters parsed from INPUT_FILTERS — check your filters: input\n');
+    process.exitCode = 1;
+    return;
+  }
+
   let outputLines;
 
   if (error) {

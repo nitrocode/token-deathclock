@@ -4,10 +4,13 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-# Serialize gh-pages pushes per PR; cancel in-progress runs when a new push arrives.
+# Serialize ALL gh-pages pushes under one shared lock so preview and production
+# deploys never push to the branch simultaneously (which causes non-fast-forward
+# failures).  Using cancel-in-progress: false queues preview builds safely behind
+# any in-flight production deploy instead of cancelling it.
 concurrency:
-  group: "pages-preview-${{ github.event.number }}"
-  cancel-in-progress: true
+  group: "pages"
+  cancel-in-progress: false
 
 permissions:
   contents: write

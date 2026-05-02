@@ -39,6 +39,7 @@ const ENV_KEYS = [
 
 beforeEach(() => {
   ENV_KEYS.forEach(k => delete process.env[k]);
+  process.exitCode = 0;
   jest.clearAllMocks();
 });
 
@@ -445,24 +446,24 @@ describe('runFilter', () => {
 
 describe('getChangedFiles', () => {
   test('uses git ls-files when base is empty', () => {
-    spawnSync.mockReturnValue({ status: 0, stdout: 'a.js\nb.js\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'a.js\0b.js\0', stderr: '' });
     const { files, error } = getChangedFiles('', 'HEAD');
-    expect(spawnSync).toHaveBeenCalledWith('git', ['ls-files'], { encoding: 'utf8' });
+    expect(spawnSync).toHaveBeenCalledWith('git', ['ls-files', '-z'], { encoding: 'utf8' });
     expect(files).toEqual(['a.js', 'b.js']);
     expect(error).toBeNull();
   });
 
   test('uses git ls-files when base is all-zeros', () => {
-    spawnSync.mockReturnValue({ status: 0, stdout: 'a.js\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'a.js\0', stderr: '' });
     getChangedFiles('0000000000000000000000000000000000000000', 'HEAD');
-    expect(spawnSync).toHaveBeenCalledWith('git', ['ls-files'], { encoding: 'utf8' });
+    expect(spawnSync).toHaveBeenCalledWith('git', ['ls-files', '-z'], { encoding: 'utf8' });
   });
 
   test('uses git diff when base is a real SHA', () => {
-    spawnSync.mockReturnValue({ status: 0, stdout: 'changed.js\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'changed.js\0', stderr: '' });
     const { files, error } = getChangedFiles('abc123', 'def456');
     expect(spawnSync).toHaveBeenCalledWith(
-      'git', ['diff', '--name-only', 'abc123', 'def456'], { encoding: 'utf8' },
+      'git', ['diff', '--name-only', '-z', 'abc123', 'def456'], { encoding: 'utf8' },
     );
     expect(files).toEqual(['changed.js']);
     expect(error).toBeNull();
@@ -496,8 +497,10 @@ describe('getChangedFiles', () => {
     expect(error).toContain('(no stderr)');
   });
 
-  test('filters out empty lines from output', () => {
-    spawnSync.mockReturnValue({ status: 0, stdout: 'a.js\n\nb.js\n', stderr: '' });
+  test('filters out empty entries from NUL-delimited output', () => {
+    // A trailing NUL (as git -z always appends) produces an empty split entry
+    // that filter(Boolean) must discard.
+    spawnSync.mockReturnValue({ status: 0, stdout: 'a.js\0b.js\0', stderr: '' });
     const { files } = getChangedFiles('abc', 'def');
     expect(files).toEqual(['a.js', 'b.js']);
   });
@@ -530,7 +533,7 @@ describe('main', () => {
       INPUT_SHA: 'head-sha',
       GITHUB_OUTPUT: '/tmp/test-output',
     });
-    spawnSync.mockReturnValue({ status: 0, stdout: 'src/app.js\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'src/app.js\0', stderr: '' });
 
     main();
 
@@ -551,7 +554,7 @@ describe('main', () => {
       INPUT_SHA: 'head-sha',
       GITHUB_OUTPUT: '/tmp/test-output',
     });
-    spawnSync.mockReturnValue({ status: 0, stdout: 'README.md\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'README.md\0', stderr: '' });
 
     main();
 
@@ -572,12 +575,12 @@ describe('main', () => {
       INPUT_SHA: 'head-sha',
       GITHUB_OUTPUT: '/tmp/test-output',
     });
-    spawnSync.mockReturnValue({ status: 0, stdout: 'app.ts\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'app.ts\0', stderr: '' });
 
     main();
 
     expect(spawnSync).toHaveBeenCalledWith(
-      'git', ['diff', '--name-only', 'explicit-base', 'head-sha'], { encoding: 'utf8' },
+      'git', ['diff', '--name-only', '-z', 'explicit-base', 'head-sha'], { encoding: 'utf8' },
     );
   });
 
@@ -611,7 +614,7 @@ describe('main', () => {
       GH_MERGE_BASE_SHA: '',
       INPUT_SHA: 'HEAD',
     });
-    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\0', stderr: '' });
 
     main();
 
@@ -628,7 +631,7 @@ describe('main', () => {
       INPUT_SHA: 'HEAD',
       GITHUB_OUTPUT: '/tmp/test-output',
     });
-    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\0', stderr: '' });
     fs.appendFileSync.mockImplementation(() => { throw new Error('disk full'); });
 
     // Should not throw
@@ -646,12 +649,12 @@ describe('main', () => {
       GITHUB_OUTPUT: '/tmp/test-output',
       // INPUT_SHA intentionally omitted → defaults to 'HEAD'
     });
-    spawnSync.mockReturnValue({ status: 0, stdout: 'app.ts\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'app.ts\0', stderr: '' });
 
     main();
 
     expect(spawnSync).toHaveBeenCalledWith(
-      'git', ['diff', '--name-only', 'before-sha', 'HEAD'], { encoding: 'utf8' },
+      'git', ['diff', '--name-only', '-z', 'before-sha', 'HEAD'], { encoding: 'utf8' },
     );
   });
 
@@ -666,17 +669,17 @@ describe('main', () => {
       INPUT_SHA: 'HEAD',
       GITHUB_OUTPUT: '/tmp/test-output',
     });
-    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\0', stderr: '' });
 
     main();
 
     // With no event name, computeBase defaults to mergeBaseSha (empty) →
     // getChangedFiles uses git ls-files (empty base)
-    expect(spawnSync).toHaveBeenCalledWith('git', ['ls-files'], { encoding: 'utf8' });
+    expect(spawnSync).toHaveBeenCalledWith('git', ['ls-files', '-z'], { encoding: 'utf8' });
   });
 
-  test('INPUT_FILTERS defaults to empty string when not set, producing empty output', () => {
-    // Covers the falsy branch of `process.env.INPUT_FILTERS || ''`
+  test('exits with code 1 when INPUT_FILTERS is not set (fail-fast guard)', () => {
+    // Covers the fail-fast guard: empty filtersMap → process.exitCode = 1 + early return
     setEnv({
       // INPUT_FILTERS intentionally omitted → defaults to ''
       INPUT_EVENT_NAME: 'push',
@@ -686,14 +689,12 @@ describe('main', () => {
       INPUT_SHA: 'HEAD',
       GITHUB_OUTPUT: '/tmp/test-output',
     });
-    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\n', stderr: '' });
+    spawnSync.mockReturnValue({ status: 0, stdout: 'app.js\0', stderr: '' });
 
     main();
 
-    // Empty filters → output is just the changes JSON with no filter groups
-    expect(fs.appendFileSync).toHaveBeenCalledWith(
-      '/tmp/test-output',
-      expect.stringContaining('changes={}'),
-    );
+    // Empty filters → fail-fast guard sets exit code 1 and returns before writing output
+    expect(process.exitCode).toBe(1);
+    expect(fs.appendFileSync).not.toHaveBeenCalled();
   });
 });

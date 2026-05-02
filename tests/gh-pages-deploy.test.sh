@@ -102,7 +102,7 @@ setup_repos() {
 # run_deploy [KEY=VAL ...] — runs deploy.sh inside TMPWORK with given env vars
 run_deploy() {
   (
-    cd "${TMPWORK}"
+    cd "${TMPWORK}" || exit 1
     env \
       INPUT_GITHUB_TOKEN="" \
       INPUT_PUBLISH_BRANCH="gh-pages" \
@@ -353,6 +353,65 @@ run_deploy
 
 actual=$(file_in_branch "gh-pages" "index.html")
 assert "update: second deploy updates file" "version two content — updated" "${actual}"
+
+# ---------------------------------------------------------------------------
+# Test: root deploy with keep_files=false removes stale files
+# ---------------------------------------------------------------------------
+echo ""
+echo "=== gh-pages-deploy — root deploy removes stale files ==="
+echo ""
+
+cleanup; setup_repos
+
+# Initial root deploy with a file that will become stale
+echo "stale content" > "${TMPSRC}/stale.html"
+echo "keep content"  > "${TMPSRC}/keep.html"
+run_deploy
+
+# Second deploy without stale.html (keep_files defaults to false)
+rm "${TMPSRC}/stale.html"
+echo "new content" > "${TMPSRC}/new.html"
+run_deploy
+
+actual=$(file_in_branch "gh-pages" "new.html")
+assert "root deploy keep_files=false: new file deployed" "new content" "${actual}"
+
+actual=$(file_in_branch "gh-pages" "keep.html")
+assert "root deploy keep_files=false: unchanged file kept" "keep content" "${actual}"
+
+actual=$(file_in_branch "gh-pages" "stale.html")
+assert "root deploy keep_files=false: stale file removed" "__MISSING__" "${actual}"
+
+# ---------------------------------------------------------------------------
+# Test: root deploy with keep_files=false preserves previews/ directory
+# ---------------------------------------------------------------------------
+echo ""
+echo "=== gh-pages-deploy — root deploy preserves previews/ ==="
+echo ""
+
+# previews/ was created in the previous test setup via a subdirectory deploy
+cleanup; setup_repos
+
+# Step 1: root deploy to create the branch
+echo "site version one" > "${TMPSRC}/index.html"
+run_deploy
+
+# Step 2: subdirectory deploy to simulate a preview
+echo "preview content" > "${TMPSRC}/preview.html"
+run_deploy INPUT_DESTINATION_DIR="previews/pr-99"
+
+# Step 3: new root deploy — previews/ must NOT be wiped
+rm "${TMPSRC}/preview.html"
+# Use a different-length string so rsync's mtime+size quick-check detects the change
+# even when both writes happen within the same second.
+echo "site version two — updated" > "${TMPSRC}/index.html"
+run_deploy
+
+actual=$(file_in_branch "gh-pages" "index.html")
+assert "root deploy preserves previews/: root file updated" "site version two — updated" "${actual}"
+
+actual=$(file_in_branch "gh-pages" "previews/pr-99/preview.html")
+assert "root deploy preserves previews/: previews/ directory preserved" "preview content" "${actual}"
 
 # ---------------------------------------------------------------------------
 # Summary

@@ -72,6 +72,12 @@ jobs:
               - '**/*.js'
               - '**/*.ts'
               - '**/*.css'
+              - '.github/actions/**/*.sh'
+              - '.github/actions/**/*.yml'
+              - '.github/actions/**/*.yaml'
+              - '.github/scripts/**/*.sh'
+              - '.github/workflows/**/*.yml'
+              - '.github/workflows/**/*.yaml'
               - 'tests/**'
               - 'package*.json'
 
