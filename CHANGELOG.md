@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.7.0...ai-death-clock-v1.8.0) (2026-05-05)
+
+
+### Added
+
+* auto-reply Add GitHub Actions workflow for CodeRabbit suggestion replies apply on CodeRabbit suggestion comments ([#105](https://github.com/nitrocode/token-deathclock/issues/105)) ([a794491](https://github.com/nitrocode/token-deathclock/commit/a79449189427d183407a969683b39d7c77edeed3))
+* badge click-reveal with animated transitions ([#95](https://github.com/nitrocode/token-deathclock/issues/95)); ([2442787](https://github.com/nitrocode/token-deathclock/commit/2442787bca4919e9b96eb953fcfa9775ce4f2947))
+* implement AI Guilt-O-Meter (Phase 3 PRD [#2](https://github.com/nitrocode/token-deathclock/issues/2)) ([#106](https://github.com/nitrocode/token-deathclock/issues/106)) ([07b4e8b](https://github.com/nitrocode/token-deathclock/commit/07b4e8b8677e251f985bd425f65ca7ffec7880f2))
+* implement Token Horoscope daily satirical AI horoscope (Phase 3 PRD [#1](https://github.com/nitrocode/token-deathclock/issues/1)) ([#103](https://github.com/nitrocode/token-deathclock/issues/103)) ([a2401ee](https://github.com/nitrocode/token-deathclock/commit/a2401ee60dadf124047c27d57632fb59cd00bc30))
+* improve share text to be friendly and accessible across all platforms ([#104](https://github.com/nitrocode/token-deathclock/issues/104)) ([eb6fe3b](https://github.com/nitrocode/token-deathclock/commit/eb6fe3b4db90221708049ebfa1519df7f70cb06a))
+* track script.js in Codecov, fix broken CI badges, add 71 DOM tests ([#101](https://github.com/nitrocode/token-deathclock/issues/101)) ([a76dc50](https://github.com/nitrocode/token-deathclock/commit/a76dc509fdbeb1992aae27126f10a742ce537212))
+
+
+### Fixed
+
+* add +N pop animations to "Your Tab (Running)" strip ([#97](https://github.com/nitrocode/token-deathclock/issues/97)) ([c11d5e0](https://github.com/nitrocode/token-deathclock/commit/c11d5e0ce94578842fb25e9e7f2e4a5a52c7e8dd))
+* **deps:** lock file maintenance in package.json ([#100](https://github.com/nitrocode/token-deathclock/issues/100)) ([a767af8](https://github.com/nitrocode/token-deathclock/commit/a767af8cc013169080f2dfb0949aeb064db96b0d))
+* **deps:** lock file maintenance in package.json ([#102](https://github.com/nitrocode/token-deathclock/issues/102)) ([44cfda6](https://github.com/nitrocode/token-deathclock/commit/44cfda608e279629b27edddaf86b27041a15522e))
+* **deps:** lock file maintenance in package.json ([#111](https://github.com/nitrocode/token-deathclock/issues/111)) ([efe2209](https://github.com/nitrocode/token-deathclock/commit/efe220987d1b357e5c4557a79706c558269657d8))
+* **deps:** update node.js to v24 in .nvmrc ([#99](https://github.com/nitrocode/token-deathclock/issues/99)) ([5b77c81](https://github.com/nitrocode/token-deathclock/commit/5b77c818aad0d38d194420226b4a0b303dc289ab))
+* extinction countdown ticks down by 2 seconds instead of 1 ([#107](https://github.com/nitrocode/token-deathclock/issues/107)) ([d2d12fa](https://github.com/nitrocode/token-deathclock/commit/d2d12fa2bef372d81a7bd4a66747c1124858db24))
+
+
+### Documentation
+
+* add LEARNINGS.md and PR template for AI agent guidance ([#98](https://github.com/nitrocode/token-deathclock/issues/98)) ([dcd0456](https://github.com/nitrocode/token-deathclock/commit/dcd045668f938ce2551e46260e81534fb8d42b97))
+* add Phase 3 PRDs for 8 new satirical features ([#94](https://github.com/nitrocode/token-deathclock/issues/94)) ([08a5afa](https://github.com/nitrocode/token-deathclock/commit/08a5afab985563638657341275876884bfad1471))
+
 ## [1.7.0](https://github.com/nitrocode/token-deathclock/compare/ai-death-clock-v1.6.0...ai-death-clock-v1.7.0) (2026-04-26)
 
 
