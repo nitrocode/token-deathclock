@@ -27,16 +27,20 @@ jobs:
         run: npm run build
 
       - name: Deploy to GitHub Pages (gh-pages branch)
-        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
+        uses: ./.github/actions/gh-pages-deploy
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          # Preserve any existing PR preview directories across production deploys
+          publish_dir: ./
           keep_files: true
-          # Exclude non-site files from the deployment.
-          # Keep this list in sync with the exclude_assets in preview.yml
-          # (screenshots is an additional preview-only exclusion).
-          # .gitignore is excluded here too: if it lands in peaceiris's gh-pages temp
-          # clone, `git add --all` would silently skip script.js, styles.css and the
-          # generated data files (all listed in .gitignore).
-          exclude_assets: '.github,.gitignore,node_modules,tests,scripts,package-lock.json,package.json,milestones.yaml,project-stats.yaml'
+          commit_message: "chore: deploy ${{ github.sha }} to gh-pages"
+          exclude_assets: |
+            .git
+            .github
+            .gitignore
+            node_modules
+            tests
+            scripts
+            package-lock.json
+            package.json
+            milestones.yaml
+            project-stats.yaml

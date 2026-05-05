@@ -4,6 +4,14 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+# Serialize ALL gh-pages pushes under one shared lock so preview and production
+# deploys never push to the branch simultaneously (which causes non-fast-forward
+# failures).  Using cancel-in-progress: false queues preview builds safely behind
+# any in-flight production deploy instead of cancelling it.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pull-requests: write
@@ -25,21 +33,24 @@ jobs:
         run: npm run screenshots
 
       - name: Deploy PR preview to gh-pages branch
-        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
+        uses: ./.github/actions/gh-pages-deploy
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: ./
           destination_dir: previews/pr-${{ github.event.number }}
-          # Preserve existing previews and production files
-          keep_files: true
-          # Exclude non-site files (keep in sync with deploy.yml).
-          # .gitignore is excluded so it is never deployed: if it lands in the gh-pages
-          # temp clone, peaceiris's `git add --all` would silently skip script.js,
-          # styles.css and the generated data files (all listed in .gitignore).
-          # Screenshots are excluded here because they are uploaded via the Content API
-          # in the next step; uploading before deploy would cause peaceiris to delete them.
-          # NOTE: deploy.yml shares the same base list minus .gitignore and screenshots.
-          exclude_assets: '.github,.gitignore,node_modules,tests,scripts,package-lock.json,package.json,milestones.yaml,project-stats.yaml,screenshots'
+          commit_message: "chore: deploy preview for PR #${{ github.event.number }}"
+          exclude_assets: |
+            .git
+            .github
+            .gitignore
+            node_modules
+            tests
+            scripts
+            package-lock.json
+            package.json
+            milestones.yaml
+            project-stats.yaml
+            screenshots
 
       - name: Upload screenshots to GitHub
         id: upload-screenshots

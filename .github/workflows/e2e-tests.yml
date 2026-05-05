@@ -12,24 +12,9 @@ permissions:
 
 jobs:
   changes:
-    runs-on: ubuntu-latest
-    outputs:
-      code: ${{ steps.filter.outputs.code }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Detect relevant file changes
-        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
-        id: filter
-        with:
-          filters: |
-            code:
-              - '**/*.js'
-              - '**/*.ts'
-              - '**/*.css'
-              - 'tests/**'
-              - 'package*.json'
+    uses: ./.github/workflows/detect-changes.yml
+    with:
+      event_name: ${{ github.event_name }}
 
   test-e2e:
     needs: changes
@@ -60,3 +45,4 @@ jobs:
             exit 1
           fi
           echo "E2E tests passed or were skipped (no relevant files changed)"
+

@@ -1,0 +1,121 @@
+name: 'Paths Filter'
+description: >
+  Determine which filter groups have matching changed files by comparing against
+  a base commit.  Drop-in composite-action replacement for dorny/paths-filter,
+  maintaining the same core inputs and per-filter-group boolean outputs.
+
+# Usage example:
+#
+#   - uses: actions/checkout@...
+#     with:
+#       fetch-depth: 0
+#
+#   - uses: ./.github/actions/paths-filter
+#     id: filter
+#     with:
+#       filters: |
+#         code:
+#           - '**/*.js'
+#           - '**/*.ts'
+#           - 'tests/**'
+#
+#   - if: steps.filter.outputs.code == 'true'
+#     run: npm test
+
+inputs:
+  token:
+    description: >
+      GitHub token.  Accepted for interface compatibility with dorny/paths-filter
+      but not used internally; authentication is handled by actions/checkout.
+    required: false
+    default: ${{ github.token }}
+
+  ref:
+    description: >
+      Git reference to use as HEAD when computing the diff.  Accepted for
+      interface compatibility; the action always diffs INPUT_SHA (github.sha)
+      against the computed or explicit base.
+    required: false
+    default: ''
+
+  base:
+    description: >
+      Explicit base commit SHA to compare against.  When provided, skips
+      auto-detection from the event payload.  Pass this when the action is
+      called from inside a workflow_call reusable workflow where
+      github.event_name is "workflow_call" and auto-detection would be wrong.
+    required: false
+    default: ''
+
+  filters:
+    description: >
+      YAML string defining one or more named filter groups, each containing a
+      list of glob patterns.  Format mirrors dorny/paths-filter:
+
+        code:
+          - '**/*.js'
+          - '**/*.ts'
+          - 'tests/**'
+    required: true
+
+  list-files:
+    description: >
+      Format for the per-filter <name>_files output.
+      One of: none | json | csv | shell | escape.
+      Defaults to none (no file list output).
+    required: false
+    default: 'none'
+
+  initial-fetch-depth:
+    description: >
+      Accepted for interface compatibility with dorny/paths-filter.
+      This action assumes the repo was already checked out with sufficient
+      depth (fetch-depth: 0) by the calling workflow.
+    required: false
+    default: '10'
+
+  event_name:
+    description: >
+      The real GitHub event name from the calling workflow.
+      Required when this action is used inside a workflow_call reusable
+      workflow because github.event_name is always "workflow_call" there,
+      not the original triggering event.
+      When empty, the action reads github.event_name directly, which is
+      correct for workflows triggered by push/pull_request/merge_group.
+    required: false
+    default: ''
+
+outputs:
+  code:
+    description: >
+      "true" if the "code" filter group has any matched files; "false" otherwise.
+      This output matches the primary filter used in this repository.
+    value: ${{ steps.run.outputs.code }}
+
+  changes:
+    description: >
+      JSON object mapping every filter group name to true/false.
+      Use this to read results for filter groups other than "code".
+    value: ${{ steps.run.outputs.changes }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run paths filter
+      id: run
+      # All GitHub context values are assigned to env vars here in the env: block.
+      # ${{ }} expressions are evaluated by the GitHub Actions runner before the
+      # shell starts, so they are never interpreted as shell code.  This is the
+      # injection-safe pattern; contrast with interpolating ${{ }} directly
+      # inside a run: script where attacker-controlled values could escape quotes.
+      env:
+        INPUT_BASE: ${{ inputs.base }}
+        INPUT_EVENT_NAME: ${{ inputs.event_name || github.event_name }}
+        GH_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        GH_PUSH_BEFORE: ${{ github.event.before }}
+        GH_MERGE_BASE_SHA: ${{ github.event.merge_group.base_sha }}
+        INPUT_SHA: ${{ github.sha }}
+        INPUT_FILTERS: ${{ inputs.filters }}
+        INPUT_LIST_FILES: ${{ inputs.list-files }}
+      run: node "$GITHUB_ACTION_PATH/filter.js"
+      shell: bash

@@ -103,6 +103,8 @@ Every PR description (written by a human or agent) must follow this structure:
 | A3 | `death-clock-core.js` must never reference the DOM (`document`, `window`, `getElementById`, etc.). All DOM wiring belongs in `src/js/`. This boundary keeps the core unit-testable. | AGENTS.md |
 | A4 | The CommonJS + browser dual-export pattern (`module.exports` for Jest, `window.DeathClockCore` for the browser) must be maintained. Do not convert to ES modules without updating all consumers. | AGENTS.md |
 | A5 | When displaying a countdown to a future token threshold, invert the integral accumulation formula (`tExtinction = ln(1+(target-BASE_TOKENS)*k/R0)/k`) rather than using `tokensRemaining / currentRate`. The naïve linear formula ticks down by `1 + secsRemaining*k` per second (~2 at typical extinction distances). | #107 |
+| A6 | Composite action outputs must be declared statically in `action.yml`. For dynamic per-filter outputs (filter names unknown at authoring time), expose a `changes` JSON blob output so callers can read any filter name without needing static declarations for each. | #109 |
+| A7 | `git worktree remove --force` must be called at the end of any deploy script that opens a worktree. Without cleanup, a second call in the same job fails with "already checked out at path". In tests, use different-length file content when writing to the same path twice within a second — rsync's quick-check uses mtime+size and will skip a same-size same-mtime file. | #109 |
 
 ---
 
@@ -113,6 +115,8 @@ Every PR description (written by a human or agent) must follow this structure:
 | S1 | All dynamic strings inserted via `innerHTML` must be escaped with `escHtml()` in `src/js/05-security.js`. Never assign untrusted data directly to `innerHTML`. | AGENTS.md |
 | S2 | GitHub Actions `uses:` references must be pinned to a full commit SHA with the semver tag as an inline comment (`@abc1234 # v3.1.0`). Mutable tags (`@v3`) can be silently redirected, creating a supply-chain risk. | AGENTS.md |
 | S3 | Dependabot is configured to open weekly PRs for GitHub Actions SHA bumps. Do not skip or dismiss those PRs. | AGENTS.md |
+| S4 | Prefer `actions/` (GitHub's official org) over third-party organisations for GitHub Actions steps. `peaceiris/actions-gh-pages` can be replaced with native `git worktree` + `rsync` shell commands; `dorny/paths-filter` can be replaced with a `git diff --name-only` shell step. | #109 |
+| S5 | Always pass GitHub context values to shell scripts via `env:` vars (e.g. `GH_SHA: ${{ github.sha }}`), never by interpolating `${{ }}` directly inside `run:`. Inline interpolation allows expression injection if an attacker controls the context value. | #109 |
 
 ---
 
@@ -143,6 +147,24 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 ---
 
 ### v1.7.x
+
+#### PR #109 (follow-up) — fix: address all remaining CodeRabbit review comments
+
+- **Problem:** Six unresolved CodeRabbit issues remained after the initial PR #109 merge: (1) root deploys never deleted stale files — renamed/removed pages lived on gh-pages forever; (2) `detect-changes.yml` only tracked JS/TS/CSS/tests, so shell/YAML CI file changes skipped CI entirely; (3) `preview.yml` used a different concurrency group than `deploy.yml`, allowing simultaneous gh-pages pushes; (4) `unit-tests.yml` status step didn't catch `changes` job failures; (5) `tests/gh-pages-deploy.test.sh` had `cd "${TMPWORK}"` without `|| exit 1`; (6) `filter.js` used newline-split git output (fragile for filenames with spaces/special chars) and had no fail-fast guard for empty filters.
+- **Approach:** (1) Added `rsync --delete` + `--exclude=.git` (protects the worktree ref file) + `--exclude=previews/` (protects sibling preview dirs) for root deploys; moved `.nojekyll` creation to AFTER rsync to prevent `--delete` from removing it; added an EXIT trap in deploy.sh for guaranteed worktree cleanup; (2) Added 6 CI glob patterns to detect-changes.yml filter; (3) Changed preview.yml concurrency group to `"pages"` (shared with deploy.yml) + `cancel-in-progress: false`; (4) Added `needs.changes.result` check in unit-tests.yml status step; (5) Added `|| exit 1` to subshell cd; (6) Switched to NUL-delimited `-z` git output in filter.js + fail-fast guard for empty filtersMap; updated all affected tests.
+- **Learning:** `rsync --delete` removes the `.git` worktree reference file from `DEST` because it only exists in destination, not source — always add `--exclude=.git` first. Create `.nojekyll` AFTER rsync (not before) to prevent `--delete` from removing it. Use `rsync --delete` + `--exclude=previews/` for root gh-pages deploys so removed pages don't stay live permanently. Use `git ls-files -z` / `git diff --name-only -z` and split on `\0` for robustness with any filenames. A shared concurrency group (`"pages"`) is required across ALL workflows that push the same branch. (→ A5, A6)
+- **Key files:** `.github/actions/gh-pages-deploy/deploy.sh`, `.github/workflows/detect-changes.yml`, `.github/workflows/preview.yml`, `.github/workflows/unit-tests.yml`, `tests/gh-pages-deploy.test.sh`, `.github/actions/paths-filter/filter.js`, `tests/paths-filter.test.js`
+
+---
+
+#### PR #109 — chore: replace peaceiris/actions-gh-pages and dorny/paths-filter with native git/shell
+
+- **Problem:** Two third-party GitHub Actions (`peaceiris/actions-gh-pages` and `dorny/paths-filter`) added supply-chain risk from less-known organisations when native equivalents exist.
+- **Approach:** Replaced `peaceiris/actions-gh-pages` in `deploy.yml` and `preview.yml` with native `git worktree` + `rsync` shell steps that replicate `keep_files: true`, `destination_dir`, and `exclude_assets`. Replaced `dorny/paths-filter` in `unit-tests.yml` and `e2e-tests.yml` with a native `git diff --name-only` shell step and `fetch-depth: 0` checkout. Also added a per-PR `concurrency` group to `preview.yml` to serialize gh-pages pushes.
+- **Learning:** `git worktree add` is the cleanest way to check out a second branch (e.g. `gh-pages`) alongside the current checkout without a separate clone. Use `git branch --force <name> refs/remotes/origin/<name>` first so the worktree has a local tracking branch to push from. Always use `touch .nojekyll` in the gh-pages worktree to prevent Jekyll processing — peaceiris did this automatically. (→ S4)
+- **Key files:** `.github/workflows/deploy.yml`, `.github/workflows/preview.yml`, `.github/workflows/unit-tests.yml`, `.github/workflows/e2e-tests.yml`
+
+---
 
 #### PR #106 — feat: implement AI Guilt-O-Meter (Phase 3 PRD #2)
 

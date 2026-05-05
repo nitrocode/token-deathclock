@@ -9,6 +9,7 @@
     "test": "jest --coverage",
     "pretest:ci": "npm run build:milestones && npm run build:js",
     "test:ci": "jest --ci --coverage",
+    "test:shell": "bash tests/detect-changes.test.sh && bash tests/gh-pages-deploy.test.sh",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "build:milestones": "node scripts/build-milestones.js",
@@ -37,7 +38,8 @@
     ],
     "collectCoverageFrom": [
       "death-clock-core.js",
-      "script.js"
+      "script.js",
+      ".github/actions/**/*.js"
     ],
     "coverageThreshold": {
       "global": {
@@ -56,6 +58,12 @@
         "functions": 60,
         "branches": 50,
         "lines": 90
+      },
+      "./.github/actions/paths-filter/filter.js": {
+        "statements": 85,
+        "functions": 85,
+        "branches": 75,
+        "lines": 85
       }
     }
   }

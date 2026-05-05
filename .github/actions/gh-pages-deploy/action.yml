@@ -1,0 +1,106 @@
+name: 'Deploy to GitHub Pages'
+description: >
+  Publish a local directory to a GitHub Pages branch using git worktree and
+  rsync.  Drop-in composite-action replacement for peaceiris/actions-gh-pages,
+  maintaining the same core inputs.
+
+# Usage example:
+#
+#   - uses: actions/checkout@...
+#     with:
+#       fetch-depth: 0
+#
+#   - uses: ./.github/actions/gh-pages-deploy
+#     with:
+#       github_token: ${{ secrets.GITHUB_TOKEN }}
+#       publish_dir: ./dist
+#       destination_dir: ''
+#       exclude_assets: |
+#         .github
+#         node_modules
+
+inputs:
+  github_token:
+    description: >
+      GitHub token used to authenticate git push.  When provided, the action
+      rewrites the origin remote URL to embed the token so push works without
+      relying on credentials configured by actions/checkout.
+    required: true
+
+  publish_branch:
+    description: 'Target branch to deploy to.'
+    required: false
+    default: 'gh-pages'
+
+  publish_dir:
+    description: >
+      Local directory whose contents are published to the branch.
+    required: false
+    default: 'public'
+
+  destination_dir:
+    description: >
+      Subdirectory within publish_branch to deploy into.
+      Leave empty to deploy to the branch root.
+    required: false
+    default: ''
+
+  keep_files:
+    description: >
+      When "true", preserve existing files in the destination directory that
+      are not present in publish_dir.
+      When "false" (default), the destination directory is cleared before
+      syncing — only applies to subdirectory deployments (destination_dir set).
+      Root deployments always preserve other content in the branch (e.g. the
+      previews/ directory).
+    required: false
+    default: 'false'
+
+  exclude_assets:
+    description: >
+      Newline- or comma-separated list of file/directory names to exclude from
+      the deployment (passed as --exclude flags to rsync).
+    required: false
+    default: '.github'
+
+  user_name:
+    description: 'Git commit author name.'
+    required: false
+    default: 'github-actions[bot]'
+
+  user_email:
+    description: 'Git commit author email.'
+    required: false
+    default: 'github-actions[bot]@users.noreply.github.com'
+
+  commit_message:
+    description: 'Commit message for the deployment commit.'
+    required: false
+    default: 'chore: deploy to gh-pages'
+
+  disable_nojekyll:
+    description: >
+      Set to "true" to skip creating the .nojekyll file, enabling Jekyll
+      processing on the published branch.
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Deploy to branch
+      # All inputs are assigned to env vars so the shell script never receives
+      # user-controlled data via command-line interpolation.
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+        INPUT_PUBLISH_BRANCH: ${{ inputs.publish_branch }}
+        INPUT_PUBLISH_DIR: ${{ inputs.publish_dir }}
+        INPUT_DESTINATION_DIR: ${{ inputs.destination_dir }}
+        INPUT_KEEP_FILES: ${{ inputs.keep_files }}
+        INPUT_EXCLUDE_ASSETS: ${{ inputs.exclude_assets }}
+        INPUT_USER_NAME: ${{ inputs.user_name }}
+        INPUT_USER_EMAIL: ${{ inputs.user_email }}
+        INPUT_COMMIT_MESSAGE: ${{ inputs.commit_message }}
+        INPUT_DISABLE_NOJEKYLL: ${{ inputs.disable_nojekyll }}
+      run: bash "$GITHUB_ACTION_PATH/deploy.sh"
+      shell: bash
