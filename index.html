@@ -203,6 +203,32 @@
   </div>
 </section>
 
+<!-- ── AI Guilt-O-Meter (Phase 3 PRD #2) ───────────────────── -->
+<section id="guilt-meter-section">
+  <div class="container">
+    <div class="guilt-meter-wrap">
+      <div class="guilt-meter-header">
+        <span class="guilt-meter-title">😬 Your Guilt Level</span>
+        <span class="guilt-meter-hint">filling up the longer you stay…</span>
+      </div>
+      <progress
+        id="guiltMeterBar"
+        class="guilt-meter-bar"
+        value="0"
+        max="100"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-label="Mildly Aware"
+      ></progress>
+      <div class="guilt-meter-label-row">
+        <span id="guiltMeterLabel" class="guilt-meter-label" aria-live="polite" aria-atomic="true">😐 Mildly Aware</span>
+      </div>
+      <button id="guiltShareBtn" class="btn-sm guilt-share-btn" hidden>📤 Share My Guilt</button>
+    </div>
+  </div>
+</section>
+
 <!-- ── Daily AI Horoscope ────────────────────────────────── -->
 <section id="horoscope-section">
   <div class="container">

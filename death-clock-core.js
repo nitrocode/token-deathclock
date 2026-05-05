@@ -824,6 +824,40 @@ function getDailyHoroscope(nowMs, templates) {
 }
 
 // ============================================================
+// AI GUILT-O-METER (Phase 3 PRD #2)
+// ============================================================
+
+/**
+ * Label thresholds for the Guilt-O-Meter progress bar.
+ * Each entry defines the minimum fill percentage at which that label is shown.
+ * Sorted ascending by `min`; the highest matching entry wins.
+ */
+const GUILT_LABELS = [
+  { min: 0,   icon: '\uD83D\uDE10', text: 'Mildly Aware' },
+  { min: 20,  icon: '\uD83D\uDE1F', text: 'Mild Regret' },
+  { min: 40,  icon: '\uD83D\uDE2C', text: 'Full Doomscroller' },
+  { min: 60,  icon: '\uD83D\uDE30', text: 'Carbon Hypocrite in Training' },
+  { min: 80,  icon: '\uD83D\uDE31', text: 'Fully Complicit' },
+  { min: 100, icon: '\uD83D\uDC80', text: 'Certified Hypocrite' },
+];
+
+/**
+ * Return the guilt label entry for a given fill percentage (0–100).
+ * Returns the entry with the highest `min` value that is ≤ pct.
+ *
+ * @param {number} pct - Fill percentage, clamped to [0, 100]
+ * @returns {{ min: number, icon: string, text: string }}
+ */
+function getGuiltLabel(pct) {
+  const clamped = Math.max(0, Math.min(100, pct));
+  let result = GUILT_LABELS[0];
+  for (const label of GUILT_LABELS) {
+    if (clamped >= label.min) result = label;
+  }
+  return result;
+}
+
+// ============================================================
 // EXPORTS — CommonJS for Jest; window global for the browser
 // ============================================================
 const DeathClockCore = {
@@ -865,6 +899,8 @@ const DeathClockCore = {
   getSimulatedViewerCount,
   HOROSCOPE_TEMPLATES,
   getDailyHoroscope,
+  GUILT_LABELS,
+  getGuiltLabel,
 };
 
 /* istanbul ignore else */
