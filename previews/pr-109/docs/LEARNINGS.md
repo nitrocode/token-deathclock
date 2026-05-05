@@ -148,6 +148,15 @@ Entries are grouped by release. Add new entries at the top of the appropriate re
 
 ### v1.7.x
 
+#### PR #109 (follow-up) — fix: address all remaining CodeRabbit review comments
+
+- **Problem:** Six unresolved CodeRabbit issues remained after the initial PR #109 merge: (1) root deploys never deleted stale files — renamed/removed pages lived on gh-pages forever; (2) `detect-changes.yml` only tracked JS/TS/CSS/tests, so shell/YAML CI file changes skipped CI entirely; (3) `preview.yml` used a different concurrency group than `deploy.yml`, allowing simultaneous gh-pages pushes; (4) `unit-tests.yml` status step didn't catch `changes` job failures; (5) `tests/gh-pages-deploy.test.sh` had `cd "${TMPWORK}"` without `|| exit 1`; (6) `filter.js` used newline-split git output (fragile for filenames with spaces/special chars) and had no fail-fast guard for empty filters.
+- **Approach:** (1) Added `rsync --delete` + `--exclude=.git` (protects the worktree ref file) + `--exclude=previews/` (protects sibling preview dirs) for root deploys; moved `.nojekyll` creation to AFTER rsync to prevent `--delete` from removing it; added an EXIT trap in deploy.sh for guaranteed worktree cleanup; (2) Added 6 CI glob patterns to detect-changes.yml filter; (3) Changed preview.yml concurrency group to `"pages"` (shared with deploy.yml) + `cancel-in-progress: false`; (4) Added `needs.changes.result` check in unit-tests.yml status step; (5) Added `|| exit 1` to subshell cd; (6) Switched to NUL-delimited `-z` git output in filter.js + fail-fast guard for empty filtersMap; updated all affected tests.
+- **Learning:** `rsync --delete` removes the `.git` worktree reference file from `DEST` because it only exists in destination, not source — always add `--exclude=.git` first. Create `.nojekyll` AFTER rsync (not before) to prevent `--delete` from removing it. Use `rsync --delete` + `--exclude=previews/` for root gh-pages deploys so removed pages don't stay live permanently. Use `git ls-files -z` / `git diff --name-only -z` and split on `\0` for robustness with any filenames. A shared concurrency group (`"pages"`) is required across ALL workflows that push the same branch. (→ A5, A6)
+- **Key files:** `.github/actions/gh-pages-deploy/deploy.sh`, `.github/workflows/detect-changes.yml`, `.github/workflows/preview.yml`, `.github/workflows/unit-tests.yml`, `tests/gh-pages-deploy.test.sh`, `.github/actions/paths-filter/filter.js`, `tests/paths-filter.test.js`
+
+---
+
 #### PR #109 — chore: replace peaceiris/actions-gh-pages and dorny/paths-filter with native git/shell
 
 - **Problem:** Two third-party GitHub Actions (`peaceiris/actions-gh-pages` and `dorny/paths-filter`) added supply-chain risk from less-known organisations when native equivalents exist.
