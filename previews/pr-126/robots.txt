@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nitrocode.github.io/token-deathclock/sitemap.xml

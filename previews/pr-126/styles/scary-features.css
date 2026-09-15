@@ -1,0 +1,833 @@
+/* =============================================================
+   SCARY & SATIRICAL FEATURES — PRDs 1–7
+   ============================================================= */
+
+/* ── PRD 1: Emergency Broadcast Overlay ───────────────────── */
+
+.emergency-broadcast {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3000;
+  background: #8b0000;
+  border-bottom: 3px solid #ff0000;
+  padding: 0.75rem 1.5rem;
+  animation: eb-slidein 0.3s ease-out, eb-pulse 0.6s ease-in-out infinite alternate;
+  box-shadow: 0 4px 32px rgba(255,0,0,0.7);
+}
+
+@keyframes eb-slidein {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+@keyframes eb-pulse {
+  from { background: #8b0000; }
+  to   { background: #aa0000; }
+}
+
+.eb-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.eb-icon {
+  font-size: 1.3rem;
+  animation: eb-icon-flash 0.5s step-start infinite;
+  flex-shrink: 0;
+}
+
+@keyframes eb-icon-flash {
+  50% { opacity: 0; }
+}
+
+.eb-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: #ff0000;
+  padding: 0.1rem 0.5rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.eb-msg {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+
+.eb-sign-off {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+  flex-basis: 100%;
+  padding-left: 2.8rem;
+}
+
+/* ── PRD 4: Your Tab (Running) ────────────────────────────── */
+
+.session-tab-strip {
+  background: var(--surface);
+  border: 1px solid rgba(255,51,51,0.3);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-top: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.session-tab-strip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,51,51,0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.session-tab-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+}
+
+.session-tab-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.session-tab-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.session-tab-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.6rem;
+}
+
+.session-tab-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  position: relative;
+  overflow: visible;
+}
+
+.sti-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+.sti-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent-2);
+  min-width: 3.5rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sti-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+/* ── PRD 2: Apology Generator ─────────────────────────────── */
+
+#apology-section { background: var(--bg); }
+
+.apology-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-2);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  position: relative;
+  min-height: 6rem;
+}
+
+.apology-card::before {
+  content: '❝';
+  font-size: 3rem;
+  color: rgba(255,136,0,0.12);
+  position: absolute;
+  top: 0.5rem;
+  left: 0.75rem;
+  font-family: Georgia, serif;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.apology-quote {
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.7;
+  font-style: italic;
+  padding-left: 1.5rem;
+  animation: apology-fade 0.5s ease-out;
+}
+
+@keyframes apology-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.apology-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.apology-signoff {
+  font-size: 0.78rem;
+  color: var(--accent-2);
+  font-style: normal;
+}
+
+.apology-note {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.apology-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+/* ── PRD 3: Wanted Poster ──────────────────────────────────── */
+
+.wanted-poster {
+  background: #1a0f00;
+  border: 3px solid #8b5a00;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 0 20px rgba(139,90,0,0.3);
+}
+
+.wanted-poster::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 4px,
+    rgba(0,0,0,0.04) 4px, rgba(0,0,0,0.04) 5px
+  );
+  pointer-events: none;
+}
+
+:root[data-theme="light"] .wanted-poster {
+  background: #f5e6c8;
+  border-color: #8b5a00;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.1);
+}
+
+.wanted-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  font-weight: 900;
+  color: #cc3300;
+  letter-spacing: 0.15em;
+  text-shadow: 3px 3px 0 #660000;
+  margin-bottom: 0.25rem;
+  line-height: 1;
+}
+
+.wanted-subtitle {
+  font-size: 0.75rem;
+  color: #cc9900;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.wanted-divider {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #8b5a00, transparent);
+  margin: 0.75rem 0;
+}
+
+.wanted-charges {
+  text-align: left;
+  margin: 1rem 0;
+}
+
+.wanted-charge {
+  font-size: 0.8rem;
+  color: #d4a843;
+  padding: 0.4rem 0;
+  border-bottom: 1px dashed rgba(139,90,0,0.3);
+  line-height: 1.5;
+}
+
+:root[data-theme="light"] .wanted-charge {
+  color: #5a3500;
+}
+
+.wanted-charge strong {
+  color: #ff6600;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+}
+
+:root[data-theme="light"] .wanted-charge strong {
+  color: #cc3300;
+}
+
+.wanted-bail {
+  font-size: 0.78rem;
+  color: #ff9900;
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  background: rgba(139,90,0,0.2);
+  border: 1px solid rgba(139,90,0,0.4);
+  border-radius: 0.3rem;
+}
+
+:root[data-theme="light"] .wanted-bail {
+  color: #7a3d00;
+  background: rgba(139,90,0,0.1);
+}
+
+.wanted-global {
+  font-size: 0.68rem;
+  color: rgba(204,153,0,0.6);
+  margin-top: 0.75rem;
+  font-style: italic;
+}
+
+:root[data-theme="light"] .wanted-global {
+  color: rgba(90,53,0,0.6);
+}
+
+/* ── PRD 5: Prompt Hall of Shame ──────────────────────────── */
+
+#shame-section { background: var(--bg-alt); }
+
+.shame-feed {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-top: 1rem;
+  font-family: 'Share Tech Mono', monospace;
+  scroll-behavior: smooth;
+}
+
+.shame-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  animation: shame-slide 0.4s ease-out;
+  font-size: 0.8rem;
+}
+
+.shame-entry:last-child { border-bottom: none; }
+
+@keyframes shame-slide {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.shame-entry.user-submitted {
+  border-left: 3px solid var(--accent-2);
+  background: var(--surface-2);
+}
+
+.shame-entry-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.shame-entry-content { flex: 1; min-width: 0; }
+
+.shame-entry-text {
+  color: var(--text);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.shame-entry-cost {
+  font-size: 0.65rem;
+  color: var(--accent);
+  margin-top: 0.2rem;
+  font-family: 'Orbitron', monospace;
+}
+
+.shame-entry-user-tag {
+  font-size: 0.6rem;
+  color: var(--accent-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.15rem;
+}
+
+.shame-submit-wrap {
+  margin-top: 1.25rem;
+}
+
+.shame-submit-label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+}
+
+.shame-input-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.shame-input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.55rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.shame-input:focus { border-color: var(--accent-2); }
+.shame-input::placeholder { color: var(--text-muted); }
+
+/* ── PRD 6: Villain Leaderboard ───────────────────────────── */
+
+.villain-leaderboard-wrap {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.villain-rank-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.villain-rank-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+  font-weight: 700;
+  color: var(--accent-2);
+  letter-spacing: 0.06em;
+}
+
+.villain-rank-score {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.villain-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-bottom: 0.75rem;
+}
+
+.villain-table th {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  background: var(--surface-2);
+}
+
+.villain-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.villain-table tr:last-child td { border-bottom: none; }
+
+.villain-table .villain-row-you {
+  background: rgba(255,51,51,0.06);
+}
+
+.villain-table .villain-row-you td {
+  color: var(--accent-2);
+  font-weight: 700;
+}
+
+.villain-table .villain-pos {
+  width: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+}
+
+.villain-table .villain-name { font-weight: 700; }
+
+.villain-table .villain-score {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  color: var(--accent-2);
+}
+
+.villain-table .villain-rank-cell {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.villain-congratulations {
+  background: var(--accent);
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
+  border-radius: 0.4rem;
+  text-align: center;
+  animation: villain-congrats-flash 0.4s ease-out;
+}
+
+@keyframes villain-congrats-flash {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 rgba(255,51,51,0); }
+  40%  { transform: scale(1.03); box-shadow: 0 0 24px rgba(255,51,51,0.6); }
+  100% { transform: scale(1);    box-shadow: 0 0 8px rgba(255,51,51,0.3); }
+}
+
+/* ── PRD 7: The Intervention ──────────────────────────────── */
+
+.intervention-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3500;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fade-in 0.25s ease-out;
+}
+
+.intervention-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 64px var(--shadow);
+  animation: slide-up 0.25s ease-out;
+}
+
+.intervention-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.intervention-avatar {
+  font-size: 1.6rem;
+}
+
+.intervention-sender {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-3);
+}
+
+.intervention-time {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.intervention-bubble {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 0 1rem 1rem 1rem;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.25rem;
+}
+
+.intervention-greeting {
+  font-size: 0.95rem;
+  color: var(--text);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+.intervention-msg {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  margin-bottom: 0.6rem;
+}
+
+.intervention-coda {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.intervention-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.intervention-btn-stay {
+  flex: 1;
+  background: var(--accent-3);
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.65rem 1rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+
+.intervention-btn-stay:hover { background: #00a35e; }
+
+.intervention-btn-leave {
+  flex: 1;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.65rem 1rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.intervention-btn-leave:hover { background: var(--surface-2); color: var(--accent); }
+
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .session-tab-items { grid-template-columns: 1fr 1fr; }
+  .villain-table .villain-rank-cell { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emergency-broadcast { animation: none; }
+  .eb-icon { animation: none; }
+  .apology-quote { animation: none; }
+  .shame-entry { animation: none; }
+  .villain-congratulations { animation: none; }
+  .intervention-overlay, .intervention-card { animation: none; }
+}
+
+.eb-dismiss {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: rgba(255,255,255,0.8);
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: auto;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eb-dismiss:hover { background: rgba(255,255,255,0.15); }
+
+/* ---- Grim Reaper ---- */
+.grim-reaper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  opacity: 0.22;
+  transform: translateX(-22px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  pointer-events: auto;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.grim-reaper:hover {
+  opacity: 0.55;
+  transform: translateX(0);
+}
+
+.grim-reaper svg {
+  display: block;
+  width: 80px;
+  height: auto;
+  animation: reaper-float 5s ease-in-out infinite;
+}
+
+@keyframes reaper-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+.reaper-eye-inner {
+  filter: drop-shadow(0 0 4px #ff3333);
+  animation: reaper-eye-pulse 3s ease-in-out infinite;
+}
+
+@keyframes reaper-eye-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+/* Scythe — lighter in dark mode so they read against dark backgrounds */
+.reaper-scythe-handle { stroke: #aaa; }
+.reaper-scythe-blade  { fill: #aaa; }
+
+/* Bony arm — bone-white in dark mode, intentionally skeletal */
+.reaper-bone { stroke: #ccc; }
+
+:root[data-theme="light"] .reaper-scythe-handle { stroke: #666; }
+:root[data-theme="light"] .reaper-scythe-blade  { fill: #666; }
+:root[data-theme="light"] .reaper-bone          { stroke: #999; }
+
+@media (max-width: 480px) {
+  .grim-reaper svg { width: 55px; }
+  /* On small screens show the reaper fully — no peek offset so neither side is cut off */
+  .grim-reaper { transform: translateX(0); }
+}
+
+/* Scythe swing — pivot near the grip point (≈84% across, 68% down the bounding box) */
+.reaper-scythe-group {
+  transform-box: fill-box;
+  transform-origin: 84% 68%;
+  will-change: transform;
+}
+
+@keyframes reaper-scythe-swing {
+  0%   { transform: rotate(0deg); }
+  15%  { transform: rotate(-26deg); }
+  45%  { transform: rotate(20deg); }
+  70%  { transform: rotate(-8deg); }
+  85%  { transform: rotate(4deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.reaper-swinging .reaper-scythe-group {
+  animation: reaper-scythe-swing 0.75s ease-in-out forwards;
+}
+
+/* Chat / speech bubble */
+.reaper-bubble {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  background: #0d0d0d;
+  border: 1.5px solid var(--accent);
+  color: #eee;
+  border-radius: 10px 10px 10px 2px;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  width: 170px;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+  z-index: 11;
+}
+
+.reaper-bubble.visible { opacity: 1; }
+
+/* Tail pointing down-left toward the reaper */
+.reaper-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 14px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--accent);
+}
+
+:root[data-theme="light"] .reaper-bubble {
+  background: #1a0000;
+  color: #ffe0e0;
+}
+
+/* Proximity highlight — reaper eyes blaze brighter when cursor is near */
+.reaper-proximity .reaper-eye-inner {
+  animation: reaper-eye-pulse 0.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px #ff3333);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grim-reaper svg,
+  .reaper-eye-inner { animation: none; }
+  /* transition: none keeps the hover snap instant on reduced-motion devices. */
+  .grim-reaper { transition: none; }
+  .reaper-swinging .reaper-scythe-group { animation: none; }
+  .reaper-bubble { transition: none; }
+}

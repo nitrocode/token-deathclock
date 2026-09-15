@@ -1,0 +1,150 @@
+/* ---- Reset & Base ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Enforce [hidden] even when a class sets an explicit display value */
+[hidden] { display: none !important; }
+
+/* overflow-x: clip on html prevents horizontal scroll without creating a
+   scroll container, so position:fixed elements (GitHub corner, theme toggle)
+   stay anchored to the viewport on scroll. Using overflow-x: hidden here
+   instead would turn <html> into a scroll container and cause fixed elements
+   to be clipped as the page scrolls. overflow-x: hidden on body alone keeps
+   iOS Safari happy (prevents body acting as the scroll container for fixed
+   elements). */
+html { scroll-behavior: smooth; overflow-x: clip; }
+
+body {
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+  position: relative;
+}
+
+/* Scanline overlay (dark mode only) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,var(--scan-opacity)) 2px,
+    rgba(0,0,0,var(--scan-opacity)) 4px
+  );
+  z-index: 9999;
+}
+
+a { color: var(--accent-4); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---- Typography ---- */
+h1, h2, h3 {
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+h1 { font-size: clamp(1.8rem, 5vw, 3.2rem); font-weight: 900; }
+h2 { font-size: clamp(1.2rem, 3vw, 1.8rem); font-weight: 700; margin-bottom: 1rem; }
+h3 { font-size: 1rem; font-weight: 700; }
+
+/* ---- Section anchor links ---- */
+.section-anchor {
+  display: inline-block;
+  margin-left: 0.5em;
+  font-size: 0.7em;
+  color: var(--text-dim);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  vertical-align: middle;
+  user-select: none;
+}
+h2:hover .section-anchor,
+h2:focus-within .section-anchor,
+.section-anchor:focus {
+  opacity: 1;
+}
+@media (hover: none) {
+  .section-anchor {
+    opacity: 1;
+  }
+}
+
+/* ---- Layout ---- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+section {
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---- GitHub Corner Banner ---- */
+.github-corner {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1100;
+  color: var(--bg);
+  /* overflow: hidden prevents the element from contributing to the
+     viewport scroll-width on iOS Safari, which can otherwise cause
+     a spurious horizontal scroll on mobile. */
+  overflow: hidden;
+}
+.github-corner svg {
+  fill: var(--accent);
+  color: var(--bg);
+  transition: fill 0.2s;
+}
+.github-corner:hover svg {
+  fill: var(--accent-2);
+  text-decoration: none;
+}
+.github-corner:hover .octo-arm {
+  animation: octocat-wave 560ms ease-in-out;
+}
+@keyframes octocat-wave {
+  0%, 100% { transform: rotate(0deg); }
+  20%, 60% { transform: rotate(-25deg); }
+  40%, 80% { transform: rotate(10deg); }
+}
+.octo-arm { transform-origin: 130px 106px; }
+@media (max-width: 500px) {
+  .github-corner:hover .octo-arm { animation: none; }
+  .github-corner .octo-arm { animation: octocat-wave 560ms ease-in-out; }
+}
+
+/* ---- Theme Toggle ---- */
+#themeToggle {
+  position: fixed;
+  top: 1rem;
+  right: 5.5rem;
+  z-index: 1000;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#themeToggle:hover {
+  background: var(--surface-3);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
